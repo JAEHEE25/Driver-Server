@@ -1,5 +1,5 @@
 ---
-name: 이슈 생성 템플릿
+name: feature_issue
 about: feature
 title: ''
 labels: ''
