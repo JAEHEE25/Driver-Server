@@ -1,4 +1,4 @@
-package io.driver.codrive.domain.sharingGroup;
+package io.driver.codrive.domain.room;
 
 import io.driver.codrive.domain.global.BaseEntity;
 import jakarta.persistence.*;
@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SharingGroup extends BaseEntity {
+public class Room extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long sharingGroupId;
+	private Long roomId;
 
 	@Column(nullable = false)
 	private String title;
