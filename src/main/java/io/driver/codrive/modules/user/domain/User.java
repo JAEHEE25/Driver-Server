@@ -21,10 +21,13 @@ public class User extends BaseEntity {
 	private String email;
 
 	@Column(nullable = false)
-	private String name;
+	private String userName;
 
 	@Column(nullable = false)
 	private String nickname;
+
+	@Column(nullable = false)
+	private String profileUrl;
 
 	private String comment;
 
@@ -38,4 +41,16 @@ public class User extends BaseEntity {
 
 	@Column(nullable = false)
 	private Boolean withdraw;
+
+	public void changeUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public void changeNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void changeProfileUrl(String profileUrl) {
+		this.profileUrl = profileUrl;
+	}
 }
