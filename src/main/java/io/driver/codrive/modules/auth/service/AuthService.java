@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import io.driver.codrive.modules.auth.model.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.LoginRequest;
@@ -48,7 +49,7 @@ public class AuthService {
 				.toEntity(GithubUserProfile.class)
 				.block()
 				.getBody();
-		} catch (NullPointerException e) {
+		} catch (WebClientResponseException e) {
 			throw new UnauthorizedApplicationException("유효하지 않은 토큰입니다.");
 		}
 
@@ -58,6 +59,10 @@ public class AuthService {
 
 	@Transactional
 	protected User updateUserInfo(GithubUserProfile userProfile) {
+		if (userProfile == null) {
+			throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+		}
+
 		User user = userRepository.findByEmail(userProfile.userName())
 			.orElseGet(() -> userRepository.save(userProfile.toUser()));
 
@@ -69,7 +74,7 @@ public class AuthService {
 
 
 	//로컬 테스트용
-	public String getAccessToken(String clientId, String clientSecret, String code) {
+	public void getAccessToken(String clientId, String clientSecret, String code) {
 		String response = webClient.post()
 			.uri("https://github.com/login/oauth/access_token")
 			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -79,6 +84,5 @@ public class AuthService {
 			.block()
 			.getBody();
 		log.info("access Token: " + response);
-		return response;
 	}
 }
