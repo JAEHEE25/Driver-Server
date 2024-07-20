@@ -6,18 +6,12 @@ import lombok.Builder;
 @Builder
 public record LoginResponse(
 	Long userId,
-	String nickname,
-	String profileUrl,
-	String accessToken,
-	String refreshToken
+	String accessToken
 ) {
-	public static LoginResponse of(User user, String accessToken, String refreshToken) {
+	public static LoginResponse of(User user, String accessToken) {
 		return LoginResponse.builder()
 			.userId(user.getUserId())
-			.nickname(user.getNickname())
-			.profileUrl(user.getProfileUrl())
 			.accessToken(accessToken)
-			.refreshToken(refreshToken)
 			.build();
 	}
 }

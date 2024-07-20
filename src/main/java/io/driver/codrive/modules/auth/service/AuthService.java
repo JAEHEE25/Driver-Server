@@ -11,7 +11,7 @@ import io.driver.codrive.modules.auth.model.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.LoginRequest;
 import io.driver.codrive.modules.auth.model.LoginResponse;
 import io.driver.codrive.modules.auth.model.SampleDto;
-import io.driver.codrive.modules.auth.service.jwt.JwtProvider;
+import io.driver.codrive.modules.global.jwt.JwtProvider;
 import io.driver.codrive.modules.global.exception.UnauthorizedApplicationException;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
@@ -30,13 +30,9 @@ public class AuthService {
 	public LoginResponse socialLogin(LoginRequest request) {
 		GithubUserProfile userProfile = getUserProfile(request.accessToken());
 		User user = updateUserInfo(userProfile);
-
 		String accessToken = jwtProvider.generateAccessToken(user.getUserId());
-		String refreshToken = "REFRESH_TOKEN";
-
-		return LoginResponse.of(user, accessToken, refreshToken);
+		return LoginResponse.of(user, accessToken);
 	}
-
 
 	private GithubUserProfile getUserProfile(String accessToken) {
 		GithubUserProfile profile;
@@ -53,7 +49,7 @@ public class AuthService {
 			throw new UnauthorizedApplicationException("유효하지 않은 토큰입니다.");
 		}
 
-		log.info("Github Profile Username: {}", profile.userName());
+		log.info("Github Profile: {}", profile.email());
 		return profile;
 	}
 
@@ -63,10 +59,10 @@ public class AuthService {
 			throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
 		}
 
-		User user = userRepository.findByEmail(userProfile.userName())
+		User user = userRepository.findByEmail(userProfile.email())
 			.orElseGet(() -> userRepository.save(userProfile.toUser()));
 
-		user.changeUserName(userProfile.userName());
+		user.changeName(userProfile.name());
 		user.changeProfileUrl(userProfile.profileUrl());
 
 		return user;

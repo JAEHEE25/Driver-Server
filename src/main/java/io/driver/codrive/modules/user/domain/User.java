@@ -1,5 +1,8 @@
 package io.driver.codrive.modules.user.domain;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import io.driver.codrive.modules.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLRestriction("withdraw = false")
+@SQLDelete(sql = "UPDATE user SET withdraw = true WHERE user_id = ?")
 public class User extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +26,7 @@ public class User extends BaseEntity {
 	private String email;
 
 	@Column(nullable = false)
-	private String userName;
+	private String name;
 
 	@Column(nullable = false)
 	private String nickname;
@@ -29,11 +34,14 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String profileUrl;
 
-	private String comment;
+	private String githubUrl;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Language language;
+
+	@Column(nullable = false)
+	private Integer level;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -42,8 +50,8 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private Boolean withdraw;
 
-	public void changeUserName(String userName) {
-		this.userName = userName;
+	public void changeName(String name) {
+		this.name = name;
 	}
 
 	public void changeNickname(String nickname) {
@@ -52,5 +60,13 @@ public class User extends BaseEntity {
 
 	public void changeProfileUrl(String profileUrl) {
 		this.profileUrl = profileUrl;
+	}
+
+	public void changeGithubUrl(String githubUrl) {
+		this.githubUrl = githubUrl;
+	}
+
+	public void changeLanguage(Language language) {
+		this.language = language;
 	}
 }

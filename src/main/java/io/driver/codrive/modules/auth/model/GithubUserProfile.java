@@ -10,8 +10,8 @@ public record GithubUserProfile(
 	@JsonProperty("email")
 	String email,
 
-	@JsonProperty("login")
-	String userName,
+	@JsonProperty("name")
+	String name,
 
 	@JsonProperty("avatar_url")
 	String profileUrl
@@ -19,11 +19,12 @@ public record GithubUserProfile(
 	public User toUser() { //todo 레벨 정보 추가
 		return User.builder()
 			.email(email)
-			.userName(userName)
-			.nickname(userName)
+			.name(name)
+			.nickname(name)
 			.profileUrl(profileUrl)
-			.comment(null)
+			.githubUrl(null)
 			.language(Language.NOT_SELECETED)
+			.level(1)
 			.role(Role.MEMBER)
 			.withdraw(false)
 			.build();

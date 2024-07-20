@@ -2,7 +2,7 @@ package io.driver.codrive.modules.global.config;
 
 import org.springframework.context.annotation.Configuration;
 
-import io.driver.codrive.modules.auth.service.jwt.JwtAuthenticationFilter;
+import io.driver.codrive.modules.global.jwt.JwtAuthenticationFilter;
 import io.driver.codrive.modules.global.constants.APIConstants;
 import io.driver.codrive.modules.global.model.ErrorResponse;
 import io.driver.codrive.modules.global.util.JsonUtils;
@@ -45,14 +45,14 @@ public class SecurityConfig {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     response.getWriter().write(JsonUtils.serialize(
-						ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), "인증되지 않은 요청입니다.", null)));
+						ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), "Unauthroized Request", null)));
                 });
 
                 e.accessDeniedHandler((request, response, ex) -> {
                     log.error("접근 권한이 없습니다. URI: [{}]", request.getRequestURI());
                     response.setStatus(HttpStatus.FORBIDDEN.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    response.getWriter().write(JsonUtils.serialize(ErrorResponse.of(HttpStatus.FORBIDDEN.value(), "접근 권한이 없습니다.", null)));
+                    response.getWriter().write(JsonUtils.serialize(ErrorResponse.of(HttpStatus.FORBIDDEN.value(), "Access Denied", null)));
                 });
             });
 
