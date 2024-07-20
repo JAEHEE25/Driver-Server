@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.auth.service.jwt;
+package io.driver.codrive.modules.global.jwt;
 
 import java.util.Date;
 

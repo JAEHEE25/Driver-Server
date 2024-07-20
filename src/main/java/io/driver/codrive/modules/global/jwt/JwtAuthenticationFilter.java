@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.auth.service.jwt;
+package io.driver.codrive.modules.global.jwt;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		IOException,
 		ServletException {
 		SecurityContextHolder.clearContext();
-		HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequest;
+		HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
 		String accessToken = resolveToken(httpServletRequest);
 
 		if (StringUtils.hasText(accessToken)) {

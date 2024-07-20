@@ -3,12 +3,14 @@ package io.driver.codrive.modules.global.exception.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import io.driver.codrive.modules.global.exception.ApplicationException;
@@ -26,7 +28,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<>(response, HttpStatusCode.valueOf(e.getCode()));
 	}
 
-	public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+	@Override
+	public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(e -> errorDetails.put(e.getField(), e.getRejectedValue()));
         return new ResponseEntity<>(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), "잘못된 요청입니다.", errorDetails), HttpStatus.BAD_REQUEST);
