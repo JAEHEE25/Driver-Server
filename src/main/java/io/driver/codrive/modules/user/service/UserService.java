@@ -20,14 +20,14 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 
-	public UserInfoResponse getMyProfile() {
-		User user = getCurrentUser();
+	public UserInfoResponse getUserInfo(Long userId) {
+		User user = getUserById(userId);
 		return UserInfoResponse.of(user);
 	}
 
 	@Transactional
 	public ProfileChangeResponse updateCurrentUserProfile(ProfileChangeRequest request) {
-		User user = getCurrentUser();
+		User user = getUserById(AuthUtils.getCurrentUserId());
 		user.changeNickname(request.nickname());
 		user.changeLanguage(Language.of(request.language()));
 		user.changeGithubUrl(request.githubUrl());
@@ -36,7 +36,7 @@ public class UserService {
 
 	@Transactional
 	public void updateCurrentUserWithdraw() {
-		User user = getCurrentUser();
+		User user = getUserById(AuthUtils.getCurrentUserId());
 		userRepository.delete(user);
 	}
 
@@ -46,8 +46,13 @@ public class UserService {
 		}
 	}
 
-	private User getCurrentUser() {
-		return userRepository.findById(AuthUtils.getCurrentUserId())
+	public User getUserById(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	}
+
+	public User getUserByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
 			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
 	}
 }

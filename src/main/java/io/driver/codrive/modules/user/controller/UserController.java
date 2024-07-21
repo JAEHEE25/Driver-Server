@@ -14,14 +14,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(APIConstants.API_PREFIX + "/user")
+@RequestMapping(APIConstants.API_PREFIX + "/users")
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
 
-	@GetMapping("/profile")
-	public ResponseEntity<BaseResponse<UserInfoResponse>> getMyProfile() {
-		UserInfoResponse response = userService.getMyProfile();
+	@GetMapping("/{userId}")
+	public ResponseEntity<BaseResponse<UserInfoResponse>> getUserInfo(@PathVariable(name = "userId") Long userId) {
+		UserInfoResponse response = userService.getUserInfo(userId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -32,7 +32,7 @@ public class UserController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
-	@PatchMapping("/withdraw")
+	@DeleteMapping("/withdraw")
 	public ResponseEntity<BaseResponse<Void>> withdraw() {
 		userService.updateCurrentUserWithdraw();
 		return ResponseEntity.ok(BaseResponse.of(null));
@@ -43,5 +43,6 @@ public class UserController {
 		userService.checkNicknameDuplication(request);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
+
 
 }
