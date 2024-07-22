@@ -1,17 +1,15 @@
 package io.driver.codrive.modules.room.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
 
 import io.driver.codrive.modules.room.domain.Room;
-import io.driver.codrive.modules.user.domain.User;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
-public record RoomCreateRequest(
+public record RoomModifyResponse(
 	@Size(min = 1, max = 20, message = "그룹 제목은 {min}자 이상 {max}자 이하로 입력해주세요.")
 	String title,
 
@@ -32,17 +30,15 @@ public record RoomCreateRequest(
 	@Size(min = 1, max = 1000, message = "진행 방식은 {min}자 이상 {max}자 이하로 입력해주세요.")
 	String information
 ) {
-	public Room toEntity(User user) {
-		return Room.builder()
-			.title(title)
-			.password(password)
-			.imageUrl(imageUrl)
-			.capacity(capacity)
-			.introduction(introduction)
-			.information(information)
-			.user(user)
-			.roomLanguageMappings(new ArrayList<>())
-			.roomUserMappings(new ArrayList<>())
+	public static RoomModifyResponse of(Room room) {
+		return RoomModifyResponse.builder()
+			.title(room.getTitle())
+			.password(room.getPassword())
+			.imageUrl(room.getImageUrl())
+			.capacity(room.getCapacity())
+			.languages(room.getLanguages())
+			.introduction(room.getIntroduction())
+			.information(room.getInformation())
 			.build();
 	}
 }

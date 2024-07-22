@@ -1,11 +1,11 @@
 package io.driver.codrive.modules.room.domain;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.global.BaseEntity;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
+import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,6 +26,8 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	private String title;
 
+	private String password;
+
 	@Column(nullable = false)
 	private String imageUrl;
 
@@ -38,8 +40,6 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	private String information;
 
-	private String password;
-
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
 	private User user;
@@ -47,8 +47,47 @@ public class Room extends BaseEntity {
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<RoomLanguageMapping> roomLanguageMappings;
 
-	@Transactional
-	public void addRoomLanguageMapping(RoomLanguageMapping roomLanguageMapping) {
-		this.roomLanguageMappings.add(roomLanguageMapping);
+	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<RoomUserMapping> roomUserMappings;
+
+	public void changeTitle(String title) {
+		this.title = title;
 	}
+
+	public void changePassword(String password) {
+		this.password = password;
+	}
+
+	public void changeImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public void changeCapacity(Integer capacity) {
+		this.capacity = capacity;
+	}
+
+	public void changeIntroduction(String introduction) {
+		this.introduction = introduction;
+	}
+
+	public void changeInformation(String information) {
+		this.information = information;
+	}
+
+	public void changeRoomLanguageMappings(List<RoomLanguageMapping> mappings) {
+		this.roomLanguageMappings = mappings;
+	}
+
+	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {
+		this.roomUserMappings.add(roomUserMapping);
+	}
+
+	public List<String> getLanguages() {
+		List<String> languages = new ArrayList<>();
+		roomLanguageMappings.forEach(mapping -> {
+			languages.add(mapping.getLanguage().getName());
+		});
+		return languages;
+	}
+
 }

@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
-public record RoomCreateRequest(
+public record RoomModifyRequest(
 	@Size(min = 1, max = 20, message = "그룹 제목은 {min}자 이상 {max}자 이하로 입력해주세요.")
 	String title,
 
