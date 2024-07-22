@@ -7,6 +7,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,10 +42,6 @@ public class User extends BaseEntity {
 	private String githubUrl;
 
 	@Column(nullable = false)
-	@Enumerated(EnumType.STRING)
-	private Language language;
-
-	@Column(nullable = false)
 	private Integer level;
 
 	@Column(nullable = false)
@@ -53,6 +50,10 @@ public class User extends BaseEntity {
 
 	@Column(nullable = false)
 	private Boolean withdraw;
+
+	@OneToOne
+	@JoinColumn(name = "language_Id")
+	private Language language;
 
 	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Follow> followings;

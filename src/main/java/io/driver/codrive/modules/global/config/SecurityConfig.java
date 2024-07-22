@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
     private static final String[] WHITELIST = new String[] {
-            APIConstants.PUBLIC_API_PREFIX + "/**",
+            APIConstants.API_PREFIX + "/auth/**",
             "/favicon.ico",
             "/error"
     };

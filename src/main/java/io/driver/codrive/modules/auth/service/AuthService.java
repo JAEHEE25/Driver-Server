@@ -13,6 +13,7 @@ import io.driver.codrive.modules.auth.model.LoginResponse;
 import io.driver.codrive.modules.auth.model.SampleDto;
 import io.driver.codrive.modules.global.jwt.JwtProvider;
 import io.driver.codrive.modules.global.exception.UnauthorizedApplicationException;
+import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+	private final LanguageService languageService;
 	private final UserRepository userRepository;
 	private final JwtProvider jwtProvider;
 	private final WebClient webClient = WebClient.create();
@@ -60,7 +62,7 @@ public class AuthService {
 		}
 
 		User user = userRepository.findByEmail(userProfile.email())
-			.orElseGet(() -> userRepository.save(userProfile.toUser()));
+			.orElseGet(() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("NOT_SELECTED"))));
 
 		user.changeName(userProfile.name());
 		user.changeProfileUrl(userProfile.profileUrl());
