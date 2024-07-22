@@ -12,7 +12,7 @@ import io.driver.codrive.modules.global.model.BaseResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(APIConstants.PUBLIC_API_PREFIX + "/auth")
+@RequestMapping(APIConstants.API_PREFIX + "/auth")
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;

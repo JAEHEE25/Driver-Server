@@ -25,16 +25,16 @@ public class UserController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
-	@PatchMapping("/profile")
-	public ResponseEntity<BaseResponse<ProfileChangeResponse>> changeProfile(
+	@PatchMapping("/{userId}/profile")
+	public ResponseEntity<BaseResponse<ProfileChangeResponse>> changeProfile(@PathVariable(name = "userId") Long userId,
 		@Valid @RequestBody ProfileChangeRequest request) {
-		ProfileChangeResponse response = userService.updateCurrentUserProfile(request);
+		ProfileChangeResponse response = userService.updateCurrentUserProfile(userId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
-	@DeleteMapping("/withdraw")
-	public ResponseEntity<BaseResponse<Void>> withdraw() {
-		userService.updateCurrentUserWithdraw();
+	@DeleteMapping("/{userId}/withdraw")
+	public ResponseEntity<BaseResponse<Void>> withdraw(@PathVariable(name = "userId") Long userId) {
+		userService.updateCurrentUserWithdraw(userId);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 

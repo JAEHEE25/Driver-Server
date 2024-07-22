@@ -1,6 +1,6 @@
 package io.driver.codrive.modules.user.model;
 
-import io.driver.codrive.modules.user.domain.Language;
+import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.user.domain.User;
 import lombok.Builder;
 

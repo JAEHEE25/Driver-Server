@@ -5,8 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
-import io.driver.codrive.modules.global.util.AuthUtils;
-import io.driver.codrive.modules.user.domain.Language;
+import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+	private final LanguageService languageService;
 	private final UserRepository userRepository;
 
 	public UserInfoResponse getUserInfo(Long userId) {
@@ -27,17 +27,17 @@ public class UserService {
 	}
 
 	@Transactional
-	public ProfileChangeResponse updateCurrentUserProfile(ProfileChangeRequest request) {
-		User user = getUserById(AuthUtils.getCurrentUserId());
+	public ProfileChangeResponse updateCurrentUserProfile(Long userId, ProfileChangeRequest request) {
+		User user = getUserById(userId);
 		user.changeNickname(request.nickname());
-		user.changeLanguage(Language.of(request.language()));
+		user.changeLanguage(languageService.getLanguageByName(request.language()));
 		user.changeGithubUrl(request.githubUrl());
 		return ProfileChangeResponse.of(user);
 	}
 
 	@Transactional
-	public void updateCurrentUserWithdraw() {
-		User user = getUserById(AuthUtils.getCurrentUserId());
+	public void updateCurrentUserWithdraw(Long userId) {
+		User user = getUserById(userId);
 		userRepository.delete(user);
 	}
 
