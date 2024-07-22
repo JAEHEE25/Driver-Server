@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.userRoomMap.domain;
+package io.driver.codrive.modules.mappings.roomUserMapping.domain;
 
 import io.driver.codrive.modules.global.BaseEntity;
 import jakarta.persistence.Entity;
@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRoomMap extends BaseEntity {
+public class RoomUserMapping extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long userRoomMapId;
+	private Long roomUserMappingId;
 }

@@ -1,6 +1,12 @@
 package io.driver.codrive.modules.room.domain;
 
+import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
+import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +27,9 @@ public class Room extends BaseEntity {
 	private String title;
 
 	@Column(nullable = false)
+	private String imageUrl;
+
+	@Column(nullable = false)
 	private Integer capacity;
 
 	@Column(nullable = false)
@@ -30,4 +39,16 @@ public class Room extends BaseEntity {
 	private String information;
 
 	private String password;
+
+	@ManyToOne
+	@JoinColumn(name = "owner_id")
+	private User user;
+
+	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<RoomLanguageMapping> roomLanguageMappings;
+
+	@Transactional
+	public void addRoomLanguageMapping(RoomLanguageMapping roomLanguageMapping) {
+		this.roomLanguageMappings.add(roomLanguageMapping);
+	}
 }

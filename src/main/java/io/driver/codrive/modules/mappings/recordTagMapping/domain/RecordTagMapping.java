@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.tagRecordMap.domain;
+package io.driver.codrive.modules.mappings.recordTagMapping.domain;
 
 import io.driver.codrive.modules.global.BaseEntity;
 import jakarta.persistence.*;
@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TagRecordMap extends BaseEntity {
+public class RecordTagMapping extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long tagRecordMapId;
+	private Long recordTagMappingId;
 }
