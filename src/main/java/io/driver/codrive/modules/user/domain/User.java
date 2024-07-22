@@ -7,6 +7,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,11 +54,18 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private Boolean withdraw;
 
-	@OneToMany(mappedBy = "following")
+	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Follow> followings;
 
-	@OneToMany(mappedBy = "follower")
+	@OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Follow> followers;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<RoomUserMapping> roomUserMappings;
+
+	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {
+		this.roomUserMappings.add(roomUserMapping);
+	}
 
 	public void changeName(String name) {
 		this.name = name;
@@ -77,5 +85,9 @@ public class User extends BaseEntity {
 
 	public void changeLanguage(Language language) {
 		this.language = language;
+	}
+
+	public void changeRole(Role role) {
+		this.role = role;
 	}
 }

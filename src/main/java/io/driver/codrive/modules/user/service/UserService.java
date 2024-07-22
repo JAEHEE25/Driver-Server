@@ -7,6 +7,7 @@ import io.driver.codrive.modules.global.exception.AlreadyExistsApplicationExcept
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
 import io.driver.codrive.modules.user.domain.Language;
+import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import io.driver.codrive.modules.user.model.NicknameRequest;
@@ -54,5 +55,9 @@ public class UserService {
 	public User getUserByNickname(String nickname) {
 		return userRepository.findByNickname(nickname)
 			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	}
+
+	public void changeUserRole(User user, Role role) {
+		user.changeRole(role);
 	}
 }
