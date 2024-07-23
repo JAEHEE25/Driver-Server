@@ -33,4 +33,8 @@ public class RoomLanguageMapping extends BaseEntity {
 			.room(room)
 			.build();
 	}
+
+	public String getLanguageName() {
+		return language.getName();
+	}
 }

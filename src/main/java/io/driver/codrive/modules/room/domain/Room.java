@@ -74,7 +74,7 @@ public class Room extends BaseEntity {
 		this.information = information;
 	}
 
-	public void changeRoomLanguageMappings(List<RoomLanguageMapping> mappings) {
+	public void changeLanguages(List<RoomLanguageMapping> mappings) {
 		this.roomLanguageMappings = mappings;
 	}
 
@@ -85,7 +85,7 @@ public class Room extends BaseEntity {
 	public List<String> getLanguages() {
 		List<String> languages = new ArrayList<>();
 		roomLanguageMappings.forEach(mapping -> {
-			languages.add(mapping.getLanguage().getName());
+			languages.add(mapping.getLanguageName());
 		});
 		return languages;
 	}

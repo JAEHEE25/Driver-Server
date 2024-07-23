@@ -6,11 +6,8 @@ import java.util.List;
 import org.hibernate.validator.constraints.Range;
 
 import io.driver.codrive.modules.room.domain.Room;
-import io.driver.codrive.modules.user.domain.User;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 
-@Builder
 public record RoomModifyRequest(
 	@Size(min = 1, max = 20, message = "그룹 제목은 {min}자 이상 {max}자 이하로 입력해주세요.")
 	String title,
@@ -32,7 +29,7 @@ public record RoomModifyRequest(
 	@Size(min = 1, max = 1000, message = "진행 방식은 {min}자 이상 {max}자 이하로 입력해주세요.")
 	String information
 ) {
-	public Room toEntity(User user) {
+	public Room toEntity() {
 		return Room.builder()
 			.title(title)
 			.password(password)
@@ -40,7 +37,6 @@ public record RoomModifyRequest(
 			.capacity(capacity)
 			.introduction(introduction)
 			.information(information)
-			.user(user)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
 			.build();

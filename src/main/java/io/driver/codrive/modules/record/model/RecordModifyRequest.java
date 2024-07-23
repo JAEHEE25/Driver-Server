@@ -6,9 +6,8 @@ import java.util.List;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
-import io.driver.codrive.modules.user.domain.User;
 
-public record RecordCreateRequest(
+public record RecordModifyRequest(
 	String title,
 	int level,
 	List<String> tags,
@@ -16,9 +15,8 @@ public record RecordCreateRequest(
 	String problemUrl,
 	List<Codeblock> codeblocks
 ) {
-	public Record toEntity(User user) {
+	public Record toEntity() {
 		return Record.builder()
-			.user(user)
 			.title(title)
 			.level(level)
 			.recordTagMappings(new ArrayList<>())

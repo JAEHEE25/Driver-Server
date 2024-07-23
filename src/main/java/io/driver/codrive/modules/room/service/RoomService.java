@@ -51,31 +51,29 @@ public class RoomService {
 
 	@Transactional
 	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Room room = getRoomById(roomId);
-		Room newRoom = request.toEntity(user);
-
-		updateRoom(room, newRoom);
-		updateLanguages(room, request.languages());
-
+		updateRoom(room, request);
 		return RoomModifyResponse.of(room);
 	}
 
-	public void updateRoom(Room room, Room newRoom) {
+	@Transactional
+	public void updateRoom(Room room, RoomModifyRequest request) {
+		Room newRoom = request.toEntity();
 		room.changeTitle(newRoom.getTitle());
 		room.changePassword(newRoom.getPassword());
 		room.changeImageUrl(newRoom.getImageUrl()); //todo 이미지 삭제 후 업로드
 		room.changeCapacity(newRoom.getCapacity());
 		room.changeIntroduction(newRoom.getIntroduction());
 		room.changeInformation(newRoom.getInformation());
+		updateLanguages(room, request.languages());
 	}
 
 	@Transactional
 	public void updateLanguages(Room room, List<String> newLanguages) {
 		if (room.getLanguages() != newLanguages) {
+			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings());
 			List<RoomLanguageMapping> newMappings = roomLanguageMappingService.getRoomLanguageMappingsByRequest(
 				newLanguages, room);
-			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings());
 			roomLanguageMappingService.createRoomLanguageMapping(newMappings, room);
 		}
 	}

@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.record.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
@@ -26,7 +27,7 @@ public class Record extends BaseEntity {
 	private String title;
 
 	@Column(nullable = false)
-	private Integer difficulty;
+	private Integer level;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -45,7 +46,36 @@ public class Record extends BaseEntity {
 	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<RecordTagMapping> recordTagMappings;
 
+	public void changeTitle(String title) {
+		this.title = title;
+	}
+
+	public void changeLevel(Integer level) {
+		this.level = level;
+	}
+
+	public void changePlatform(Platform platform) {
+		this.platform = platform;
+	}
+
+	public void changeProblemUrl(String problemUrl) {
+		this.problemUrl = problemUrl;
+	}
+
+	public void changeCodeblocks(List<Codeblock> codeblocks) {
+		this.codeblocks = codeblocks;
+	}
+
 	public void changeTags(List<RecordTagMapping> recordTagMapping) {
 		this.recordTagMappings = recordTagMapping;
 	}
+
+	public List<String> getTags() {
+		List<String> tags = new ArrayList<>();
+		recordTagMappings.forEach(mapping -> {
+			tags.add(mapping.getTagName());
+		});
+		return tags;
+	}
+
 }

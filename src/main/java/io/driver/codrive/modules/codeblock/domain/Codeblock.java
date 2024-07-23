@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Codeblock extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long codkblockId;
+	private Long codeblockId;
 
 	@Column(nullable = false)
 	private String code;

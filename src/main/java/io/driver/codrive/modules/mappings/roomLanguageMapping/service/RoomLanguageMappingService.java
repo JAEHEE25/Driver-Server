@@ -22,7 +22,7 @@ public class RoomLanguageMappingService {
 	@Transactional
 	public void createRoomLanguageMapping(List<RoomLanguageMapping> mappings, Room room) {
 		roomLanguageMappingRepository.saveAll(mappings);
-		room.changeRoomLanguageMappings(mappings);
+		room.changeLanguages(mappings);
 	}
 
 	@Transactional
@@ -38,4 +38,5 @@ public class RoomLanguageMappingService {
 		});
 		return roomLanguageMappings;
 	}
+
 }
