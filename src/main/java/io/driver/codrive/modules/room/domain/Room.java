@@ -90,4 +90,8 @@ public class Room extends BaseEntity {
 		return languages;
 	}
 
+	// public List<User> getRoomMemebers() {
+	//
+	// }
+
 }

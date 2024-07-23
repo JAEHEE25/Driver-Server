@@ -40,11 +40,13 @@ public class RoomService {
 		return RoomCreateResponse.of(savedRoom);
 	}
 
+	@Transactional
 	public RoomDetailResponse getRoomDetail(Long roomId) {
 		Room room = getRoomById(roomId);
 		return RoomDetailResponse.of(room);
 	}
 
+	@Transactional
 	public Room getRoomById(Long roomId) {
 		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplcationException("그룹"));
 	}
