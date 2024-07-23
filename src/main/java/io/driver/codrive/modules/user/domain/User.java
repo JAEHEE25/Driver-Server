@@ -9,6 +9,7 @@ import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.global.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
+import io.driver.codrive.modules.record.domain.Record;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -63,6 +64,9 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<RoomUserMapping> roomUserMappings;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Record> records;
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {
 		this.roomUserMappings.add(roomUserMapping);

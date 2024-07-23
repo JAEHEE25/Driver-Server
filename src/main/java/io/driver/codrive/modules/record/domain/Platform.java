@@ -1,5 +1,5 @@
 package io.driver.codrive.modules.record.domain;
 
-public enum ProblemPlatform {
+public enum Platform {
 	BAEKJOON, PROGRAMMERS, SWEA, LEETCODE, HACKERRANK, OTHER
 }

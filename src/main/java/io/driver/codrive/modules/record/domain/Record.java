@@ -1,6 +1,12 @@
 package io.driver.codrive.modules.record.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.modules.mappings.recordTagMapping.domain.RecordTagMapping;
+import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,20 +24,58 @@ public class Record extends BaseEntity {
 	private Long recordId;
 
 	@Column(nullable = false)
-	private String problemTitle;
+	private String title;
+
+	@Column(nullable = false)
+	private Integer level;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private ProblemPlatform problemPlatform;
+	private Platform platform;
 
 	@Column(nullable = false)
 	private String problemUrl;
 
-	@Column(nullable = false)
-	private Integer difficulty;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
-	@Column(nullable = false)
-	private String solution;
+	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Codeblock> codeblocks;
 
-	private String memo;
+	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<RecordTagMapping> recordTagMappings;
+
+	public void changeTitle(String title) {
+		this.title = title;
+	}
+
+	public void changeLevel(Integer level) {
+		this.level = level;
+	}
+
+	public void changePlatform(Platform platform) {
+		this.platform = platform;
+	}
+
+	public void changeProblemUrl(String problemUrl) {
+		this.problemUrl = problemUrl;
+	}
+
+	public void changeCodeblocks(List<Codeblock> codeblocks) {
+		this.codeblocks = codeblocks;
+	}
+
+	public void changeTags(List<RecordTagMapping> recordTagMapping) {
+		this.recordTagMappings = recordTagMapping;
+	}
+
+	public List<String> getTags() {
+		List<String> tags = new ArrayList<>();
+		recordTagMappings.forEach(mapping -> {
+			tags.add(mapping.getTagName());
+		});
+		return tags;
+	}
+
 }
