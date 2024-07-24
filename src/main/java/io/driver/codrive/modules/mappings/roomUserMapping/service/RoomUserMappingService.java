@@ -31,4 +31,12 @@ public class RoomUserMappingService {
 	public RoomUserMapping getRoomUserMapping(Room room, User user) {
 		return roomUserMappingRepository.findByRoomAndUser(room, user).orElse(null);
 	}
+
+	@Transactional
+	public void deleteRoomUserMapping(Room room, User user) {
+		RoomUserMapping mapping = getRoomUserMapping(room, user);
+		room.deleteMember(mapping);
+		user.deleteJoinedRoom(mapping);
+		roomUserMappingRepository.delete(mapping);
+	}
 }

@@ -52,6 +52,20 @@ public class RoomService {
 	}
 
 	@Transactional
+	public RoomMembersResponse getRoomMembers(Long roomId) {
+		Room room = getRoomById(roomId);
+		List<User> members = room.getRoomMembers();
+		return RoomMembersResponse.of(members);
+	}
+
+	@Transactional
+	public void kickMember(Long roomId, Long userId) {
+		Room room = getRoomById(roomId);
+		User user = userService.getUserById(userId);
+		roomUserMappingService.deleteRoomUserMapping(room, user);
+	}
+
+	@Transactional
 	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request) {
 		Room room = getRoomById(roomId);
 		updateRoom(room, request);

@@ -1,7 +1,6 @@
 package io.driver.codrive.modules.user.domain;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -109,5 +108,9 @@ public class User extends BaseEntity {
 			.filter(RoomUserMapping::isOwner)
 			.map(RoomUserMapping::getRoom)
 			.toList();
+	}
+
+	public void deleteJoinedRoom(RoomUserMapping mapping) {
+		this.roomUserMappings.remove(mapping);
 	}
 }

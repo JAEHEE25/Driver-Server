@@ -90,8 +90,16 @@ public class Room extends BaseEntity {
 		return languages;
 	}
 
-	// public List<User> getRoomMemebers() {
-	//
-	// }
+	public List<User> getRoomMembers() {
+		List<User> users = new ArrayList<>();
+		roomUserMappings.forEach(mapping -> {
+			users.add(mapping.getUser());
+		});
+		return users;
+	}
+
+	public void deleteMember(RoomUserMapping mapping) {
+		roomUserMappings.remove(mapping);
+	}
 
 }

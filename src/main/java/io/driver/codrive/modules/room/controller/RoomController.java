@@ -35,4 +35,17 @@ public class RoomController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
+	@GetMapping("/{roomId}/members")
+	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(
+		@PathVariable(name = "roomId") Long roomId) {
+		RoomMembersResponse response = roomService.getRoomMembers(roomId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@DeleteMapping("/{roomId}/kick/{userId}")
+	public ResponseEntity<BaseResponse<Void>> kickMemeber(@PathVariable(name = "roomId") Long roomId,
+		@PathVariable(name = "userId") Long userId) {
+		roomService.kickMember(roomId, userId);
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
 }
