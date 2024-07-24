@@ -26,8 +26,9 @@ public class RoomLanguageMappingService {
 	}
 
 	@Transactional
-	public void deleteRoomLanguageMapping(List<RoomLanguageMapping> mappings) {
+	public void deleteRoomLanguageMapping(List<RoomLanguageMapping> mappings, Room room) {
 		roomLanguageMappingRepository.deleteAll(mappings);
+		room.deleteLanguages(mappings);
 	}
 
 	public List<RoomLanguageMapping> getRoomLanguageMappingsByRequest(List<String> requestLanguages, Room room) {

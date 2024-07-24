@@ -102,4 +102,8 @@ public class Room extends BaseEntity {
 		roomUserMappings.remove(mapping);
 	}
 
+	public void deleteLanguages(List<RoomLanguageMapping> mappings) {
+		roomLanguageMappings.removeAll(mappings);
+	}
+
 }
