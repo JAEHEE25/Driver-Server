@@ -70,6 +70,10 @@ public class Record extends BaseEntity {
 		this.recordTagMappings = recordTagMapping;
 	}
 
+	public void deleteTags(List<RecordTagMapping> recordTagMapping) {
+		this.recordTagMappings.removeAll(recordTagMapping);
+	}
+
 	public List<String> getTags() {
 		List<String> tags = new ArrayList<>();
 		recordTagMappings.forEach(mapping -> {

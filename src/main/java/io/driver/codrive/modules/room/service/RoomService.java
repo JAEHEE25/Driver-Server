@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
+import io.driver.codrive.modules.global.util.RoleUtils;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
@@ -40,13 +41,15 @@ public class RoomService {
 		return RoomCreateResponse.of(savedRoom);
 	}
 
+	@Transactional
+	public Room getRoomById(Long roomId) {
+		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplcationException("그룹"));
+	}
+
+	@Transactional
 	public RoomDetailResponse getRoomDetail(Long roomId) {
 		Room room = getRoomById(roomId);
 		return RoomDetailResponse.of(room);
-	}
-
-	public Room getRoomById(Long roomId) {
-		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplcationException("그룹"));
 	}
 
 	@Transactional
@@ -76,5 +79,20 @@ public class RoomService {
 				newLanguages, room);
 			roomLanguageMappingService.createRoomLanguageMapping(newMappings, room);
 		}
+	}
+
+	@Transactional
+	public RoomMembersResponse getRoomMembers(Long roomId) {
+		Room room = getRoomById(roomId);
+		List<User> members = room.getRoomMembers();
+		return RoomMembersResponse.of(members);
+	}
+
+	@Transactional
+	public void kickMember(Long roomId, Long userId) {
+		Room room = getRoomById(roomId);
+		User user = userService.getUserById(userId);
+		RoleUtils.checkOwnedRoom(room, user);
+		roomUserMappingService.deleteRoomUserMapping(room, user);
 	}
 }

@@ -23,16 +23,16 @@ public class RecordController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
+	@GetMapping("/{recordId}")
+	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(@PathVariable(name = "recordId") Long recordId) {
+		RecordDetailResponse response = recordService.getRecordDetail(recordId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
 	@PatchMapping("/{recordId}")
 	public ResponseEntity<BaseResponse<RecordModifyResponse>> modifyRecord(
 		@PathVariable(name = "recordId") Long recordId, @Valid @RequestBody RecordModifyRequest request) {
 		RecordModifyResponse response = recordService.modifyRecord(recordId, request);
-		return ResponseEntity.ok(BaseResponse.of(response));
-	}
-
-	@GetMapping("/{recordId}")
-	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(@PathVariable(name = "recordId") Long recordId) {
-		RecordDetailResponse response = recordService.getRecordDetail(recordId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 }

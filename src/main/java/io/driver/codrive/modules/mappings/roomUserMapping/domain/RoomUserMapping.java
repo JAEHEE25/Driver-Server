@@ -33,4 +33,8 @@ public class RoomUserMapping extends BaseEntity {
 			.room(room)
 			.build();
 	}
+
+	public boolean isOwner() {
+		return this.room.getOwner().getUserId().equals(this.user.getUserId());
+	}
 }

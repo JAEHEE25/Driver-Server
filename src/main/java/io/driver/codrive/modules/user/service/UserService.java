@@ -9,10 +9,7 @@ import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
-import io.driver.codrive.modules.user.model.NicknameRequest;
-import io.driver.codrive.modules.user.model.ProfileChangeRequest;
-import io.driver.codrive.modules.user.model.ProfileChangeResponse;
-import io.driver.codrive.modules.user.model.UserInfoResponse;
+import io.driver.codrive.modules.user.model.*;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,9 +18,25 @@ public class UserService {
 	private final LanguageService languageService;
 	private final UserRepository userRepository;
 
+	public User getUserById(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	}
+
+	public User getUserByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	}
+
 	public UserInfoResponse getUserInfo(Long userId) {
 		User user = getUserById(userId);
 		return UserInfoResponse.of(user);
+	}
+
+	public void checkNicknameDuplication(NicknameRequest request) {
+		if (userRepository.existsByNickname(request.nickname())) {
+			throw new AlreadyExistsApplicationException("닉네임");
+		}
 	}
 
 	@Transactional
@@ -41,23 +54,20 @@ public class UserService {
 		userRepository.delete(user);
 	}
 
-	public void checkNicknameDuplication(NicknameRequest request) {
-		if (userRepository.existsByNickname(request.nickname())) {
-			throw new AlreadyExistsApplicationException("닉네임");
-		}
+	@Transactional
+	public JoinedRoomListResponse getJoinedRoomList(Long userId) {
+		User user = getUserById(userId);
+		return JoinedRoomListResponse.of(user.getJoinedRooms());
 	}
 
-	public User getUserById(Long userId) {
-		return userRepository.findById(userId)
-			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
-	}
-
-	public User getUserByNickname(String nickname) {
-		return userRepository.findByNickname(nickname)
-			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	@Transactional
+	public CreatedRoomListResponse getCreatedRoomList(Long userId) {
+		User user = getUserById(userId);
+		return CreatedRoomListResponse.of(user.getCreatedRooms());
 	}
 
 	public void changeUserRole(User user, Role role) {
 		user.changeRole(role);
 	}
+
 }

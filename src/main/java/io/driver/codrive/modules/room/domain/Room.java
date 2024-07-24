@@ -42,7 +42,7 @@ public class Room extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
-	private User user;
+	private User owner;
 
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<RoomLanguageMapping> roomLanguageMappings;
@@ -88,6 +88,18 @@ public class Room extends BaseEntity {
 			languages.add(mapping.getLanguageName());
 		});
 		return languages;
+	}
+
+	public List<User> getRoomMembers() {
+		List<User> users = new ArrayList<>();
+		roomUserMappings.forEach(mapping -> {
+			users.add(mapping.getUser());
+		});
+		return users;
+	}
+
+	public void deleteMember(RoomUserMapping mapping) {
+		roomUserMappings.remove(mapping);
 	}
 
 }

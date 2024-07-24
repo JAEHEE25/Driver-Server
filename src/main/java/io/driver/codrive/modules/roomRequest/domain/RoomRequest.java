@@ -1,10 +1,9 @@
 package io.driver.codrive.modules.roomRequest.domain;
 
 import io.driver.codrive.modules.global.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.user.domain.User;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,4 +19,18 @@ public class RoomRequest extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long roomRequestId;
 
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
+
+	@ManyToOne
+	@JoinColumn(name = "room_id")
+	private Room room;
+
+	public static RoomRequest toEntity(Room room, User user) {
+		return RoomRequest.builder()
+			.user(user)
+			.room(room)
+			.build();
+	}
 }
