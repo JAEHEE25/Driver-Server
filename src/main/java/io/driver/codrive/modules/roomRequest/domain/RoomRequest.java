@@ -1,7 +1,6 @@
 package io.driver.codrive.modules.roomRequest.domain;
 
 import io.driver.codrive.modules.global.BaseEntity;
-import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;

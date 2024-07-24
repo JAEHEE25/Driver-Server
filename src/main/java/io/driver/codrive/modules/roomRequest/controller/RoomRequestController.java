@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.modules.global.constants.APIConstants;
 import io.driver.codrive.modules.global.model.BaseResponse;
-import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.model.PasswordRequest;
 import io.driver.codrive.modules.roomRequest.model.RoomRequestListResponse;
 import io.driver.codrive.modules.roomRequest.service.RoomRequestService;

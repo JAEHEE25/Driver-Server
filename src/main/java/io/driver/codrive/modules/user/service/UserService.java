@@ -18,9 +18,25 @@ public class UserService {
 	private final LanguageService languageService;
 	private final UserRepository userRepository;
 
+	public User getUserById(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	}
+
+	public User getUserByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+	}
+
 	public UserInfoResponse getUserInfo(Long userId) {
 		User user = getUserById(userId);
 		return UserInfoResponse.of(user);
+	}
+
+	public void checkNicknameDuplication(NicknameRequest request) {
+		if (userRepository.existsByNickname(request.nickname())) {
+			throw new AlreadyExistsApplicationException("닉네임");
+		}
 	}
 
 	@Transactional
@@ -38,26 +54,6 @@ public class UserService {
 		userRepository.delete(user);
 	}
 
-	public void checkNicknameDuplication(NicknameRequest request) {
-		if (userRepository.existsByNickname(request.nickname())) {
-			throw new AlreadyExistsApplicationException("닉네임");
-		}
-	}
-
-	public User getUserById(Long userId) {
-		return userRepository.findById(userId)
-			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
-	}
-
-	public User getUserByNickname(String nickname) {
-		return userRepository.findByNickname(nickname)
-			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
-	}
-
-	public void changeUserRole(User user, Role role) {
-		user.changeRole(role);
-	}
-
 	@Transactional
 	public JoinedRoomListResponse getJoinedRoomList(Long userId) {
 		User user = getUserById(userId);
@@ -69,4 +65,9 @@ public class UserService {
 		User user = getUserById(userId);
 		return CreatedRoomListResponse.of(user.getCreatedRooms());
 	}
+
+	public void changeUserRole(User user, Role role) {
+		user.changeRole(role);
+	}
+
 }

@@ -1,6 +1,5 @@
 package io.driver.codrive.modules.record.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -15,8 +14,6 @@ import io.driver.codrive.modules.mappings.recordTagMapping.service.RecordTagMapp
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.model.*;
-import io.driver.codrive.modules.tag.domain.Tag;
-import io.driver.codrive.modules.tag.service.TagService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
-	private final TagService tagService;
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordTagMappingService recordTagMappingService;
@@ -33,18 +29,24 @@ public class RecordService {
 	@Transactional
 	public RecordCreateResponse createRecord(RecordCreateRequest request) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<Codeblock> codeblocks = request.codeblocks();
 		Record savedRecord = recordRepository.save(request.toEntity(user));
-		codeblockService.createCodeblock(codeblocks, savedRecord);
+		codeblockService.createCodeblock(request.codeblocks(), savedRecord); //코드블럭
 
-		List<RecordTagMapping> mappings = new ArrayList<>();
-		request.tags().forEach(tag -> {
-			Tag newTag = tagService.getTagByName(tag);
-			mappings.add(RecordTagMapping.toEntity(savedRecord, newTag));
-		});
-
+		List<RecordTagMapping> mappings = recordTagMappingService
+			.getRecordTagMappingsByRequest(request.tags(), savedRecord);
 		recordTagMappingService.createRecordTagMapping(mappings, savedRecord);
 		return RecordCreateResponse.of(savedRecord);
+	}
+
+	@Transactional
+	public Record getRecordById(Long recordId) {
+		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplcationException("문제 풀이 데이터"));
+	}
+
+	@Transactional
+	public RecordDetailResponse getRecordDetail(Long recordId) {
+		Record record = getRecordById(recordId);
+		return RecordDetailResponse.of(record);
 	}
 
 	@Transactional
@@ -70,27 +72,15 @@ public class RecordService {
 		codeblockService.deleteCodeblock(record.getCodeblocks());
 		List<Codeblock> newCodeblocks = newRecord.getCodeblocks();
 		codeblockService.createCodeblock(newCodeblocks, record);
-		record.changeCodeblocks(newCodeblocks);
 	}
 
 	@Transactional
 	public void updateTags(Record record, List<String> newTags) {
 		if (record.getTags() != newTags) {
-			recordTagMappingService.deleteRecordTagMapping(record.getRecordTagMappings());
+			recordTagMappingService.deleteRecordTagMapping(record.getRecordTagMappings(), record);
 			List<RecordTagMapping> newMappings = recordTagMappingService.getRecordTagMappingsByRequest(newTags, record);
 			recordTagMappingService.createRecordTagMapping(newMappings, record);
 		}
-	}
-
-	@Transactional
-	public RecordDetailResponse getRecordDetail(Long recordId) {
-		Record record = getRecordById(recordId);
-		return RecordDetailResponse.of(record);
-	}
-
-	@Transactional
-	public Record getRecordById(Long recordId) {
-		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplcationException("문제 풀이 데이터"));
 	}
 
 }

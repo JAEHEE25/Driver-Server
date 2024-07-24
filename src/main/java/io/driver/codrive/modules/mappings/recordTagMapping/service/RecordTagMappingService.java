@@ -26,8 +26,9 @@ public class RecordTagMappingService {
 	}
 
 	@Transactional
-	public void deleteRecordTagMapping(List<RecordTagMapping> mappings) {
+	public void deleteRecordTagMapping(List<RecordTagMapping> mappings, Record record) {
 		recordTagMappingRepository.deleteAll(mappings);
+		record.deleteTags(mappings);
 	}
 
 	public List<RecordTagMapping> getRecordTagMappingsByRequest(List<String> requestTags, Record record) {
@@ -38,5 +39,4 @@ public class RecordTagMappingService {
 		});
 		return recordTagMappings;
 	}
-
 }

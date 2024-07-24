@@ -22,6 +22,12 @@ public class UserController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
+	@PostMapping("/nickname")
+	public ResponseEntity<BaseResponse<Void>> checkNicknameDuplication(@Valid @RequestBody NicknameRequest request) {
+		userService.checkNicknameDuplication(request);
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
 	@PatchMapping("/{userId}/profile")
 	public ResponseEntity<BaseResponse<ProfileChangeResponse>> changeProfile(@PathVariable(name = "userId") Long userId,
 		@Valid @RequestBody ProfileChangeRequest request) {
@@ -32,12 +38,6 @@ public class UserController {
 	@DeleteMapping("/{userId}/withdraw")
 	public ResponseEntity<BaseResponse<Void>> withdraw(@PathVariable(name = "userId") Long userId) {
 		userService.updateCurrentUserWithdraw(userId);
-		return ResponseEntity.ok(BaseResponse.of(null));
-	}
-
-	@PostMapping("/nickname")
-	public ResponseEntity<BaseResponse<Void>> checkNicknameDuplication(@Valid @RequestBody NicknameRequest request) {
-		userService.checkNicknameDuplication(request);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 

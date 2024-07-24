@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.modules.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
+import io.driver.codrive.modules.global.util.RoleUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
@@ -27,6 +28,7 @@ public class RoomRequestService {
 
 	@Transactional
 	public void joinPrivateRoom(Long roomId, PasswordRequest request) {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Room room = roomService.getRoomById(roomId);
 		String password = room.getPassword();
 		if (password == null) {
@@ -37,7 +39,10 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("비밀번호가 일치하지 않습니다.");
 		}
 
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		if (roomUserMappingService.getRoomUserMapping(room, user) != null) {
+			throw new IllegalArgumentApplicationException("이미 참여 중인 그룹입니다.");
+		}
+
 		roomUserMappingService.createRoomUserMapping(room, user);
 	}
 
@@ -54,7 +59,7 @@ public class RoomRequestService {
 		}
 
 		if (roomUserMappingService.getRoomUserMapping(room, user) != null) {
-			throw new IllegalArgumentApplicationException("이미 참여한 그룹입니다.");
+			throw new IllegalArgumentApplicationException("이미 참여 중인 그룹입니다.");
 		}
 
 		RoomRequest roomRequest = RoomRequest.toEntity(room, user);
@@ -74,12 +79,17 @@ public class RoomRequestService {
 	@Transactional
 	public RoomRequestListResponse getRoomRequests(Long roomId) {
 		Room room = roomService.getRoomById(roomId);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		RoleUtils.checkOwnedRoom(room, user);
 		return RoomRequestListResponse.of(roomRequestRepository.findAllByRoom(room));
 	}
 
 	@Transactional
 	public void approveRequest(Long roomId, Long roomRequestId) {
 		Room room = roomService.getRoomById(roomId);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		RoleUtils.checkOwnedRoom(room, user);
+
 		RoomRequest request = getRoomRequestById(roomRequestId);
 		roomUserMappingService.createRoomUserMapping(room, request.getUser());
 		roomRequestRepository.delete(request);
@@ -87,7 +97,10 @@ public class RoomRequestService {
 
 	@Transactional
 	public void denyRequest(Long roomId, Long roomRequestId) {
-		roomService.getRoomById(roomId);
+		Room room = roomService.getRoomById(roomId);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		RoleUtils.checkOwnedRoom(room, user);
+
 		RoomRequest request = getRoomRequestById(roomRequestId);
 		roomRequestRepository.delete(request);
 	}

@@ -21,6 +21,7 @@ public class CodeblockService {
 			codeblock.changeRecord(record);
 			codeblockRepository.save(codeblock);
 		});
+		record.changeCodeblocks(codeblocks);
 	}
 
 	@Transactional
