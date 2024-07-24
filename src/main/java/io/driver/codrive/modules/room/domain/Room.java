@@ -42,7 +42,7 @@ public class Room extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
-	private User user;
+	private User owner;
 
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<RoomLanguageMapping> roomLanguageMappings;

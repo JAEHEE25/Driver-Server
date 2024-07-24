@@ -9,10 +9,7 @@ import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
-import io.driver.codrive.modules.user.model.NicknameRequest;
-import io.driver.codrive.modules.user.model.ProfileChangeRequest;
-import io.driver.codrive.modules.user.model.ProfileChangeResponse;
-import io.driver.codrive.modules.user.model.UserInfoResponse;
+import io.driver.codrive.modules.user.model.*;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -59,5 +56,17 @@ public class UserService {
 
 	public void changeUserRole(User user, Role role) {
 		user.changeRole(role);
+	}
+
+	@Transactional
+	public JoinedRoomListResponse getJoinedRoomList(Long userId) {
+		User user = getUserById(userId);
+		return JoinedRoomListResponse.of(user.getJoinedRooms());
+	}
+
+	@Transactional
+	public CreatedRoomListResponse getCreatedRoomList(Long userId) {
+		User user = getUserById(userId);
+		return CreatedRoomListResponse.of(user.getCreatedRooms());
 	}
 }

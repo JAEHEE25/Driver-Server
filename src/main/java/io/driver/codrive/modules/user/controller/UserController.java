@@ -5,10 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.modules.global.constants.APIConstants;
 import io.driver.codrive.modules.global.model.BaseResponse;
-import io.driver.codrive.modules.user.model.NicknameRequest;
-import io.driver.codrive.modules.user.model.ProfileChangeRequest;
-import io.driver.codrive.modules.user.model.ProfileChangeResponse;
-import io.driver.codrive.modules.user.model.UserInfoResponse;
+import io.driver.codrive.modules.user.model.*;
 import io.driver.codrive.modules.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +41,16 @@ public class UserController {
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 
+	@GetMapping("/{userId}/rooms")
+	public ResponseEntity<BaseResponse<JoinedRoomListResponse>> getJoinedRoomList(@PathVariable(name = "userId") Long userId) {
+		JoinedRoomListResponse response = userService.getJoinedRoomList(userId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@GetMapping("/{userId}/rooms/owner")
+	public ResponseEntity<BaseResponse<CreatedRoomListResponse>> getCreatedRoomList(@PathVariable(name = "userId") Long userId) {
+		CreatedRoomListResponse response = userService.getCreatedRoomList(userId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
 
 }

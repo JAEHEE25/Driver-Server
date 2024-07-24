@@ -38,7 +38,7 @@ public record RoomCreateRequest(
 			.capacity(capacity)
 			.introduction(introduction)
 			.information(information)
-			.user(user)
+			.owner(user)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
 			.build();
