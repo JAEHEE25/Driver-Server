@@ -74,7 +74,7 @@ public class RoomService {
 	@Transactional
 	public void updateLanguages(Room room, List<String> newLanguages) {
 		if (room.getLanguages() != newLanguages) {
-			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings());
+			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings(), room);
 			List<RoomLanguageMapping> newMappings = roomLanguageMappingService.getRoomLanguageMappingsByRequest(
 				newLanguages, room);
 			roomLanguageMappingService.createRoomLanguageMapping(newMappings, room);
