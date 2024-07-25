@@ -24,8 +24,16 @@ public class RecordController {
 	}
 
 	@GetMapping("/{recordId}")
-	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(@PathVariable(name = "recordId") Long recordId) {
+	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(
+		@PathVariable(name = "recordId") Long recordId) {
 		RecordDetailResponse response = recordService.getRecordDetail(recordId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@GetMapping("/{userId}/board")
+	public ResponseEntity<BaseResponse<RecordListResponse>> getRecords(@PathVariable(name = "userId") Long userId,
+		RecordListRequest request) {
+		RecordListResponse response = recordService.getRecords(userId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

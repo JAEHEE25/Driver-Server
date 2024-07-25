@@ -24,6 +24,7 @@ public class RecordService {
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordTagMappingService recordTagMappingService;
+	private final BoardService boardService;
 	private final RecordRepository recordRepository;
 
 	@Transactional
@@ -47,6 +48,13 @@ public class RecordService {
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
 		return RecordDetailResponse.of(record);
+	}
+
+	@Transactional
+	public RecordListResponse getRecords(Long userId, RecordListRequest request) {
+		User user = userService.getUserById(userId);
+		List<Record> records = boardService.getRecordsByDate(user, request);
+		return RecordListResponse.of(records);
 	}
 
 	@Transactional
