@@ -55,7 +55,7 @@ tasks.named('test') {
 //QueryDSL 설정
 def generated = 'src/main/generated'
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
 
@@ -67,6 +67,6 @@ clean {
     delete file(generated)
 }
 
-task cleanGeneratedDir(type: Delete) {
+tasks.register('cleanGeneratedDir', Delete) {
     delete file(generated)
 }
