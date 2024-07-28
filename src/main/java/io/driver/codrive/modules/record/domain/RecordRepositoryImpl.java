@@ -1,0 +1,74 @@
+package io.driver.codrive.modules.record.domain;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.stereotype.Repository;
+
+import static io.driver.codrive.modules.record.domain.QRecord.record;
+
+import com.querydsl.core.types.ConstantImpl;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
+
+import io.driver.codrive.modules.global.util.DateUtils;
+import io.driver.codrive.modules.record.model.BoardDetailDto;
+
+@Repository
+public class RecordRepositoryImpl extends QuerydslRepositorySupport implements RecordRepositoryCustom {
+	public RecordRepositoryImpl() {
+		super(Record.class);
+	}
+
+	@Override
+	public List<Record> getRecordsByDate(Long userId, LocalDate pivotDate) {
+		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
+		return from(record)
+			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()))
+			.fetch();
+	}
+
+	@Override
+	public List<BoardDetailDto> getRecordCountByMonth(Long userId, LocalDate pivotDate) {
+		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
+		StringTemplate formattedDay = getFormattedDate("%d");
+		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
+
+		return from(record)
+			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth))
+			.groupBy(formattedDay)
+			.select(Projections.fields(BoardDetailDto.class,
+				formattedDay.as("date"),
+				record.count().as("count")))
+			.fetch();
+	}
+
+	@Override
+	public List<BoardDetailDto> getRecordCountByWeek(Long userId, LocalDateTime pivotDateTime) {
+		LocalDateTime mondayDateTime = getMondayDateTime(pivotDateTime); //월요일 00:00:00부터 기준일 23:59:59까지
+		StringTemplate formattedDate = getFormattedDate("%d");
+
+		return from(record)
+			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, pivotDateTime))
+			.groupBy(formattedDate)
+			.select(Projections.fields(BoardDetailDto.class,
+				formattedDate.as("date"),
+				record.count().as("count")))
+			.fetch();
+
+	}
+
+	public StringTemplate getFormattedDate(String format) {
+		return Expressions.stringTemplate("DATE_FORMAT({0}, {1})", record.createdAt, ConstantImpl.create(format));
+	}
+
+	public LocalDateTime getMondayDateTime(LocalDateTime pivotDateTime) {
+		int pivotDay = pivotDateTime.getDayOfWeek().getValue();
+		int monday = DayOfWeek.MONDAY.getValue();
+		return pivotDateTime.toLocalDate().minusDays(pivotDay - monday).atStartOfDay();
+	}
+}

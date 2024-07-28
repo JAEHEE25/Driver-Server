@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.modules.global.constants.APIConstants;
 import io.driver.codrive.modules.global.model.BaseResponse;
+import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.model.*;
 import io.driver.codrive.modules.record.service.RecordService;
 import jakarta.validation.Valid;
@@ -24,8 +25,23 @@ public class RecordController {
 	}
 
 	@GetMapping("/{recordId}")
-	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(@PathVariable(name = "recordId") Long recordId) {
+	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(
+		@PathVariable(name = "recordId") Long recordId) {
 		RecordDetailResponse response = recordService.getRecordDetail(recordId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@GetMapping("/{userId}/board")
+	public ResponseEntity<BaseResponse<RecordListResponse>> getRecordsByDate(@PathVariable(name = "userId") Long userId,
+		RecordListRequest request) {
+		RecordListResponse response = recordService.getRecordsByDate(userId, request);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@GetMapping("/{userId}/board/{period}")
+	public ResponseEntity<BaseResponse<RecordBoardResponse>> getRecordsBoard(@PathVariable(name = "userId") Long userId,
+		@PathVariable(name = "period") Period period, RecordBoardRequest request) {
+		RecordBoardResponse response = recordService.getRecordsBoard(userId, period, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

@@ -11,6 +11,7 @@ import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.recordTagMapping.domain.RecordTagMapping;
 import io.driver.codrive.modules.mappings.recordTagMapping.service.RecordTagMappingService;
+import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.model.*;
@@ -24,6 +25,7 @@ public class RecordService {
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordTagMappingService recordTagMappingService;
+	private final BoardService boardService;
 	private final RecordRepository recordRepository;
 
 	@Transactional
@@ -47,6 +49,20 @@ public class RecordService {
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
 		return RecordDetailResponse.of(record);
+	}
+
+	@Transactional
+	public RecordListResponse getRecordsByDate(Long userId, RecordListRequest request) {
+		User user = userService.getUserById(userId);
+		List<Record> records = boardService.getRecordsByDate(user, request);
+		return RecordListResponse.of(records);
+	}
+
+	@Transactional
+	public RecordBoardResponse getRecordsBoard(Long userId, Period period, RecordBoardRequest request) {
+		User user = userService.getUserById(userId);
+		List<BoardResponse> records = boardService.getBoardResponse(user, period, request);
+		return RecordBoardResponse.of(records);
 	}
 
 	@Transactional
