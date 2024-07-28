@@ -13,6 +13,6 @@ public class JwtConfig {
 	@Value("${jwt.secret}")
 	private String secretKey;
 
-	@Value("${jwt.accessToken.expirationMs}")
+	@Value("${jwt.access_token.expiration_ms}")
 	private Long expirationMills;  //24시간
 }
