@@ -7,6 +7,7 @@ import io.driver.codrive.modules.global.constants.APIConstants;
 import io.driver.codrive.modules.global.model.BaseResponse;
 import io.driver.codrive.modules.room.model.*;
 import io.driver.codrive.modules.room.service.RoomService;
+import io.driver.codrive.modules.room.model.RoomListResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -47,5 +48,20 @@ public class RoomController {
 		@PathVariable(name = "userId") Long userId) {
 		roomService.kickMember(roomId, userId);
 		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
+	@GetMapping
+	public ResponseEntity<BaseResponse<RoomListResponse>> getRoomList(
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "size", defaultValue = "9") int size) {
+		RoomListResponse response = roomService.getRoomList(page, size);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@GetMapping("{userId}/recommend")
+	public ResponseEntity<BaseResponse<RoomRecommendResponse>> getRecommendRoomList(
+		@PathVariable(name = "userId") Long userId) {
+		RoomRecommendResponse response = roomService.getRecommendRoomList(userId);
+		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 }
