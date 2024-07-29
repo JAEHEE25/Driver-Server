@@ -70,17 +70,4 @@ public class AuthService {
 		return user;
 	}
 
-
-	//로컬 테스트용
-	public void getAccessToken(String clientId, String clientSecret, String code) {
-		String response = webClient.post()
-			.uri("https://github.com/login/oauth/access_token")
-			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.bodyValue(SampleDto.createRequest(clientId, clientSecret, code))
-			.retrieve()
-			.toEntity(String.class)
-			.block()
-			.getBody();
-		log.info("access Token: " + response);
-	}
 }
