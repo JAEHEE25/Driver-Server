@@ -24,8 +24,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private static final String[] WHITELIST = new String[] {
             APIConstants.API_PREFIX + "/auth/**",
+            APIConstants.API_PREFIX + "/test/**",
             "/favicon.ico",
-            "/error"
+            "/error",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
     };
 
     @Bean
