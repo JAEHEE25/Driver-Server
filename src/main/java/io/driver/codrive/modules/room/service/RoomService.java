@@ -2,12 +2,15 @@ package io.driver.codrive.modules.room.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
 import io.driver.codrive.modules.global.util.RoleUtils;
+import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
@@ -94,5 +97,20 @@ public class RoomService {
 		User user = userService.getUserById(userId);
 		RoleUtils.checkOwnedRoom(room, user);
 		roomUserMappingService.deleteRoomUserMapping(room, user);
+	}
+
+	@Transactional
+	public RoomListResponse getRoomList(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		List<RoomDetailResponse> rooms = roomRepository.findAll(pageable).map(RoomDetailResponse::of).toList();
+		return RoomListResponse.of(rooms);
+	}
+
+	@Transactional
+	public RoomRecommendResponse getRecommendRoomList(Long userId) {
+		User user = userService.getUserById(userId);
+		Language userLanguage = user.getLanguage();
+		List<Room> rooms = userLanguage.getRoomsByLanguage();
+		return RoomRecommendResponse.of(RoomDetailResponse.of(rooms));
 	}
 }
