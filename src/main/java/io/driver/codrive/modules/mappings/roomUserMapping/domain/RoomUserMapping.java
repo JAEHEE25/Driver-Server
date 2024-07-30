@@ -20,11 +20,11 @@ public class RoomUserMapping extends BaseEntity {
 	private Long roomUserMappingId;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	@ManyToOne
-	@JoinColumn(name = "room_id")
+	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
 
 	public static RoomUserMapping toEntity(Room room, User user) {

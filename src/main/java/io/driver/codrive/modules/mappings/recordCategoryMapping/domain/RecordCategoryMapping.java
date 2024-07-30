@@ -20,11 +20,11 @@ public class RecordCategoryMapping extends BaseEntity {
 	private Long recordCategoryMappingId;
 
 	@ManyToOne
-	@JoinColumn(name = "record_id")
+	@JoinColumn(name = "record_id", nullable = false)
 	private Record record;
 
 	@ManyToOne
-	@JoinColumn(name = "category_id")
+	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
 	public static RecordCategoryMapping toEntity(Record record, Category category) {

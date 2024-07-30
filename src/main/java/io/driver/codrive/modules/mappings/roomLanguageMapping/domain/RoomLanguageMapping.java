@@ -20,11 +20,11 @@ public class RoomLanguageMapping extends BaseEntity {
 	private Long roomLanguageMappingId;
 
 	@ManyToOne
-	@JoinColumn(name = "language_id")
+	@JoinColumn(name = "language_id", nullable = false)
 	private Language language;
 
 	@ManyToOne
-	@JoinColumn(name = "room_id")
+	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
 
 	public static RoomLanguageMapping toEntity(Room room, Language language) {

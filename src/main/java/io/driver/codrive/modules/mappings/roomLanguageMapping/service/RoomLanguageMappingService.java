@@ -31,10 +31,10 @@ public class RoomLanguageMappingService {
 		room.deleteLanguages(mappings);
 	}
 
-	public List<RoomLanguageMapping> getRoomLanguageMappingsByRequest(List<String> requestLanguages, Room room) {
+	public List<RoomLanguageMapping> getRoomLanguageMappingsByTag(List<String> tags, Room room) {
 		List<RoomLanguageMapping> roomLanguageMappings = new ArrayList<>();
-		requestLanguages.forEach(request -> {
-			Language language = languageService.getLanguageByName(request);
+		tags.forEach(tag -> {
+			Language language = languageService.getLanguageByName(tag);
 			roomLanguageMappings.add(RoomLanguageMapping.toEntity(room, language));
 		});
 		return roomLanguageMappings;
