@@ -16,7 +16,10 @@ public record RecordCreateRequest(
 	@Schema(description = "난이도", example = "1")
 	int level,
 
-	@Schema(description = "문제 유형 태그 (최대 2개)", example = "[\"완전탐색\"]")
+	@Schema(description = "문제 유형 태그 (최대 2개)", example = "[\"완전탐색\"]",
+		allowableValues = {"해시", "스택/큐", "힙 (Heap)", "정렬", "완전탐색", "탐욕법 (Greedy)",
+			"동적계획법 (Dynamic Programming)", "깊이 우선 탐색 (DFS)", "너비 우선 탐색 (BFS)", "이분탐색",
+			"그래프", "트리", "투포인터"})
 	List<String> tags,
 
 	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON", "PROGRAMMERS", "SWEA",

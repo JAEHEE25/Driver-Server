@@ -25,7 +25,7 @@ public class SwaggerConfig {
 	private Info getInfo() {
 		return new Info()
 			.title("Codrive API")
-			.description("Codrive Swagger 문서입니다.")
+			.description("Codrive API 문서입니다.")
 			.version("1.0")
 			.termsOfService("https://github.com/Co-Drive/Driver-Server")
 			.contact(new Contact()

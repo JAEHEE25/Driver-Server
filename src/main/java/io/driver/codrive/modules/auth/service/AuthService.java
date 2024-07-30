@@ -1,7 +1,5 @@
 package io.driver.codrive.modules.auth.service;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,7 +8,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import io.driver.codrive.modules.auth.model.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.LoginRequest;
 import io.driver.codrive.modules.auth.model.LoginResponse;
-import io.driver.codrive.modules.auth.model.SampleDto;
 import io.driver.codrive.modules.global.jwt.JwtProvider;
 import io.driver.codrive.modules.global.exception.UnauthorizedApplicationException;
 import io.driver.codrive.modules.language.service.LanguageService;
@@ -65,7 +62,7 @@ public class AuthService {
 			.orElseGet(() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("NOT_SELECTED"))));
 
 		user.changeName(userProfile.name());
-		user.changeProfileUrl(userProfile.profileUrl());
+		user.changeProfileImg(userProfile.profileImg());
 
 		return user;
 	}

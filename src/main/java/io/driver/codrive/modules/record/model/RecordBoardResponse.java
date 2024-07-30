@@ -7,7 +7,8 @@ import lombok.Builder;
 
 @Builder
 public record RecordBoardResponse(
-	@Schema(description = "날짜별 문제 풀이 개수", implementation = BoardResponse.class)
+	@Schema(description = "날짜별 문제 풀이 개수", implementation = BoardResponse.class,
+		example = "[{\"date\": \"1\", \"count\": 2}, {\"date\": \"2\", \"count\": 3}, {\"date\": \"3\", \"count\": 1}]")
 	List<BoardResponse> boards
 
 ) {

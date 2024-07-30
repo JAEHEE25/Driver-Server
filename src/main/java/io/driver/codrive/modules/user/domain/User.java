@@ -39,7 +39,9 @@ public class User extends BaseEntity {
 	private String nickname;
 
 	@Column(nullable = false)
-	private String profileUrl;
+	private String profileImg;
+
+	private String comment;
 
 	private String githubUrl;
 
@@ -53,8 +55,8 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private Boolean withdraw;
 
-	@OneToOne
-	@JoinColumn(name = "language_Id")
+	@ManyToOne
+	@JoinColumn(name = "language_id")
 	private Language language;
 
 	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -81,8 +83,12 @@ public class User extends BaseEntity {
 		this.nickname = nickname;
 	}
 
-	public void changeProfileUrl(String profileUrl) {
-		this.profileUrl = profileUrl;
+	public void changeProfileImg(String profileImg) {
+		this.profileImg = profileImg;
+	}
+
+	public void changeComment(String comment) {
+		this.comment = comment;
 	}
 
 	public void changeGithubUrl(String githubUrl) {

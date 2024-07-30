@@ -29,13 +29,13 @@ public class Room extends BaseEntity {
 	private String password;
 
 	@Column(nullable = false)
-	private String imageUrl;
+	private String imageSrc;
 
 	@Column(nullable = false)
 	private Integer capacity;
 
 	@Column(nullable = false)
-	private String introduction;
+	private String introduce;
 
 	@Column(nullable = false)
 	private String information;
@@ -58,16 +58,16 @@ public class Room extends BaseEntity {
 		this.password = password;
 	}
 
-	public void changeImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+	public void changeImageSrc(String imageSrc) {
+		this.imageSrc = imageSrc;
 	}
 
 	public void changeCapacity(Integer capacity) {
 		this.capacity = capacity;
 	}
 
-	public void changeIntroduction(String introduction) {
-		this.introduction = introduction;
+	public void changeIntroduce(String introduce) {
+		this.introduce = introduce;
 	}
 
 	public void changeInformation(String information) {

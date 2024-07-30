@@ -2,42 +2,41 @@ package io.driver.codrive.modules.room.model;
 
 import java.util.List;
 
-import org.hibernate.validator.constraints.Range;
-
 import io.driver.codrive.modules.room.domain.Room;
-import jakarta.validation.constraints.Size;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
 public record RoomModifyResponse(
-	@Size(min = 1, max = 20, message = "그룹 제목은 {min}자 이상 {max}자 이하로 입력해주세요.")
+	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
 
-	@Size(max = 20, message = "비밀번호는 {max}자 이하로 입력해주세요.")
+	@Schema(description = "비밀번호", example = "비밀번호")
 	String password,
 
-	String imageUrl,
+	@Schema(description = "그룹 대표 이미지 URL", example = "IMAGE_URL")
+	String imageSrc,
 
-	@Range(min = 1, max = 50, message = "모집 인원은 {min}명 이상 {max}명 이하로 입력해주세요.")
+	@Schema(description = "모집 인원", example = "20")
 	int capacity,
 
-	@Size(min = 1, max = 5, message = "언어는 {min}개 이상 {max}개 이하로 선택해주세요.")
-	List<String> languages,
+	@Schema(description = "언어 태그", example = "[\"Java\", \"Python\"]")
+	List<String> tags,
 
-	@Size(min = 1, max = 60, message = "한 줄 소개는 {min}자 이상 {max}자 이하로 입력해주세요.")
-	String introduction,
+	@Schema(description = "그룹 한 줄 소개", example = "그룹 한 줄 소개")
+	String introduce,
 
-	@Size(min = 1, max = 1000, message = "진행 방식은 {min}자 이상 {max}자 이하로 입력해주세요.")
+	@Schema(description = "진행 방식", example = "진행 방식")
 	String information
 ) {
 	public static RoomModifyResponse of(Room room) {
 		return RoomModifyResponse.builder()
 			.title(room.getTitle())
 			.password(room.getPassword())
-			.imageUrl(room.getImageUrl())
+			.imageSrc(room.getImageSrc())
 			.capacity(room.getCapacity())
-			.languages(room.getLanguages())
-			.introduction(room.getIntroduction())
+			.tags(room.getLanguages())
+			.introduce(room.getIntroduce())
 			.information(room.getInformation())
 			.build();
 	}

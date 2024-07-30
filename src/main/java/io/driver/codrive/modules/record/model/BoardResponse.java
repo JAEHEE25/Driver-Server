@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 	public record BoardResponse(
-		@Schema(description = "날짜", example = "5")
+		@Schema(description = "날짜", example = "30")
 		String date,
 
 		@Schema(description = "개수", example = "2")
