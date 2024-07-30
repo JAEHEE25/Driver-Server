@@ -21,6 +21,7 @@ public class Language {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long languageId;
 
+	@Column(nullable = false)
 	private String name;
 
 	@OneToMany(mappedBy = "language", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

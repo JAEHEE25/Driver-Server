@@ -42,7 +42,7 @@ public record RecordCreateRequest(
 			.user(user)
 			.title(title)
 			.level(level)
-			.recordTagMappings(new ArrayList<>())
+			.recordCategoryMappings(new ArrayList<>())
 			.platform(platform)
 			.problemUrl(problemUrl)
 			.codeblocks(codeblocks)

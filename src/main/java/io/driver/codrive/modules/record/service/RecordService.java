@@ -9,8 +9,8 @@ import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
-import io.driver.codrive.modules.mappings.recordTagMapping.domain.RecordTagMapping;
-import io.driver.codrive.modules.mappings.recordTagMapping.service.RecordTagMappingService;
+import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
+import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class RecordService {
 	private final UserService userService;
 	private final CodeblockService codeblockService;
-	private final RecordTagMappingService recordTagMappingService;
+	private final RecordCategoryMappingService recordCategoryMappingService;
 	private final BoardService boardService;
 	private final RecordRepository recordRepository;
 
@@ -34,9 +34,9 @@ public class RecordService {
 		Record savedRecord = recordRepository.save(request.toEntity(user));
 		codeblockService.createCodeblock(request.codeblocks(), savedRecord);
 
-		List<RecordTagMapping> mappings = recordTagMappingService
-			.getRecordTagMappingsByRequest(request.tags(), savedRecord);
-		recordTagMappingService.createRecordTagMapping(mappings, savedRecord);
+		List<RecordCategoryMapping> mappings = recordCategoryMappingService
+			.getRecordCategoryMappingsByRequest(request.tags(), savedRecord);
+		recordCategoryMappingService.createRecordCategoryMapping(mappings, savedRecord);
 		return RecordCreateResponse.of(savedRecord);
 	}
 
@@ -91,11 +91,11 @@ public class RecordService {
 	}
 
 	@Transactional
-	public void updateTags(Record record, List<String> newTags) {
-		if (record.getTags() != newTags) {
-			recordTagMappingService.deleteRecordTagMapping(record.getRecordTagMappings(), record);
-			List<RecordTagMapping> newMappings = recordTagMappingService.getRecordTagMappingsByRequest(newTags, record);
-			recordTagMappingService.createRecordTagMapping(newMappings, record);
+	public void updateTags(Record record, List<String> tags) {
+		if (record.getCategories() != tags) {
+			recordCategoryMappingService.deleteRecordCategoryMapping(record.getRecordCategoryMappings(), record);
+			List<RecordCategoryMapping> newMappings = recordCategoryMappingService.getRecordCategoryMappingsByRequest(tags, record);
+			recordCategoryMappingService.createRecordCategoryMapping(newMappings, record);
 		}
 	}
 

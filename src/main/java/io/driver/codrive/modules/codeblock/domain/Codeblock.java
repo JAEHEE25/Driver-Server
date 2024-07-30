@@ -24,7 +24,7 @@ public class Codeblock extends BaseEntity {
 	private String memo;
 
 	@ManyToOne
-	@JoinColumn(name = "record_id")
+	@JoinColumn(name = "record_id", nullable = false)
 	private Record record;
 
 	public void changeRecord(Record record) {

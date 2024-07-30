@@ -32,7 +32,7 @@ public record RecordModifyResponse(
 		return RecordModifyResponse.builder()
 			.title(record.getTitle())
 			.level(record.getLevel())
-			.tags(record.getTags())
+			.tags(record.getCategories())
 			.platform(record.getPlatform())
 			.problemUrl(record.getProblemUrl())
 			.codeblocks(record.getCodeblocks().stream().map(CodeblockDetailResponse::of).toList())
