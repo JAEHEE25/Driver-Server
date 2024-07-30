@@ -1,7 +1,5 @@
 package io.driver.codrive.modules.auth.service;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,7 +8,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import io.driver.codrive.modules.auth.model.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.LoginRequest;
 import io.driver.codrive.modules.auth.model.LoginResponse;
-import io.driver.codrive.modules.auth.model.SampleDto;
 import io.driver.codrive.modules.global.jwt.JwtProvider;
 import io.driver.codrive.modules.global.exception.UnauthorizedApplicationException;
 import io.driver.codrive.modules.language.service.LanguageService;
@@ -65,22 +62,9 @@ public class AuthService {
 			.orElseGet(() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("NOT_SELECTED"))));
 
 		user.changeName(userProfile.name());
-		user.changeProfileUrl(userProfile.profileUrl());
+		user.changeProfileImg(userProfile.profileImg());
 
 		return user;
 	}
 
-
-	//로컬 테스트용
-	public void getAccessToken(String clientId, String clientSecret, String code) {
-		String response = webClient.post()
-			.uri("https://github.com/login/oauth/access_token")
-			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.bodyValue(SampleDto.createRequest(clientId, clientSecret, code))
-			.retrieve()
-			.toEntity(String.class)
-			.block()
-			.getBody();
-		log.info("access Token: " + response);
-	}
 }

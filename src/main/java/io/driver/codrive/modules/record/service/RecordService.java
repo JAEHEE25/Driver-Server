@@ -32,7 +32,7 @@ public class RecordService {
 	public RecordCreateResponse createRecord(RecordCreateRequest request) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record savedRecord = recordRepository.save(request.toEntity(user));
-		codeblockService.createCodeblock(request.codeblocks(), savedRecord); //코드블럭
+		codeblockService.createCodeblock(request.codeblocks(), savedRecord);
 
 		List<RecordTagMapping> mappings = recordTagMappingService
 			.getRecordTagMappingsByRequest(request.tags(), savedRecord);
@@ -52,16 +52,16 @@ public class RecordService {
 	}
 
 	@Transactional
-	public RecordListResponse getRecordsByDate(Long userId, RecordListRequest request) {
+	public RecordListResponse getRecordsByDate(Long userId, String pivotDate) {
 		User user = userService.getUserById(userId);
-		List<Record> records = boardService.getRecordsByDate(user, request);
+		List<Record> records = boardService.getRecordsByDate(user, pivotDate);
 		return RecordListResponse.of(records);
 	}
 
 	@Transactional
-	public RecordBoardResponse getRecordsBoard(Long userId, Period period, RecordBoardRequest request) {
+	public RecordBoardResponse getRecordsBoard(Long userId, Period period, String pivotDate) {
 		User user = userService.getUserById(userId);
-		List<BoardResponse> records = boardService.getBoardResponse(user, period, request);
+		List<BoardResponse> records = boardService.getBoardResponse(user, period, pivotDate);
 		return RecordBoardResponse.of(records);
 	}
 

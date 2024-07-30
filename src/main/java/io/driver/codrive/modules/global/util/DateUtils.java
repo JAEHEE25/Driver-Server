@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class DateUtils {
 
-	public LocalDate parsePivotDate(String pivotDate) {
+	private LocalDate parsePivotDate(String pivotDate) {
 		return LocalDate.parse(pivotDate);
 	}
 

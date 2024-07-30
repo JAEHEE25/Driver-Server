@@ -2,41 +2,33 @@ package io.driver.codrive.modules.record.model;
 
 import java.util.List;
 
-import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
 public record RecordListResponse(
-	List<RecordListDetailResponse> records
+	@Schema(description = "문제 풀이 목록", examples = {"""
+		[
+			{
+		   		"recordId": 9,
+		        "title": "제목",
+		        "language": "Java",
+		        "tags": [
+		            "정렬"
+		        ],
+		        "platform": "BAEKJOON",
+		        "problemUrl": "PROBLEM_URL",
+		        "level": 2
+			}
+		]
+		"""
+	})
+	List<RecordDetailResponse> records
 ) {
 	public static RecordListResponse of(List<Record> records) {
 		return RecordListResponse.builder()
-			.records(records.stream().map(RecordListDetailResponse::of).toList())
+			.records(RecordDetailResponse.of(records))
 			.build();
-	}
-
-	@Builder
-	record RecordListDetailResponse(
-		Long recordId,
-		String title,
-		String language,
-		List<String> tags,
-		Platform platform,
-		String problemUrl,
-		int level
-
-	) {
-		public static RecordListDetailResponse of(Record record) {
-			return RecordListDetailResponse.builder()
-				.recordId(record.getRecordId())
-				.title(record.getTitle())
-				.language(record.getUser().getLanguage().getName())
-				.tags(record.getTags())
-				.platform(record.getPlatform())
-				.problemUrl(record.getProblemUrl())
-				.level(record.getLevel())
-				.build();
-		}
 	}
 }

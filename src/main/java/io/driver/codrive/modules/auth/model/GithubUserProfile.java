@@ -14,14 +14,14 @@ public record GithubUserProfile(
 	String name,
 
 	@JsonProperty("avatar_url")
-	String profileUrl
+	String profileImg
 ) {
 	public User toUser(Language language) {
 		return User.builder()
 			.email(email)
 			.name(name)
 			.nickname(name)
-			.profileUrl(profileUrl)
+			.profileImg(profileImg)
 			.githubUrl(null)
 			.language(language)
 			.level(1)

@@ -36,7 +36,7 @@ public class RoomService {
 		Room savedRoom = roomRepository.save(request.toEntity(user));
 
 		List<RoomLanguageMapping> mappings = roomLanguageMappingService.getRoomLanguageMappingsByRequest(
-			request.languages(), savedRoom);
+			request.tags(), savedRoom);
 		roomLanguageMappingService.createRoomLanguageMapping(mappings, savedRoom);
 
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
@@ -67,11 +67,11 @@ public class RoomService {
 		Room newRoom = request.toEntity();
 		room.changeTitle(newRoom.getTitle());
 		room.changePassword(newRoom.getPassword());
-		room.changeImageUrl(newRoom.getImageUrl()); //todo 이미지 삭제 후 업로드
+		room.changeImageSrc(newRoom.getImageSrc()); //todo 이미지 삭제 후 업로드
 		room.changeCapacity(newRoom.getCapacity());
-		room.changeIntroduction(newRoom.getIntroduction());
+		room.changeIntroduce(newRoom.getIntroduce());
 		room.changeInformation(newRoom.getInformation());
-		updateLanguages(room, request.languages());
+		updateLanguages(room, request.tags());
 	}
 
 	@Transactional

@@ -28,9 +28,9 @@ public class UserService {
 			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
 	}
 
-	public UserInfoResponse getUserInfo(Long userId) {
+	public UserDetailResponse getUserInfo(Long userId) {
 		User user = getUserById(userId);
-		return UserInfoResponse.of(user);
+		return UserDetailResponse.of(user);
 	}
 
 	public void checkNicknameDuplication(NicknameRequest request) {
@@ -44,6 +44,7 @@ public class UserService {
 		User user = getUserById(userId);
 		user.changeNickname(request.nickname());
 		user.changeLanguage(languageService.getLanguageByName(request.language()));
+		user.changeComment(request.comment());
 		user.changeGithubUrl(request.githubUrl());
 		return ProfileChangeResponse.of(user);
 	}

@@ -48,12 +48,13 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<BoardDetailDto> getRecordCountByWeek(Long userId, LocalDateTime pivotDateTime) {
-		LocalDateTime mondayDateTime = getMondayDateTime(pivotDateTime); //월요일 00:00:00부터 기준일 23:59:59까지
+	public List<BoardDetailDto> getRecordCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
+		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
+		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
 		StringTemplate formattedDate = getFormattedDate("%d");
 
 		return from(record)
-			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, pivotDateTime))
+			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime))
 			.groupBy(formattedDate)
 			.select(Projections.fields(BoardDetailDto.class,
 				formattedDate.as("date"),
@@ -66,9 +67,15 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		return Expressions.stringTemplate("DATE_FORMAT({0}, {1})", record.createdAt, ConstantImpl.create(format));
 	}
 
-	public LocalDateTime getMondayDateTime(LocalDateTime pivotDateTime) {
-		int pivotDay = pivotDateTime.getDayOfWeek().getValue();
+	public LocalDateTime getMondayDateTime(LocalDate pivotDate) {
+		int pivotDay = pivotDate.getDayOfWeek().getValue();
 		int monday = DayOfWeek.MONDAY.getValue();
-		return pivotDateTime.toLocalDate().minusDays(pivotDay - monday).atStartOfDay();
+		return pivotDate.minusDays(pivotDay - monday).atStartOfDay();
 	}
+
+    public LocalDateTime getSundayDateTime(LocalDate pivotDate) {
+        int pivotDay = pivotDate.getDayOfWeek().getValue();
+        int sunday = DayOfWeek.SUNDAY.getValue();
+        return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
+    }
 }

@@ -15,8 +15,6 @@ import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.model.BoardDetailDto;
 import io.driver.codrive.modules.record.model.BoardResponse;
-import io.driver.codrive.modules.record.model.RecordBoardRequest;
-import io.driver.codrive.modules.record.model.RecordListRequest;
 import io.driver.codrive.modules.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
@@ -26,22 +24,20 @@ public class BoardService {
 	private final Map<String, Long> board = new LinkedHashMap<>();
 	private final RecordRepository recordRepository;
 
-	public List<Record> getRecordsByDate(User user, RecordListRequest request) {
-		if (request.pivotDate() == null) {
-			return recordRepository.findAllByUser(user);
-		}
-		return recordRepository.getRecordsByDate(user.getUserId(), DateUtils.parsePivotDate(request.pivotDate()));
+	public List<Record> getRecordsByDate(User user, String pivotDate) {
+		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
+		return recordRepository.getRecordsByDate(user.getUserId(), pivot);
 	}
 
-	private List<BoardDetailDto> getBoardDetailDtos(User user, Period period, RecordBoardRequest request) {
-		LocalDate pivotDate = DateUtils.getPivotDateOrToday(request.pivotDate());
+	private List<BoardDetailDto> getBoardDetailDtos(User user, Period period, String pivotDate) {
+		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
 
 		if (period == Period.MONTHLY) {
-			createMonthlyBoard(pivotDate);
-			return recordRepository.getRecordCountByMonth(user.getUserId(), pivotDate);
+			createMonthlyBoard(pivot);
+			return recordRepository.getRecordCountByMonth(user.getUserId(), pivot);
 		} else { //WEEKLY
-			createWeeklyBoard(pivotDate);
-			return recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate.atTime(23, 59, 59));
+			createWeeklyBoard(pivot);
+			return recordRepository.getRecordCountByWeek(user.getUserId(), pivot);
 		}
 	}
 
@@ -68,8 +64,8 @@ public class BoardService {
 		boardDetailDtos.forEach(dto -> board.put(dto.getDate(), dto.getCount()));
 	}
 
-	public List<BoardResponse> getBoardResponse(User user, Period period, RecordBoardRequest request) {
-		List<BoardDetailDto> boardDetails = getBoardDetailDtos(user, period, request);
+	public List<BoardResponse> getBoardResponse(User user, Period period, String pivotDate) {
+		List<BoardDetailDto> boardDetails = getBoardDetailDtos(user, period, pivotDate);
 		updateBoard(boardDetails);
 		return board.entrySet().stream()
 			.map(entry -> BoardResponse.of(entry.getKey(), entry.getValue()))
