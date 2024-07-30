@@ -5,7 +5,7 @@ import java.util.List;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.global.BaseEntity;
-import io.driver.codrive.modules.mappings.recordTagMapping.domain.RecordTagMapping;
+import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,14 +37,14 @@ public class Record extends BaseEntity {
 	private String problemUrl;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Codeblock> codeblocks;
 
-	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<RecordTagMapping> recordTagMappings;
+	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<RecordCategoryMapping> recordCategoryMappings;
 
 	public void changeTitle(String title) {
 		this.title = title;
@@ -66,20 +66,20 @@ public class Record extends BaseEntity {
 		this.codeblocks = codeblocks;
 	}
 
-	public void changeTags(List<RecordTagMapping> recordTagMapping) {
-		this.recordTagMappings = recordTagMapping;
+	public void changeCategories(List<RecordCategoryMapping> recordCategoryMapping) {
+		this.recordCategoryMappings = recordCategoryMapping;
 	}
 
-	public void deleteTags(List<RecordTagMapping> recordTagMapping) {
-		this.recordTagMappings.removeAll(recordTagMapping);
+	public void deleteCategories(List<RecordCategoryMapping> recordCategoryMapping) {
+		this.recordCategoryMappings.removeAll(recordCategoryMapping);
 	}
 
-	public List<String> getTags() {
-		List<String> tags = new ArrayList<>();
-		recordTagMappings.forEach(mapping -> {
-			tags.add(mapping.getTagName());
+	public List<String> getCategories() {
+		List<String> categories = new ArrayList<>();
+		recordCategoryMappings.forEach(mapping -> {
+			categories.add(mapping.getCategoryName());
 		});
-		return tags;
+		return categories;
 	}
 
 }

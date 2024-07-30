@@ -1,9 +1,6 @@
-package io.driver.codrive.modules.tag.domain;
+package io.driver.codrive.modules.category.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tag {
+public class Category {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long tagId;
+	private Long categoryId;
 
+	@Column(nullable = false)
 	private String name;
 }

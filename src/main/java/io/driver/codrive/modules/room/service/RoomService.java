@@ -35,7 +35,7 @@ public class RoomService {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Room savedRoom = roomRepository.save(request.toEntity(user));
 
-		List<RoomLanguageMapping> mappings = roomLanguageMappingService.getRoomLanguageMappingsByRequest(
+		List<RoomLanguageMapping> mappings = roomLanguageMappingService.getRoomLanguageMappingsByTag(
 			request.tags(), savedRoom);
 		roomLanguageMappingService.createRoomLanguageMapping(mappings, savedRoom);
 
@@ -78,7 +78,7 @@ public class RoomService {
 	public void updateLanguages(Room room, List<String> newLanguages) {
 		if (room.getLanguages() != newLanguages) {
 			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings(), room);
-			List<RoomLanguageMapping> newMappings = roomLanguageMappingService.getRoomLanguageMappingsByRequest(
+			List<RoomLanguageMapping> newMappings = roomLanguageMappingService.getRoomLanguageMappingsByTag(
 				newLanguages, room);
 			roomLanguageMappingService.createRoomLanguageMapping(newMappings, room);
 		}
