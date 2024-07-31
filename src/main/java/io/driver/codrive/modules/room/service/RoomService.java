@@ -100,7 +100,7 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomListResponse getRoomList(int page, int size) {
+	public RoomListResponse getRooms(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		List<RoomDetailResponse> rooms = roomRepository.findAll(pageable).map(RoomDetailResponse::of).toList();
 		return RoomListResponse.of(rooms);

@@ -67,6 +67,18 @@ public class RecordController {
 	}
 
 	@Operation(
+		summary = "문제 풀이 목록 조회",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordListResponse.class))),
+		}
+	)
+	@GetMapping
+	public ResponseEntity<BaseResponse<RecordListResponse>> getRecords() {
+		RecordListResponse response = recordService.getRecords();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
 		summary = "날짜별 문제 풀이 목록 조회",
 		description = "해당 사용자의 문제 풀이 목록을 날짜별로 조회합니다.",
 		parameters = {
@@ -128,5 +140,21 @@ public class RecordController {
 		@PathVariable(name = "recordId") Long recordId, @Valid @RequestBody RecordModifyRequest request) {
 		RecordModifyResponse response = recordService.modifyRecord(recordId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "문제 풀이 삭제",
+		parameters = {
+			@Parameter(name = "recordId", in = ParameterIn.PATH, required = true, description = "문제 풀이 ID"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"문제 풀이 데이터를 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@DeleteMapping("/{recordId}")
+	public ResponseEntity<BaseResponse<Void>> deleteRecord(@PathVariable(name = "recordId") Long recordId) {
+		recordService.deleteRecord(recordId);
+		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 }

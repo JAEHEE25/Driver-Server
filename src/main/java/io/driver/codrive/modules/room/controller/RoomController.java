@@ -71,10 +71,10 @@ public class RoomController {
 		}
 	)
 	@GetMapping
-	public ResponseEntity<BaseResponse<RoomListResponse>> getRoomList(
+	public ResponseEntity<BaseResponse<RoomListResponse>> getRooms(
 		@RequestParam(name = "page", defaultValue = "0") int page,
 		@RequestParam(name = "size", defaultValue = "9") int size) {
-		RoomListResponse response = roomService.getRoomList(page, size);
+		RoomListResponse response = roomService.getRooms(page, size);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

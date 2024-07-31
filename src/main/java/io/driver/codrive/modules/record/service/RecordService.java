@@ -52,6 +52,13 @@ public class RecordService {
 	}
 
 	@Transactional
+	public RecordListResponse getRecords() {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<Record> records = recordRepository.findAllByUser(user);
+		return RecordListResponse.of(records);
+	}
+
+	@Transactional
 	public RecordListResponse getRecordsByDate(Long userId, String pivotDate) {
 		User user = userService.getUserById(userId);
 		List<Record> records = boardService.getRecordsByDate(user, pivotDate);
@@ -81,6 +88,12 @@ public class RecordService {
 		record.changeProblemUrl(newRecord.getProblemUrl());
 		updateCodeblocks(record, newRecord);
 		updateTags(record, request.tags());
+	}
+
+	@Transactional
+	public void deleteRecord(Long recordId) {
+		Record record = getRecordById(recordId);
+		recordRepository.delete(record);
 	}
 
 	@Transactional
