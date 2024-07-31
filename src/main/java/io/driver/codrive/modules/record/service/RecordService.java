@@ -80,7 +80,7 @@ public class RecordService {
 		record.changePlatform(newRecord.getPlatform());
 		record.changeProblemUrl(newRecord.getProblemUrl());
 		updateCodeblocks(record, newRecord);
-		updateTags(record, request.tags());
+		updateCategories(record, request.tags());
 	}
 
 	@Transactional
@@ -91,7 +91,7 @@ public class RecordService {
 	}
 
 	@Transactional
-	public void updateTags(Record record, List<String> tags) {
+	public void updateCategories(Record record, List<String> tags) {
 		if (record.getCategories() != tags) {
 			recordCategoryMappingService.deleteRecordCategoryMapping(record.getRecordCategoryMappings(), record);
 			List<RecordCategoryMapping> newMappings = recordCategoryMappingService.getRecordCategoryMappingsByRequest(tags, record);

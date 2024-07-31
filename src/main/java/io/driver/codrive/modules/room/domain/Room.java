@@ -75,7 +75,8 @@ public class Room extends BaseEntity {
 	}
 
 	public void changeLanguages(List<RoomLanguageMapping> mappings) {
-		this.roomLanguageMappings = mappings;
+		this.roomLanguageMappings.clear();
+		this.roomLanguageMappings.addAll(mappings);
 	}
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {

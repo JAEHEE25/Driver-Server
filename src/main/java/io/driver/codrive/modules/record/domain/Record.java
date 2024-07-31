@@ -67,7 +67,8 @@ public class Record extends BaseEntity {
 	}
 
 	public void changeCategories(List<RecordCategoryMapping> recordCategoryMapping) {
-		this.recordCategoryMappings = recordCategoryMapping;
+		this.recordCategoryMappings.clear();
+		this.recordCategoryMappings.addAll(recordCategoryMapping);
 	}
 
 	public void deleteCategories(List<RecordCategoryMapping> recordCategoryMapping) {
