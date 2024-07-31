@@ -3,10 +3,8 @@ package io.driver.codrive.modules.record.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.auth.model.LoginRequest;
-import io.driver.codrive.modules.auth.model.LoginResponse;
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.BaseResponse;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.model.*;
 import io.driver.codrive.modules.record.service.RecordService;

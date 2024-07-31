@@ -4,7 +4,7 @@ package io.driver.codrive.modules.mappings.roomUserMapping.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.modules.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMappingRepository;
 import io.driver.codrive.modules.room.domain.Room;

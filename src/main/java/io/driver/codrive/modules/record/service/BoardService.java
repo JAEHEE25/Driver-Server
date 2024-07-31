@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import io.driver.codrive.modules.global.util.DateUtils;
+import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;

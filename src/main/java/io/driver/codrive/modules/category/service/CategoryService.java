@@ -3,7 +3,7 @@ package io.driver.codrive.modules.category.service;
 import org.springframework.stereotype.Service;
 
 import io.driver.codrive.modules.category.domain.Category;
-import io.driver.codrive.modules.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.category.domain.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 
