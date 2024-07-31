@@ -1,6 +1,6 @@
 package io.driver.codrive.modules.mappings.roomLanguageMapping.domain;
 
-import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.global.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.room.domain.Room;
 import jakarta.persistence.*;

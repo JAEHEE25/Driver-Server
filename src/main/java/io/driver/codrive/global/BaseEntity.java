@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global;
+package io.driver.codrive.global;
 
 import java.time.LocalDateTime;
 

@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
-import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
-import io.driver.codrive.modules.global.util.AuthUtils;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
 import io.driver.codrive.modules.record.domain.Period;

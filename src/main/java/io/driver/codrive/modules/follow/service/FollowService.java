@@ -5,10 +5,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.follow.domain.FollowRepository;
-import io.driver.codrive.modules.global.exception.AlreadyExistsApplicationException;
-import io.driver.codrive.modules.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
-import io.driver.codrive.modules.global.util.AuthUtils;
+import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;

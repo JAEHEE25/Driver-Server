@@ -3,10 +3,10 @@ package io.driver.codrive.modules.roomRequest.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.modules.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
-import io.driver.codrive.modules.global.util.AuthUtils;
-import io.driver.codrive.modules.global.util.RoleUtils;
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.RoleUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;

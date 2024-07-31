@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.global.BaseEntity;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;

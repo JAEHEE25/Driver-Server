@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.jwt;
+package io.driver.codrive.global.jwt;
 
 import java.io.IOException;
 import java.util.Date;
@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
-import io.driver.codrive.modules.global.config.JwtConfig;
+import io.driver.codrive.global.config.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

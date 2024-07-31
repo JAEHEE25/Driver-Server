@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.constants;
+package io.driver.codrive.global.constants;
 
 import lombok.Getter;
 

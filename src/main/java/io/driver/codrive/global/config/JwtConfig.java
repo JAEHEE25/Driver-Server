@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.config;
+package io.driver.codrive.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

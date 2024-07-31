@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.jwt;
+package io.driver.codrive.global.jwt;
 
 import java.util.Date;
 
@@ -6,7 +6,7 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
-import io.driver.codrive.modules.global.config.JwtConfig;
+import io.driver.codrive.global.config.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

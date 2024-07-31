@@ -1,6 +1,6 @@
-package io.driver.codrive.modules.global.util;
+package io.driver.codrive.global.util;
 
-import io.driver.codrive.modules.global.exception.handler.ForbiddenApplcationException;
+import io.driver.codrive.global.exception.handler.ForbiddenApplcationException;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import lombok.experimental.UtilityClass;

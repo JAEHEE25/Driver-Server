@@ -3,8 +3,8 @@ package io.driver.codrive.modules.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.modules.global.exception.AlreadyExistsApplicationException;
-import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;

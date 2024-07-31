@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.exception;
+package io.driver.codrive.global.exception;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.model;
+package io.driver.codrive.global.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

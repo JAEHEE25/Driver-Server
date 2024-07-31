@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.exception.handler;
+package io.driver.codrive.global.exception.handler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import io.driver.codrive.modules.global.exception.ApplicationException;
-import io.driver.codrive.modules.global.model.ErrorResponse;
+import io.driver.codrive.global.exception.ApplicationException;
+import io.driver.codrive.global.model.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice

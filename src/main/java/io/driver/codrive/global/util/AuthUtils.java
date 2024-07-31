@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.util;
+package io.driver.codrive.global.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.global.jwt;
+package io.driver.codrive.global.jwt;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 

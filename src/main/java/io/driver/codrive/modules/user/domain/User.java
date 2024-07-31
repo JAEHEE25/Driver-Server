@@ -6,7 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import io.driver.codrive.modules.follow.domain.Follow;
-import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.global.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.record.domain.Record;

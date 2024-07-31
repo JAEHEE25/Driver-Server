@@ -1,9 +1,9 @@
-package io.driver.codrive.modules.global.util;
+package io.driver.codrive.global.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.driver.codrive.modules.global.exception.InternalServerErrorApplicationException;
+import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

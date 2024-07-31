@@ -1,11 +1,11 @@
-package io.driver.codrive.modules.global.config;
+package io.driver.codrive.global.config;
 
 import org.springframework.context.annotation.Configuration;
 
-import io.driver.codrive.modules.global.jwt.JwtAuthenticationFilter;
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.ErrorResponse;
-import io.driver.codrive.modules.global.util.JsonUtils;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.util.JsonUtils;
+import io.driver.codrive.global.jwt.JwtAuthenticationFilter;
+import io.driver.codrive.global.model.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.annotation.Bean;

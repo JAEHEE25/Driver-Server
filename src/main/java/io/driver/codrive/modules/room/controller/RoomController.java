@@ -3,8 +3,8 @@ package io.driver.codrive.modules.room.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.BaseResponse;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.room.model.*;
 import io.driver.codrive.modules.room.service.RoomService;
 import io.driver.codrive.modules.room.model.RoomListResponse;
