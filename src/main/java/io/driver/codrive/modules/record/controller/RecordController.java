@@ -3,8 +3,6 @@ package io.driver.codrive.modules.record.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.auth.model.LoginRequest;
-import io.driver.codrive.modules.auth.model.LoginResponse;
 import io.driver.codrive.modules.global.constants.APIConstants;
 import io.driver.codrive.modules.global.model.BaseResponse;
 import io.driver.codrive.modules.record.domain.Period;
@@ -38,7 +36,7 @@ public class RecordController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다.\"}"),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 		}
 	)
@@ -120,6 +118,9 @@ public class RecordController {
 		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordModifyResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = {
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+			})),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"문제 풀이 데이터를 찾을 수 없습니다.\"}"))),
 		}
 	)

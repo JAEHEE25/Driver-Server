@@ -36,6 +36,10 @@ public class Record extends BaseEntity {
 	@Column(nullable = false)
 	private String problemUrl;
 
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Status status;
+
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;

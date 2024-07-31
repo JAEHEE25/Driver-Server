@@ -20,7 +20,8 @@ public class RecordCategoryMappingService {
 	private final RecordCategoryMappingRepository recordCategoryMappingRepository;
 
 	@Transactional
-	public void createRecordCategoryMapping(List<RecordCategoryMapping> mappings, Record record) {
+	public void createRecordCategoryMapping(List<String> tags, Record record) {
+		List<RecordCategoryMapping> mappings = getRecordCategoryMappingsByTags(tags, record);
 		recordCategoryMappingRepository.saveAll(mappings);
 		record.changeCategories(mappings);
 	}
@@ -31,7 +32,7 @@ public class RecordCategoryMappingService {
 		record.deleteCategories(mappings);
 	}
 
-	public List<RecordCategoryMapping> getRecordCategoryMappingsByRequest(List<String> tags, Record record) {
+	public List<RecordCategoryMapping> getRecordCategoryMappingsByTags(List<String> tags, Record record) {
 		List<RecordCategoryMapping> recordCategoryMappings = new ArrayList<>();
 		tags.forEach(request -> {
 			Category category = categoryService.getCategoryByName(request);

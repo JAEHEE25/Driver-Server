@@ -9,7 +9,6 @@ import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.global.util.AuthUtils;
-import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
@@ -32,11 +31,10 @@ public class RecordService {
 	public RecordCreateResponse createRecord(RecordCreateRequest request) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record savedRecord = recordRepository.save(request.toEntity(user));
-		codeblockService.createCodeblock(request.codeblocks(), savedRecord);
 
-		List<RecordCategoryMapping> mappings = recordCategoryMappingService
-			.getRecordCategoryMappingsByRequest(request.tags(), savedRecord);
-		recordCategoryMappingService.createRecordCategoryMapping(mappings, savedRecord);
+		codeblockService.createCodeblock(request.codeblocks(), savedRecord);
+		recordCategoryMappingService.createRecordCategoryMapping(request.tags(), savedRecord);
+
 		return RecordCreateResponse.of(savedRecord);
 	}
 
@@ -94,8 +92,7 @@ public class RecordService {
 	public void updateTags(Record record, List<String> tags) {
 		if (record.getCategories() != tags) {
 			recordCategoryMappingService.deleteRecordCategoryMapping(record.getRecordCategoryMappings(), record);
-			List<RecordCategoryMapping> newMappings = recordCategoryMappingService.getRecordCategoryMappingsByRequest(tags, record);
-			recordCategoryMappingService.createRecordCategoryMapping(newMappings, record);
+			recordCategoryMappingService.createRecordCategoryMapping(tags, record);
 		}
 	}
 
