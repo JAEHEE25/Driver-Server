@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import io.driver.codrive.modules.auth.model.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.LoginRequest;
 import io.driver.codrive.modules.auth.model.LoginResponse;
-import io.driver.codrive.modules.global.jwt.JwtProvider;
-import io.driver.codrive.modules.global.exception.UnauthorizedApplicationException;
+import io.driver.codrive.global.jwt.JwtProvider;
+import io.driver.codrive.global.exception.UnauthorizedApplicationException;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;

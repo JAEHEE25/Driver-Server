@@ -46,7 +46,7 @@ public record RoomCreateRequest(
 	@Size(min = 1, max = 1000, message = "진행 방식은 {min}자 이상 {max}자 이하로 입력해주세요.")
 	String information
 ) {
-	public Room toEntity(User user) {
+	public Room toEntity(User user, String imageSrc) {
 		return Room.builder()
 			.title(title)
 			.password(password)
