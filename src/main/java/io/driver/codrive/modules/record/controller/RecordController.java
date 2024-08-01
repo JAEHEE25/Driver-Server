@@ -30,7 +30,7 @@ public class RecordController {
 		summary = "문제 풀이 생성",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			content = @Content(
-				schema = @Schema(implementation = RecordCreateRequest.class)
+				schema = @Schema(implementation = RecordSaveRequest.class)
 			)
 		),
 		responses = {
@@ -41,9 +41,8 @@ public class RecordController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createRecord(
-		@Valid @RequestBody RecordCreateRequest request) {
-		RecordCreateResponse response = recordService.createRecord(request);
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createRecord(@Valid @RequestBody RecordSaveRequest request) {
+		RecordCreateResponse response = recordService.createSavedRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -61,6 +60,27 @@ public class RecordController {
 	public ResponseEntity<BaseResponse<RecordDetailResponse>> getRecordDetail(
 		@PathVariable(name = "recordId") Long recordId) {
 		RecordDetailResponse response = recordService.getRecordDetail(recordId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+
+	@Operation(
+		summary = "문제 풀이 임시 저장",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				schema = @Schema(implementation = RecordSaveRequest.class)
+			)
+		),
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = {
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+			})),
+		}
+	)
+	@PostMapping("/temp")
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(@Valid @RequestBody RecordTempRequest request) {
+		RecordCreateResponse response = recordService.createTempRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -86,9 +106,9 @@ public class RecordController {
 	@Operation(
 		summary = "주간/월간 문제 풀이 개수 조회",
 		description = """
-		주간 보드를 조회할 경우, 해당 주의 월요일 00:00:00 ~ 일요일 23:59:59 사이의 데이터를 조회합니다.\n
-		월간 보드를 조회할 경우, 해당 월의 1일 ~ 말일 사이의 데이터를 조회합니다.
-		""",
+			주간 보드를 조회할 경우, 해당 주의 월요일 00:00:00 ~ 일요일 23:59:59 사이의 데이터를 조회합니다.\n
+			월간 보드를 조회할 경우, 해당 월의 1일 ~ 말일 사이의 데이터를 조회합니다.
+			""",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true, description = "사용자 ID"),
 			@Parameter(name = "period", in = ParameterIn.PATH, required = true, description = "주간/월간"),
@@ -101,7 +121,8 @@ public class RecordController {
 	)
 	@GetMapping("/{userId}/board/{period}")
 	public ResponseEntity<BaseResponse<RecordBoardResponse>> getRecordsBoard(@PathVariable(name = "userId") Long userId,
-		@PathVariable(name = "period") Period period, @RequestParam(name = "pivotDate", required = false) String pivotDate) {
+		@PathVariable(name = "period") Period period,
+		@RequestParam(name = "pivotDate", required = false) String pivotDate) {
 		RecordBoardResponse response = recordService.getRecordsBoard(userId, period, pivotDate);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}

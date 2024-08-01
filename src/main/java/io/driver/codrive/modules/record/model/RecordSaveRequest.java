@@ -6,17 +6,17 @@ import java.util.List;
 import org.hibernate.validator.constraints.Range;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.CodeblockModifyRequest;
 import io.driver.codrive.modules.codeblock.model.CodeblockSaveRequest;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.Status;
+import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record RecordModifyRequest(
+public record RecordSaveRequest(
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
 	@NotBlank
 	String title,
@@ -42,14 +42,15 @@ public record RecordModifyRequest(
 	@NotBlank
 	String problemUrl,
 
-	@Schema(description = "작성한 코드 블록", implementation = CodeblockModifyRequest.class,
+	@Schema(description = "작성한 코드 블록", implementation = CodeblockSaveRequest.class,
 		example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
 	@NotNull
 	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
-	List<CodeblockModifyRequest> codeblocks
+	List<CodeblockSaveRequest> codeblocks
 ) {
-	public Record toEntity() {
+	public Record toEntity(User user) {
 		return Record.builder()
+			.user(user)
 			.title(title)
 			.level(level)
 			.recordCategoryMappings(new ArrayList<>())

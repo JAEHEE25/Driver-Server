@@ -6,6 +6,8 @@ import java.util.List;
 import org.hibernate.validator.constraints.Range;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
+import io.driver.codrive.modules.codeblock.model.CodeblockSaveRequest;
+import io.driver.codrive.modules.codeblock.model.CodeblockTempRequest;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.Status;
@@ -15,7 +17,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record RecordCreateRequest(
+public record RecordTempRequest (
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
 	@NotBlank
 	String title,
@@ -28,28 +30,19 @@ public record RecordCreateRequest(
 		allowableValues = {"해시", "스택/큐", "힙 (Heap)", "정렬", "완전탐색", "탐욕법 (Greedy)",
 			"동적계획법 (Dynamic Programming)", "깊이 우선 탐색 (DFS)", "너비 우선 탐색 (BFS)", "이분탐색",
 			"그래프", "트리", "투포인터"})
-	@NotNull
-	@Size(min = 1, max = 2, message = "문제 유형 태그는 {min}개 이상 {max}개 이하로 선택해주세요.")
+	@Size(max = 2, message = "문제 유형 태그는 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
 	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON", "PROGRAMMERS", "SWEA",
 		"LEETCODE", "HACKERRANK", "OTHER"})
-	@NotNull
 	Platform platform,
 
 	@Schema(description = "문제 URL", example = "PROBLEM_URL")
-	@NotBlank
 	String problemUrl,
 
-	@Schema(description = "작성한 코드 블록", example = """
-		{
-			"code" : "CODE",
-			"memo": "MEMO"
-		}
-		""")
-	@NotNull
-	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
-	List<Codeblock> codeblocks
+	@Schema(description = "작성한 코드 블록", implementation = CodeblockTempRequest.class, example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
+	@Size(max = 10, message = "코드 블록은 {min}개 이하로 입력해주세요.")
+	List<CodeblockTempRequest> codeblocks
 ) {
 	public Record toEntity(User user) {
 		return Record.builder()
@@ -59,8 +52,8 @@ public record RecordCreateRequest(
 			.recordCategoryMappings(new ArrayList<>())
 			.platform(platform)
 			.problemUrl(problemUrl)
-			.codeblocks(codeblocks)
-			.status(Status.SAVED)
+			.codeblocks(new ArrayList<>())
+			.status(Status.TEMP)
 			.build();
 	}
 }

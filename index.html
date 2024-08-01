@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axios Request Example</title>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Axios Request Example</h1>
+    <button id="sendRequest">Send Axios Request</button>
+    <pre id="response"></pre>
+
+    <script>
+        document.getElementById('sendRequest').addEventListener('click', () => {
+            // Axios GET request
+            axios.get('http://localhost:8080/api/test/token/4')
+                .then(response => {
+                    document.getElementById('response').textContent = JSON.stringify(response.data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('response').textContent = 'Error: ' + error.message;
+                });
+        });
+    </script>
+</body>
+</html>
