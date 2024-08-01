@@ -1,5 +1,7 @@
 package io.driver.codrive.global.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Configuration;
 
 import io.driver.codrive.global.constants.APIConstants;
@@ -11,12 +13,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @Slf4j
@@ -35,9 +40,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtConfig jwtConfig) throws Exception {
         http
+            .cors(Customizer.withDefaults())
             .httpBasic(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
             .sessionManagement(custom -> custom.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(e -> {
                 e.requestMatchers(WHITELIST).permitAll();
@@ -64,4 +69,17 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+   	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(List.of("http://localhost:63342", "http://localhost:3000"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(
+			List.of("Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method",
+				"Access-Control-Request-Headers", "Authorization"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
+        return request -> configuration;
+	}
 }
