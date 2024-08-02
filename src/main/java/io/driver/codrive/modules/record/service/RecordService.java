@@ -69,21 +69,21 @@ public class RecordService {
 	@Transactional
 	public RecordListResponse getRecords() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<Record> records = recordRepository.findAllByUser(user);
+		List<Record> records = recordRepository.findAllByUserAndStatus(user, Status.SAVED);
 		return RecordListResponse.of(records);
 	}
 
 	@Transactional
 	public RecordListResponse getRecordsByDate(Long userId, String pivotDate) {
 		User user = userService.getUserById(userId);
-		List<Record> records = boardService.getRecordsByDate(user, pivotDate);
+		List<Record> records = boardService.getSavedRecordsByDate(user, pivotDate);
 		return RecordListResponse.of(records);
 	}
 
 	@Transactional
 	public RecordBoardResponse getRecordsBoard(Long userId, Period period, String pivotDate) {
 		User user = userService.getUserById(userId);
-		List<BoardResponse> records = boardService.getBoardResponse(user, period, pivotDate);
+		List<BoardResponse> records = boardService.getSavedBoardResponse(user, period, pivotDate);
 		return RecordBoardResponse.of(records);
 	}
 

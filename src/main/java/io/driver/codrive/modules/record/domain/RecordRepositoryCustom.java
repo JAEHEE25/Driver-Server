@@ -10,9 +10,9 @@ import io.driver.codrive.modules.record.model.BoardDetailDto;
 
 @Repository
 public interface RecordRepositoryCustom {
-	List<Record> getRecordsByDate(Long userId, LocalDate pivotDate);
-	List<BoardDetailDto> getRecordCountByMonth(Long userId, LocalDate pivotDate);
-	List<BoardDetailDto> getRecordCountByWeek(Long userId, LocalDate pivotDate);
+	List<Record> getSavedRecordsByDate(Long userId, LocalDate pivotDate);
+	List<BoardDetailDto> getSavedRecordCountByMonth(Long userId, LocalDate pivotDate);
+	List<BoardDetailDto> getSavedRecordCountByWeek(Long userId, LocalDate pivotDate);
 
 
 }

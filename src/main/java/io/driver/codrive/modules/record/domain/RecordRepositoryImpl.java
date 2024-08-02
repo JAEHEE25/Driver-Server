@@ -25,21 +25,21 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<Record> getRecordsByDate(Long userId, LocalDate pivotDate) {
+	public List<Record> getSavedRecordsByDate(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
 		return from(record)
-			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()))
+			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()), record.status.eq(Status.SAVED))
 			.fetch();
 	}
 
 	@Override
-	public List<BoardDetailDto> getRecordCountByMonth(Long userId, LocalDate pivotDate) {
+	public List<BoardDetailDto> getSavedRecordCountByMonth(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
-		StringTemplate formattedDay = getFormattedDate("%d");
+		StringTemplate formattedDay = getFormattedDate("%e");
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
 
 		return from(record)
-			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth))
+			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth), record.status.eq(Status.SAVED))
 			.groupBy(formattedDay)
 			.select(Projections.fields(BoardDetailDto.class,
 				formattedDay.as("date"),
@@ -48,13 +48,13 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<BoardDetailDto> getRecordCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
+	public List<BoardDetailDto> getSavedRecordCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
 		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
 		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
-		StringTemplate formattedDate = getFormattedDate("%d");
+		StringTemplate formattedDate = getFormattedDate("%e");
 
 		return from(record)
-			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime))
+			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime), record.status.eq(Status.SAVED))
 			.groupBy(formattedDate)
 			.select(Projections.fields(BoardDetailDto.class,
 				formattedDate.as("date"),

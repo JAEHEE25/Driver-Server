@@ -24,20 +24,20 @@ public class BoardService {
 	private final Map<String, Long> board = new LinkedHashMap<>();
 	private final RecordRepository recordRepository;
 
-	public List<Record> getRecordsByDate(User user, String pivotDate) {
+	public List<Record> getSavedRecordsByDate(User user, String pivotDate) {
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
-		return recordRepository.getRecordsByDate(user.getUserId(), pivot);
+		return recordRepository.getSavedRecordsByDate(user.getUserId(), pivot);
 	}
 
-	private List<BoardDetailDto> getBoardDetailDtos(User user, Period period, String pivotDate) {
+	private List<BoardDetailDto> getSavedBoardDetailDtos(User user, Period period, String pivotDate) {
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
 
 		if (period == Period.MONTHLY) {
 			createMonthlyBoard(pivot);
-			return recordRepository.getRecordCountByMonth(user.getUserId(), pivot);
+			return recordRepository.getSavedRecordCountByMonth(user.getUserId(), pivot);
 		} else { //WEEKLY
 			createWeeklyBoard(pivot);
-			return recordRepository.getRecordCountByWeek(user.getUserId(), pivot);
+			return recordRepository.getSavedRecordCountByWeek(user.getUserId(), pivot);
 		}
 	}
 
@@ -64,8 +64,8 @@ public class BoardService {
 		boardDetailDtos.forEach(dto -> board.put(dto.getDate(), dto.getCount()));
 	}
 
-	public List<BoardResponse> getBoardResponse(User user, Period period, String pivotDate) {
-		List<BoardDetailDto> boardDetails = getBoardDetailDtos(user, period, pivotDate);
+	public List<BoardResponse> getSavedBoardResponse(User user, Period period, String pivotDate) {
+		List<BoardDetailDto> boardDetails = getSavedBoardDetailDtos(user, period, pivotDate);
 		updateBoard(boardDetails);
 		return board.entrySet().stream()
 			.map(entry -> BoardResponse.of(entry.getKey(), entry.getValue()))
