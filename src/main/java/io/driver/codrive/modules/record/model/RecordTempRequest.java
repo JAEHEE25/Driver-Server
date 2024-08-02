@@ -5,19 +5,16 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
 
-import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.CodeblockSaveRequest;
-import io.driver.codrive.modules.codeblock.model.CodeblockTempRequest;
+import io.driver.codrive.modules.codeblock.model.CodeblockCreateRequest;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.Status;
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record RecordTempRequest (
+public record RecordTempRequest(
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
 	@NotBlank
 	String title,
@@ -40,18 +37,51 @@ public record RecordTempRequest (
 	@Schema(description = "문제 URL", example = "PROBLEM_URL")
 	String problemUrl,
 
-	@Schema(description = "작성한 코드 블록", implementation = CodeblockTempRequest.class, example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
+	@Schema(description = "작성한 코드 블록", implementation = CodeblockCreateRequest.class,
+		example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
 	@Size(max = 10, message = "코드 블록은 {min}개 이하로 입력해주세요.")
-	List<CodeblockTempRequest> codeblocks
-) {
+	List<CodeblockCreateRequest> codeblocks
+
+) implements RecordCreateRequest {
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	@Override
+	public int getLevel() {
+		return level;
+	}
+
+	@Override
+	public List<String> getTags() {
+		return tags;
+	}
+
+	@Override
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	@Override
+	public String getProblemUrl() {
+		return problemUrl;
+	}
+
+	@Override
+	public List<CodeblockCreateRequest> getCodeblocks() {
+		return codeblocks;
+	}
+
+	@Override
 	public Record toEntity(User user) {
 		return Record.builder()
 			.user(user)
-			.title(title)
-			.level(level)
+			.title(getTitle())
+			.level(getLevel())
 			.recordCategoryMappings(new ArrayList<>())
-			.platform(platform)
-			.problemUrl(problemUrl)
+			.platform(getPlatform())
+			.problemUrl(getProblemUrl())
 			.codeblocks(new ArrayList<>())
 			.status(Status.TEMP)
 			.build();

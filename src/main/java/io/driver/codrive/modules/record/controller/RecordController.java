@@ -27,7 +27,7 @@ public class RecordController {
 	private final RecordService recordService;
 
 	@Operation(
-		summary = "문제 풀이 생성",
+		summary = "문제 풀이 등록",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			content = @Content(
 				schema = @Schema(implementation = RecordSaveRequest.class)
@@ -41,8 +41,8 @@ public class RecordController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createRecord(@Valid @RequestBody RecordSaveRequest request) {
-		RecordCreateResponse response = recordService.createSavedRecord(request);
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@Valid @RequestBody RecordSaveRequest request) {
+		RecordCreateResponse response = recordService.createRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -63,12 +63,11 @@ public class RecordController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
-
 	@Operation(
 		summary = "문제 풀이 임시 저장",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			content = @Content(
-				schema = @Schema(implementation = RecordSaveRequest.class)
+				schema = @Schema(implementation = RecordTempRequest.class)
 			)
 		),
 		responses = {
@@ -80,7 +79,19 @@ public class RecordController {
 	)
 	@PostMapping("/temp")
 	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(@Valid @RequestBody RecordTempRequest request) {
-		RecordCreateResponse response = recordService.createTempRecord(request);
+		RecordCreateResponse response = recordService.createRecord(request);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "임시 저장 문제 풀이 목록 조회",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordListResponse.class))),
+		}
+	)
+	@GetMapping("/records/temp")
+	public ResponseEntity<BaseResponse<RecordListResponse>> getTempRecords() {
+		RecordListResponse response = recordService.getTempRecords();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
 
-import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.CodeblockSaveRequest;
+import io.driver.codrive.modules.codeblock.model.CodeblockCreateRequest;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.Status;
@@ -33,7 +32,8 @@ public record RecordSaveRequest(
 	@Size(min = 1, max = 2, message = "문제 유형 태그는 {min}개 이상 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON", "PROGRAMMERS", "SWEA",
+	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON",
+		"PROGRAMMERS", "SWEA",
 		"LEETCODE", "HACKERRANK", "OTHER"})
 	@NotNull
 	Platform platform,
@@ -42,20 +42,53 @@ public record RecordSaveRequest(
 	@NotBlank
 	String problemUrl,
 
-	@Schema(description = "작성한 코드 블록", implementation = CodeblockSaveRequest.class,
+	@Schema(description = "작성한 코드 블록", implementation = CodeblockCreateRequest.class,
 		example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
 	@NotNull
 	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
-	List<CodeblockSaveRequest> codeblocks
-) {
+	List<CodeblockCreateRequest> codeblocks
+
+) implements RecordCreateRequest {
+
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	@Override
+	public int getLevel() {
+		return level;
+	}
+
+	@Override
+	public List<String> getTags() {
+		return tags;
+	}
+
+	@Override
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	@Override
+	public String getProblemUrl() {
+		return problemUrl;
+	}
+
+	@Override
+	public List<CodeblockCreateRequest> getCodeblocks() {
+		return codeblocks;
+	}
+
+	@Override
 	public Record toEntity(User user) {
 		return Record.builder()
 			.user(user)
-			.title(title)
-			.level(level)
+			.title(getTitle())
+			.level(getLevel())
 			.recordCategoryMappings(new ArrayList<>())
-			.platform(platform)
-			.problemUrl(problemUrl)
+			.platform(getPlatform())
+			.problemUrl(getProblemUrl())
 			.codeblocks(new ArrayList<>())
 			.status(Status.SAVED)
 			.build();

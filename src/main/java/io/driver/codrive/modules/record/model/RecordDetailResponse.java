@@ -2,6 +2,7 @@ package io.driver.codrive.modules.record.model;
 
 import java.util.List;
 
+import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.codeblock.model.CodeblockDetailResponse;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
@@ -10,7 +11,7 @@ import lombok.Builder;
 
 @Builder
 public record RecordDetailResponse(
-	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
+	@Schema(description = "문제 풀이 ID", example = "1")
 	Long recordId,
 
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
@@ -29,7 +30,10 @@ public record RecordDetailResponse(
 	String problemUrl,
 
 	@Schema(description = "작성한 코드 블록", implementation = CodeblockDetailResponse.class)
-	List<CodeblockDetailResponse> codeblocks
+	List<CodeblockDetailResponse> codeblocks,
+
+	@Schema(description = "작성 일자", example = "2024.02.05 12시 00분")
+	String createdAt
 ) {
 	public static List<RecordDetailResponse> of(List<Record> records) {
 		return records.stream().map(RecordDetailResponse::of).toList();
@@ -37,12 +41,14 @@ public record RecordDetailResponse(
 
 	public static RecordDetailResponse of(Record record) {
 		return RecordDetailResponse.builder()
+			.recordId(record.getRecordId())
 			.title(record.getTitle())
 			.level(record.getLevel())
 			.tags(record.getCategories())
 			.platform(record.getPlatform())
 			.problemUrl(record.getProblemUrl())
 			.codeblocks(record.getCodeblocks().stream().map(CodeblockDetailResponse::of).toList())
+			.createdAt(DateUtils.formatCreatedAt(record.getCreatedAt()))
 			.build();
 	}
 }

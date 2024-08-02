@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.CodeblockModifyRequest;
-import io.driver.codrive.modules.codeblock.model.CodeblockSaveRequest;
-import io.driver.codrive.modules.codeblock.model.CodeblockTempRequest;
+import io.driver.codrive.modules.codeblock.model.*;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
@@ -16,6 +14,7 @@ import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCa
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
+import io.driver.codrive.modules.record.domain.Status;
 import io.driver.codrive.modules.record.model.*;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
@@ -31,27 +30,18 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 
 	@Transactional
-	public RecordCreateResponse createSavedRecord(RecordSaveRequest request) {
+	public RecordCreateResponse createRecord(RecordCreateRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-
-		Record savedRecord = recordRepository.save(request.toEntity(user));
-		List<Codeblock> codeblocks = CodeblockSaveRequest.of(request.codeblocks(), savedRecord);
-		codeblockService.createCodeblock(codeblocks, savedRecord);
-		recordCategoryMappingService.createRecordCategoryMapping(request.tags(), savedRecord);
-
-		return RecordCreateResponse.of(savedRecord);
+		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
+		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
+		return RecordCreateResponse.of(createdRecord);
 	}
 
 	@Transactional
-	public RecordCreateResponse createTempRecord(RecordTempRequest request) { //todo 리팩토링
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-
-		Record tempRecord = recordRepository.save(request.toEntity(user));
-		List<Codeblock> codeblocks = CodeblockTempRequest.of(request.codeblocks(), tempRecord);
-		codeblockService.createCodeblock(codeblocks, tempRecord);
-		recordCategoryMappingService.createRecordCategoryMapping(request.tags(), tempRecord);
-
-		return RecordCreateResponse.of(tempRecord);
+	public void createCodeblocks(List<CodeblockCreateRequest> codeblockRequests, Record record) {
+		List<Codeblock> codeblocks = CodeblockCreateRequest.of(codeblockRequests, record);
+		codeblockService.createCodeblock(codeblocks, record);
 	}
 
 	@Transactional
@@ -62,7 +52,18 @@ public class RecordService {
 	@Transactional
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
-		return RecordDetailResponse.of(record);
+		RecordDetailResponse response = RecordDetailResponse.of(record);
+		if (record.getStatus() == Status.TEMP) {
+			recordRepository.delete(record);
+		}
+		return response;
+	}
+
+	@Transactional
+	public RecordListResponse getTempRecords() {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP);
+		return RecordListResponse.of(records);
 	}
 
 	@Transactional
