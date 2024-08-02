@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.record.service;
+package io.driver.codrive.modules.room.service;
 
 import java.lang.reflect.Type;
 

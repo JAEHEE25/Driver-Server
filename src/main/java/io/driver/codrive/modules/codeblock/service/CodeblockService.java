@@ -17,15 +17,13 @@ public class CodeblockService {
 
 	@Transactional
 	public void createCodeblock(List<Codeblock> codeblocks, Record record) {
-		codeblocks.forEach(codeblock -> {
-			codeblock.changeRecord(record);
-			codeblockRepository.save(codeblock);
-		});
+		codeblockRepository.saveAll(codeblocks);
 		record.changeCodeblocks(codeblocks);
 	}
 
 	@Transactional
-	public void deleteCodeblock(List<Codeblock> codeblocks) {
+	public void deleteCodeblock(List<Codeblock> codeblocks, Record record) {
 		codeblockRepository.deleteAll(codeblocks);
+		record.deleteCodeblocks(codeblocks);
 	}
 }

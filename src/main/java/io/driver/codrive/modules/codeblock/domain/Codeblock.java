@@ -18,7 +18,6 @@ public class Codeblock extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codeblockId;
 
-	@Column(nullable = false)
 	private String code;
 
 	private String memo;
@@ -26,8 +25,4 @@ public class Codeblock extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "record_id", nullable = false)
 	private Record record;
-
-	public void changeRecord(Record record) {
-		this.record = record;
-	}
 }

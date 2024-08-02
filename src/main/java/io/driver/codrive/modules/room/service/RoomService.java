@@ -13,7 +13,6 @@ import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.RoleUtils;
 import io.driver.codrive.modules.language.domain.Language;
-import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
@@ -39,10 +38,7 @@ public class RoomService {
 		String imageSrc = imageService.uploadImage(imageFile);
 		Room savedRoom = roomRepository.save(request.toEntity(user, imageSrc));
 
-		List<RoomLanguageMapping> mappings = roomLanguageMappingService.getRoomLanguageMappingsByTag(
-			request.tags(), savedRoom);
-		roomLanguageMappingService.createRoomLanguageMapping(mappings, savedRoom);
-
+		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
 		userService.changeUserRole(user, Role.OWNER);
 		return RoomCreateResponse.of(savedRoom);
@@ -81,12 +77,10 @@ public class RoomService {
 	}
 
 	@Transactional
-	public void updateLanguages(Room room, List<String> newLanguages) {
-		if (room.getLanguages() != newLanguages) {
+	public void updateLanguages(Room room, List<String> tags) {
+		if (room.getLanguages() != tags) {
 			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings(), room);
-			List<RoomLanguageMapping> newMappings = roomLanguageMappingService.getRoomLanguageMappingsByTag(
-				newLanguages, room);
-			roomLanguageMappingService.createRoomLanguageMapping(newMappings, room);
+			roomLanguageMappingService.createRoomLanguageMapping(tags, room);
 		}
 	}
 

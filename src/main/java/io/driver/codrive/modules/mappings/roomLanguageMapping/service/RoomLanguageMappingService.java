@@ -20,7 +20,8 @@ public class RoomLanguageMappingService {
 	private final RoomLanguageMappingRepository roomLanguageMappingRepository;
 
 	@Transactional
-	public void createRoomLanguageMapping(List<RoomLanguageMapping> mappings, Room room) {
+	public void createRoomLanguageMapping(List<String> tags, Room room) {
+		List<RoomLanguageMapping> mappings = getRoomLanguageMappingsByTag(tags, room);
 		roomLanguageMappingRepository.saveAll(mappings);
 		room.changeLanguages(mappings);
 	}

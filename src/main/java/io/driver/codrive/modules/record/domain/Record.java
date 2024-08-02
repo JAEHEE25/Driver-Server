@@ -29,12 +29,14 @@ public class Record extends BaseEntity {
 	@Column(nullable = false)
 	private Integer level;
 
-	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Platform platform;
 
-	@Column(nullable = false)
 	private String problemUrl;
+
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Status status;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
@@ -63,7 +65,12 @@ public class Record extends BaseEntity {
 	}
 
 	public void changeCodeblocks(List<Codeblock> codeblocks) {
-		this.codeblocks = codeblocks;
+		this.codeblocks.clear();
+		this.codeblocks.addAll(codeblocks);
+	}
+
+	public void deleteCodeblocks(List<Codeblock> codeblocks) {
+		this.codeblocks.removeAll(codeblocks);
 	}
 
 	public void changeCategories(List<RecordCategoryMapping> recordCategoryMapping) {

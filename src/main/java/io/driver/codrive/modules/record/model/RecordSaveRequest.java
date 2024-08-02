@@ -5,16 +5,17 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
 
-import io.driver.codrive.modules.codeblock.model.CodeblockModifyRequest;
+import io.driver.codrive.modules.codeblock.model.CodeblockCreateRequest;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.Status;
+import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record RecordModifyRequest(
+public record RecordSaveRequest(
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
 	@NotBlank
 	String title,
@@ -31,7 +32,8 @@ public record RecordModifyRequest(
 	@Size(min = 1, max = 2, message = "문제 유형 태그는 {min}개 이상 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON", "PROGRAMMERS", "SWEA",
+	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON",
+		"PROGRAMMERS", "SWEA",
 		"LEETCODE", "HACKERRANK", "OTHER"})
 	@NotNull
 	Platform platform,
@@ -40,19 +42,53 @@ public record RecordModifyRequest(
 	@NotBlank
 	String problemUrl,
 
-	@Schema(description = "작성한 코드 블록", implementation = CodeblockModifyRequest.class,
+	@Schema(description = "작성한 코드 블록", implementation = CodeblockCreateRequest.class,
 		example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
 	@NotNull
 	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
-	List<CodeblockModifyRequest> codeblocks
-) {
-	public Record toEntity() {
+	List<CodeblockCreateRequest> codeblocks
+
+) implements RecordCreateRequest {
+
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	@Override
+	public int getLevel() {
+		return level;
+	}
+
+	@Override
+	public List<String> getTags() {
+		return tags;
+	}
+
+	@Override
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	@Override
+	public String getProblemUrl() {
+		return problemUrl;
+	}
+
+	@Override
+	public List<CodeblockCreateRequest> getCodeblocks() {
+		return codeblocks;
+	}
+
+	@Override
+	public Record toEntity(User user) {
 		return Record.builder()
-			.title(title)
-			.level(level)
+			.user(user)
+			.title(getTitle())
+			.level(getLevel())
 			.recordCategoryMappings(new ArrayList<>())
-			.platform(platform)
-			.problemUrl(problemUrl)
+			.platform(getPlatform())
+			.problemUrl(getProblemUrl())
 			.codeblocks(new ArrayList<>())
 			.status(Status.SAVED)
 			.build();

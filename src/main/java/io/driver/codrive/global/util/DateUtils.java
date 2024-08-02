@@ -1,6 +1,7 @@
 package io.driver.codrive.global.util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import lombok.experimental.UtilityClass;
@@ -23,4 +24,9 @@ public class DateUtils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         return date.format(formatter);
     }
+
+	public static String formatCreatedAt(LocalDateTime createdAt) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH시 mm분");
+		return createdAt.format(formatter);
+	}
 }
