@@ -6,14 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
+import io.driver.codrive.modules.codeblock.model.*;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
-import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
-import io.driver.codrive.modules.global.util.AuthUtils;
-import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
+import io.driver.codrive.modules.record.domain.Status;
 import io.driver.codrive.modules.record.model.*;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
@@ -29,15 +30,18 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 
 	@Transactional
-	public RecordCreateResponse createRecord(RecordCreateRequest request) {
+	public RecordCreateResponse createRecord(RecordCreateRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Record savedRecord = recordRepository.save(request.toEntity(user));
-		codeblockService.createCodeblock(request.codeblocks(), savedRecord);
+		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
+		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
+		return RecordCreateResponse.of(createdRecord);
+	}
 
-		List<RecordCategoryMapping> mappings = recordCategoryMappingService
-			.getRecordCategoryMappingsByRequest(request.tags(), savedRecord);
-		recordCategoryMappingService.createRecordCategoryMapping(mappings, savedRecord);
-		return RecordCreateResponse.of(savedRecord);
+	@Transactional
+	public void createCodeblocks(List<CodeblockCreateRequest> codeblockRequests, Record record) {
+		List<Codeblock> codeblocks = CodeblockCreateRequest.of(codeblockRequests, record);
+		codeblockService.createCodeblock(codeblocks, record);
 	}
 
 	@Transactional
@@ -48,7 +52,18 @@ public class RecordService {
 	@Transactional
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
-		return RecordDetailResponse.of(record);
+		RecordDetailResponse response = RecordDetailResponse.of(record);
+		if (record.getStatus() == Status.TEMP) {
+			recordRepository.delete(record);
+		}
+		return response;
+	}
+
+	@Transactional
+	public RecordListResponse getTempRecords() {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP);
+		return RecordListResponse.of(records);
 	}
 
 	@Transactional
@@ -86,8 +101,8 @@ public class RecordService {
 		record.changeLevel(newRecord.getLevel());
 		record.changePlatform(newRecord.getPlatform());
 		record.changeProblemUrl(newRecord.getProblemUrl());
-		updateCodeblocks(record, newRecord);
-		updateTags(record, request.tags());
+		updateCodeblocks(record, request.codeblocks());
+		updateCategories(record, request.tags());
 	}
 
 	@Transactional
@@ -97,18 +112,17 @@ public class RecordService {
 	}
 
 	@Transactional
-	public void updateCodeblocks(Record record, Record newRecord) {
-		codeblockService.deleteCodeblock(record.getCodeblocks());
-		List<Codeblock> newCodeblocks = newRecord.getCodeblocks();
-		codeblockService.createCodeblock(newCodeblocks, record);
+	public void updateCodeblocks(Record record, List<CodeblockModifyRequest> requests) {
+		List<Codeblock> codeblocks = CodeblockModifyRequest.of(requests, record);
+		codeblockService.deleteCodeblock(record.getCodeblocks(), record);
+		codeblockService.createCodeblock(codeblocks, record);
 	}
 
 	@Transactional
-	public void updateTags(Record record, List<String> tags) {
+	public void updateCategories(Record record, List<String> tags) {
 		if (record.getCategories() != tags) {
 			recordCategoryMappingService.deleteRecordCategoryMapping(record.getRecordCategoryMappings(), record);
-			List<RecordCategoryMapping> newMappings = recordCategoryMappingService.getRecordCategoryMappingsByRequest(tags, record);
-			recordCategoryMappingService.createRecordCategoryMapping(newMappings, record);
+			recordCategoryMappingService.createRecordCategoryMapping(tags, record);
 		}
 	}
 

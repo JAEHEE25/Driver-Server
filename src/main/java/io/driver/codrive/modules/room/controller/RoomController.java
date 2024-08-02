@@ -1,10 +1,14 @@
 package io.driver.codrive.modules.room.controller;
 
+import java.io.IOException;
+
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.BaseResponse;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.room.model.*;
 import io.driver.codrive.modules.room.service.RoomService;
 import io.driver.codrive.modules.room.model.RoomListResponse;
@@ -28,19 +32,17 @@ public class RoomController {
 
 	@Operation(
 		summary = "그룹 생성",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			content = @Content(
-				schema = @Schema(implementation = RoomCreateRequest.class)
-			)
-		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomCreateResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 언어입니다. || 잘못된 요청입니다. (metadata 제공)\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 언어입니다. || 잘못된 요청입니다. (error field 제공)\"}"))),
 		}
 	)
-	@PostMapping
-	public ResponseEntity<BaseResponse<RoomCreateResponse>> createRoom(@Valid @RequestBody RoomCreateRequest request) {
-		RoomCreateResponse response = roomService.createRoom(request);
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<BaseResponse<RoomCreateResponse>> createRoom(
+		@Valid @RequestPart(value = "request") RoomCreateRequest request,
+		@RequestPart(value = "imageFile") MultipartFile imageFile) throws
+		IOException {
+		RoomCreateResponse response = roomService.createRoom(request, imageFile);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -83,20 +85,17 @@ public class RoomController {
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
 		},
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			content = @Content(
-				schema = @Schema(implementation = RoomModifyRequest.class)
-			)
-		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomModifyResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 언어입니다. || 잘못된 요청입니다. (error field 제공)\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)
-	@PatchMapping("/{roomId}")
+	@PatchMapping(value = "/{roomId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<BaseResponse<RoomModifyResponse>> modifyRoom(@PathVariable(name = "roomId") Long roomId,
-		@Valid @RequestBody RoomModifyRequest request) {
-		RoomModifyResponse response = roomService.modifyRoom(roomId, request);
+		@Valid @RequestPart(value = "request") RoomModifyRequest request,
+		@RequestPart(value = "imageFile") MultipartFile imageFile) throws IOException {
+		RoomModifyResponse response = roomService.modifyRoom(roomId, request, imageFile);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -111,7 +110,8 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/{roomId}/members")
-	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(@PathVariable(name = "roomId") Long roomId) {
+	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(
+		@PathVariable(name = "roomId") Long roomId) {
 		RoomMembersResponse response = roomService.getRoomMembers(roomId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.global.BaseEntity;
+import io.driver.codrive.global.BaseEntity;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
@@ -29,12 +29,14 @@ public class Record extends BaseEntity {
 	@Column(nullable = false)
 	private Integer level;
 
-	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Platform platform;
 
-	@Column(nullable = false)
 	private String problemUrl;
+
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Status status;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
@@ -63,11 +65,17 @@ public class Record extends BaseEntity {
 	}
 
 	public void changeCodeblocks(List<Codeblock> codeblocks) {
-		this.codeblocks = codeblocks;
+		this.codeblocks.clear();
+		this.codeblocks.addAll(codeblocks);
+	}
+
+	public void deleteCodeblocks(List<Codeblock> codeblocks) {
+		this.codeblocks.removeAll(codeblocks);
 	}
 
 	public void changeCategories(List<RecordCategoryMapping> recordCategoryMapping) {
-		this.recordCategoryMappings = recordCategoryMapping;
+		this.recordCategoryMappings.clear();
+		this.recordCategoryMappings.addAll(recordCategoryMapping);
 	}
 
 	public void deleteCategories(List<RecordCategoryMapping> recordCategoryMapping) {

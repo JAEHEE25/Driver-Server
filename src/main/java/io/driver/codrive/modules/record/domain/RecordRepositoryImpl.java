@@ -15,7 +15,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 
-import io.driver.codrive.modules.global.util.DateUtils;
+import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.record.model.BoardDetailDto;
 
 @Repository

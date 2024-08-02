@@ -3,8 +3,8 @@ package io.driver.codrive.modules.user.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.BaseResponse;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.user.model.*;
 import io.driver.codrive.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,6 +50,9 @@ public class UserController {
 		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = {
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"잘못된 요청입니다. (error field 제공)\"}"),
+			})),
 			@ApiResponse(responseCode = "409", content = @Content(examples = @ExampleObject(value = "{\"code\": 409, \"message\": \"닉네임이 이미 존재합니다.\"}"))),
 		}
 	)
@@ -71,8 +74,10 @@ public class UserController {
 		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ProfileChangeResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 언어입니다.\"}"))),
-			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
+			@ApiResponse(responseCode = "400",
+				content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 언어입니다. || 잘못된 요청입니다. (error field 제공)\"}"))),
+			@ApiResponse(responseCode = "404",
+				content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@PatchMapping("/{userId}/profile")

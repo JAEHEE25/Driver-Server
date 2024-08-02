@@ -10,4 +10,6 @@ import io.driver.codrive.modules.user.domain.User;
 @Repository
 public interface RecordRepository extends JpaRepository<Record, Long>, RecordRepositoryCustom {
 	List<Record> findAllByUser(User user);
+
+	List<Record> findAllByUserAndStatus(User user, Status status);
 }

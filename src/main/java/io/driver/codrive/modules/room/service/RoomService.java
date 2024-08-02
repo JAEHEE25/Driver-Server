@@ -1,17 +1,18 @@
 package io.driver.codrive.modules.room.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import io.driver.codrive.modules.global.exception.NotFoundApplcationException;
-import io.driver.codrive.modules.global.util.AuthUtils;
-import io.driver.codrive.modules.global.util.RoleUtils;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.RoleUtils;
 import io.driver.codrive.modules.language.domain.Language;
-import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
@@ -26,19 +27,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoomService {
 	private final UserService userService;
+	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
 	private final RoomUserMappingService roomUserMappingService;
 	private final RoomRepository roomRepository;
 
 	@Transactional
-	public RoomCreateResponse createRoom(RoomCreateRequest request) {
+	public RoomCreateResponse createRoom(RoomCreateRequest request, MultipartFile imageFile) throws IOException {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Room savedRoom = roomRepository.save(request.toEntity(user));
+		String imageSrc = imageService.uploadImage(imageFile);
+		Room savedRoom = roomRepository.save(request.toEntity(user, imageSrc));
 
-		List<RoomLanguageMapping> mappings = roomLanguageMappingService.getRoomLanguageMappingsByTag(
-			request.tags(), savedRoom);
-		roomLanguageMappingService.createRoomLanguageMapping(mappings, savedRoom);
-
+		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
 		userService.changeUserRole(user, Role.OWNER);
 		return RoomCreateResponse.of(savedRoom);
@@ -56,18 +56,20 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request) {
+	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
 		Room room = getRoomById(roomId);
-		updateRoom(room, request);
+		String imageUrl = room.getImageSrc();
+		String newImageUrl = imageService.modifyImage(imageUrl, imageFile);
+		updateRoom(room, request, newImageUrl);
 		return RoomModifyResponse.of(room);
 	}
 
 	@Transactional
-	public void updateRoom(Room room, RoomModifyRequest request) {
-		Room newRoom = request.toEntity();
+	public void updateRoom(Room room, RoomModifyRequest request, String newImageUrl) {
+		Room newRoom = request.toEntity(newImageUrl);
 		room.changeTitle(newRoom.getTitle());
 		room.changePassword(newRoom.getPassword());
-		room.changeImageSrc(newRoom.getImageSrc()); //todo 이미지 삭제 후 업로드
+		room.changeImageSrc(newRoom.getImageSrc());
 		room.changeCapacity(newRoom.getCapacity());
 		room.changeIntroduce(newRoom.getIntroduce());
 		room.changeInformation(newRoom.getInformation());
@@ -75,12 +77,10 @@ public class RoomService {
 	}
 
 	@Transactional
-	public void updateLanguages(Room room, List<String> newLanguages) {
-		if (room.getLanguages() != newLanguages) {
+	public void updateLanguages(Room room, List<String> tags) {
+		if (room.getLanguages() != tags) {
 			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings(), room);
-			List<RoomLanguageMapping> newMappings = roomLanguageMappingService.getRoomLanguageMappingsByTag(
-				newLanguages, room);
-			roomLanguageMappingService.createRoomLanguageMapping(newMappings, room);
+			roomLanguageMappingService.createRoomLanguageMapping(tags, room);
 		}
 	}
 

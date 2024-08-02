@@ -3,8 +3,8 @@ package io.driver.codrive.modules.roomRequest.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.BaseResponse;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.roomRequest.model.PasswordRequest;
 import io.driver.codrive.modules.roomRequest.model.RoomRequestListResponse;
 import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
@@ -40,7 +40,7 @@ public class RoomRequestController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
 			@ApiResponse(responseCode = "400", content = @Content(examples =
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"해당 그룹은 공개 그룹입니다.|| 비밀번호가 일치하지 않습니다. || 이미 참여 중인 그룹입니다.\"}"))),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"해당 그룹은 공개 그룹입니다.|| 비밀번호가 일치하지 않습니다. || 이미 참여 중인 그룹입니다. || 잘못된 요청입니다. (error field 제공)\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)

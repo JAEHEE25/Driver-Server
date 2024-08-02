@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import io.driver.codrive.modules.auth.model.LoginRequest;
 import io.driver.codrive.modules.auth.model.LoginResponse;
 import io.driver.codrive.modules.auth.service.AuthService;
-import io.driver.codrive.modules.global.constants.APIConstants;
-import io.driver.codrive.modules.global.model.BaseResponse;
-import io.driver.codrive.modules.global.model.ErrorResponse;
+import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -43,6 +42,8 @@ public class AuthController {
 		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = {@ExampleObject(value = "{\"code\": 400, \"message\": \"잘못된 요청입니다. (error field 제공)\"}"),
+			})),
 			@ApiResponse(responseCode = "401", content = @Content(examples = @ExampleObject(value = "{\"code\": 401, \"message\": \"유효하지 않은 토큰입니다.\"}"))),
 		}
 	)
@@ -51,4 +52,12 @@ public class AuthController {
 		LoginResponse response = authService.socialLogin(loginRequest);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
+
+	//로컬 테스트용
+	@PostMapping("/create")
+	public ResponseEntity<BaseResponse<Void>> createUser() {
+		authService.createUser();
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
 }
