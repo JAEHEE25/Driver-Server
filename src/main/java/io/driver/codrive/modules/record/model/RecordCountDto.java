@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class BoardDetailDto {
+public class RecordCountDto {
 	private String date;
 	private Long count;
 }

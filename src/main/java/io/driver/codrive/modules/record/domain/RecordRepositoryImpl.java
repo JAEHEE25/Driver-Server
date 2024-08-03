@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +19,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 
 import io.driver.codrive.global.util.DateUtils;
-import io.driver.codrive.modules.record.model.BoardDetailDto;
+import io.driver.codrive.modules.record.model.RecordCountDto;
 
 @Repository
 public class RecordRepositoryImpl extends QuerydslRepositorySupport implements RecordRepositoryCustom {
@@ -25,42 +28,64 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<Record> getSavedRecordsByDate(Long userId, LocalDate pivotDate) {
+	public List<Record> getSavedRecordsByDay(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
 		return from(record)
-			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()), record.status.eq(Status.SAVED))
+			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()),
+				record.status.eq(Status.SAVED))
 			.fetch();
 	}
 
 	@Override
-	public List<BoardDetailDto> getSavedRecordCountByMonth(Long userId, LocalDate pivotDate) {
+	public Page<Record> getSavedRecordsByMonth(Long userId, LocalDate pivotDate, Pageable pageable) {
+		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
+		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
+		List<Record> records = from(record)
+			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
+				record.status.eq(Status.SAVED))
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		long total = from(record)
+			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
+				record.status.eq(Status.SAVED))
+			.fetchCount();
+
+		return new PageImpl<>(records, pageable, total);
+	}
+
+	@Override
+	public List<RecordCountDto> getSavedRecordCountByMonth(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
 		StringTemplate formattedDay = getFormattedDate("%e");
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
 
 		return from(record)
-			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth), record.status.eq(Status.SAVED))
+			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
+				record.status.eq(Status.SAVED))
 			.groupBy(formattedDay)
-			.select(Projections.fields(BoardDetailDto.class,
+			.select(Projections.fields(RecordCountDto.class,
 				formattedDay.as("date"),
 				record.count().as("count")))
 			.fetch();
 	}
 
 	@Override
-	public List<BoardDetailDto> getSavedRecordCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
+	public List<RecordCountDto> getSavedRecordCountByWeek(Long userId,
+		LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
 		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
 		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
 		StringTemplate formattedDate = getFormattedDate("%e");
 
 		return from(record)
-			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime), record.status.eq(Status.SAVED))
+			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime),
+				record.status.eq(Status.SAVED))
 			.groupBy(formattedDate)
-			.select(Projections.fields(BoardDetailDto.class,
+			.select(Projections.fields(RecordCountDto.class,
 				formattedDate.as("date"),
 				record.count().as("count")))
 			.fetch();
-
 	}
 
 	public StringTemplate getFormattedDate(String format) {
@@ -73,9 +98,9 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		return pivotDate.minusDays(pivotDay - monday).atStartOfDay();
 	}
 
-    public LocalDateTime getSundayDateTime(LocalDate pivotDate) {
-        int pivotDay = pivotDate.getDayOfWeek().getValue();
-        int sunday = DayOfWeek.SUNDAY.getValue();
-        return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
-    }
+	public LocalDateTime getSundayDateTime(LocalDate pivotDate) {
+		int pivotDay = pivotDate.getDayOfWeek().getValue();
+		int sunday = DayOfWeek.SUNDAY.getValue();
+		return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
+	}
 }
