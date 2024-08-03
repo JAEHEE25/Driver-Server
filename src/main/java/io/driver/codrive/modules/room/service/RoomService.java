@@ -1,14 +1,17 @@
 package io.driver.codrive.modules.room.service;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.RoleUtils;
@@ -26,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoomService {
+	private static final int NUMBER_OF_ELEMENTS = 6;
 	private final UserService userService;
 	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
@@ -100,17 +104,23 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomListResponse getRoomList(int page, int size) {
+	public RoomListResponse getRooms(int page, int size) {
+		if (page < 0 || size < 0) {
+			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
+		}
+
 		Pageable pageable = PageRequest.of(page, size);
-		List<RoomDetailResponse> rooms = roomRepository.findAll(pageable).map(RoomDetailResponse::of).toList();
-		return RoomListResponse.of(rooms);
+		Page<RoomDetailResponse> rooms = roomRepository.findAll(pageable).map(RoomDetailResponse::of);
+		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
 	}
 
 	@Transactional
-	public RoomRecommendResponse getRecommendRoomList(Long userId) {
+	public RoomRecommendResponse getRecommendRoomRandomList(Long userId) {
 		User user = userService.getUserById(userId);
 		Language userLanguage = user.getLanguage();
 		List<Room> rooms = userLanguage.getRoomsByLanguage();
-		return RoomRecommendResponse.of(RoomDetailResponse.of(rooms));
+		Collections.shuffle(rooms);
+		List<Room> randomRooms = rooms.stream().limit(NUMBER_OF_ELEMENTS).toList();
+		return RoomRecommendResponse.of(RoomDetailResponse.of(randomRooms));
 	}
 }

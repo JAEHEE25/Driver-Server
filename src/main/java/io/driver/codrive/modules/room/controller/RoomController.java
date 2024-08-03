@@ -63,20 +63,21 @@ public class RoomController {
 	}
 
 	@Operation(
-		summary = "그룹 목록 조회",
+		summary = "전체 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지 크기"),
+			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지의 데이터 크기"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 		}
 	)
 	@GetMapping
-	public ResponseEntity<BaseResponse<RoomListResponse>> getRoomList(
-		@RequestParam(name = "page", defaultValue = "0") int page,
-		@RequestParam(name = "size", defaultValue = "9") int size) {
-		RoomListResponse response = roomService.getRoomList(page, size);
+	public ResponseEntity<BaseResponse<RoomListResponse>> getRooms(
+		@RequestParam(name = "page", defaultValue = "0") Integer page,
+		@RequestParam(name = "size", defaultValue = "9") Integer size) {
+		RoomListResponse response = roomService.getRooms(page, size);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -148,7 +149,7 @@ public class RoomController {
 	@GetMapping("{userId}/recommend")
 	public ResponseEntity<BaseResponse<RoomRecommendResponse>> getRecommendRoomList(
 		@PathVariable(name = "userId") Long userId) {
-		RoomRecommendResponse response = roomService.getRecommendRoomList(userId);
+		RoomRecommendResponse response = roomService.getRecommendRoomRandomList(userId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 }

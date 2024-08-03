@@ -1,10 +1,16 @@
 package io.driver.codrive.modules.record.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.*;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
@@ -26,7 +32,7 @@ public class RecordService {
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
-	private final BoardService boardService;
+	private final CountBoardService countBoardService;
 	private final RecordRepository recordRepository;
 
 	@Transactional
@@ -60,24 +66,44 @@ public class RecordService {
 	}
 
 	@Transactional
-	public RecordListResponse getTempRecords() {
+	public RecordListResponse getTempRecords(int page, int size) {
+		if (page < 0 || size < 0) {
+			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
+		}
+
+		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP);
+		Page<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP, pageable);
+		return RecordListResponse.of(records.getTotalPages(), records);
+	}
+
+	@Transactional
+	public RecordListResponse getRecordsByDay(Long userId, String pivotDate) {
+		User user = userService.getUserById(userId);
+		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
+		List<Record> records = recordRepository.getSavedRecordsByDay(user.getUserId(), pivot);
 		return RecordListResponse.of(records);
 	}
 
 	@Transactional
-	public RecordListResponse getRecordsByDate(Long userId, String pivotDate) {
+	public RecordListResponse getRecordsByMonth(Long userId, String pivotDate, Integer page, Integer size) {
+		if (page < 0 || size < 0) {
+			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
+		}
+
+		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(userId);
-		List<Record> records = boardService.getRecordsByDate(user, pivotDate);
-		return RecordListResponse.of(records);
+		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
+		Page<Record> records = recordRepository.getSavedRecordsByMonth(user.getUserId(), pivot, pageable);
+		return RecordListResponse.of(records.getTotalPages(), records);
 	}
 
 	@Transactional
-	public RecordBoardResponse getRecordsBoard(Long userId, Period period, String pivotDate) {
+	public RecordCountBoardResponse getRecordsCount(Long userId, Period period, String pivotDate) {
 		User user = userService.getUserById(userId);
-		List<BoardResponse> records = boardService.getBoardResponse(user, period, pivotDate);
-		return RecordBoardResponse.of(records);
+		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
+		List<RecordCountBoardResponse.RecordCountResponse> records = countBoardService.getCountBoard(user, period, pivot);
+		return RecordCountBoardResponse.of(records);
 	}
 
 	@Transactional
@@ -96,6 +122,12 @@ public class RecordService {
 		record.changeProblemUrl(newRecord.getProblemUrl());
 		updateCodeblocks(record, request.codeblocks());
 		updateCategories(record, request.tags());
+	}
+
+	@Transactional
+	public void deleteRecord(Long recordId) {
+		Record record = getRecordById(recordId);
+		recordRepository.delete(record);
 	}
 
 	@Transactional

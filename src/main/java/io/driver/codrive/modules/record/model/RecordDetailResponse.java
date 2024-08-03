@@ -2,6 +2,8 @@ package io.driver.codrive.modules.record.model;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.codeblock.model.CodeblockDetailResponse;
 import io.driver.codrive.modules.record.domain.Platform;
@@ -36,6 +38,10 @@ public record RecordDetailResponse(
 	String createdAt
 ) {
 	public static List<RecordDetailResponse> of(List<Record> records) {
+		return records.stream().map(RecordDetailResponse::of).toList();
+	}
+
+	public static List<RecordDetailResponse> of(Page<Record> records) {
 		return records.stream().map(RecordDetailResponse::of).toList();
 	}
 
