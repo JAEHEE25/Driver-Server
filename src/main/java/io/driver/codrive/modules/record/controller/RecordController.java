@@ -92,15 +92,15 @@ public class RecordController {
 			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지의 데이터 크기"),
 		},
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordListResponse.class))),
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TempRecordListResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 		}
 	)
 	@GetMapping("/records/temp")
-	public ResponseEntity<BaseResponse<RecordListResponse>> getTempRecords(
+	public ResponseEntity<BaseResponse<TempRecordListResponse>> getTempRecords(
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "size", defaultValue = "1") Integer size) {
-		RecordListResponse response = recordService.getTempRecords(page, size);
+		TempRecordListResponse response = recordService.getTempRecords(page, size);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -114,14 +114,14 @@ public class RecordController {
 			@Parameter(name = "pivotDate", in = ParameterIn.QUERY, description = "yyyy-MM-dd 형식의 날짜로 입력해야 합니다. 입력하지 않을 경우 현재 날짜로 조회합니다."),
 		},
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordListResponse.class))),
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordDayListResponse.class))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@GetMapping("/{userId}/day")
-	public ResponseEntity<BaseResponse<RecordListResponse>> getRecordsByDay(@PathVariable(name = "userId") Long userId,
+	public ResponseEntity<BaseResponse<RecordDayListResponse>> getRecordsByDay(@PathVariable(name = "userId") Long userId,
 		@RequestParam(name = "pivotDate", required = false) String pivotDate) {
-		RecordListResponse response = recordService.getRecordsByDay(userId, pivotDate);
+		RecordDayListResponse response = recordService.getRecordsByDay(userId, pivotDate);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -137,17 +137,17 @@ public class RecordController {
 			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지의 데이터 크기"),
 		},
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordListResponse.class))),
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordMonthListResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@GetMapping("/{userId}/month")
-	public ResponseEntity<BaseResponse<RecordListResponse>> getRecordsByMonth(@PathVariable(name = "userId") Long userId,
+	public ResponseEntity<BaseResponse<RecordMonthListResponse>> getRecordsByMonth(@PathVariable(name = "userId") Long userId,
 		@RequestParam(name = "pivotDate", required = false) String pivotDate,
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "size", defaultValue = "7") Integer size) {
-		RecordListResponse response = recordService.getRecordsByMonth(userId, pivotDate, page, size);
+		RecordMonthListResponse response = recordService.getRecordsByMonth(userId, pivotDate, page, size);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

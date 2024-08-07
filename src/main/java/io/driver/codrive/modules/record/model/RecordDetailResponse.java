@@ -54,7 +54,7 @@ public record RecordDetailResponse(
 			.platform(record.getPlatform())
 			.problemUrl(record.getProblemUrl())
 			.codeblocks(record.getCodeblocks().stream().map(CodeblockDetailResponse::of).toList())
-			.createdAt(DateUtils.formatCreatedAt(record.getCreatedAt()))
+			.createdAt(DateUtils.formatCreatedAtByYMDHM(record.getCreatedAt()))
 			.build();
 	}
 }

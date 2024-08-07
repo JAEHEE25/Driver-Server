@@ -25,8 +25,13 @@ public class DateUtils {
         return date.format(formatter);
     }
 
-	public static String formatCreatedAt(LocalDateTime createdAt) {
+	public static String formatCreatedAtByYMDHM(LocalDateTime createdAt) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH시 mm분");
+		return createdAt.format(formatter);
+	}
+
+	public static String formatCreatedAtByMD(LocalDateTime createdAt) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M.d");
 		return createdAt.format(formatter);
 	}
 }
