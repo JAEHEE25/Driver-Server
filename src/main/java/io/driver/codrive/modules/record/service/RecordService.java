@@ -66,7 +66,7 @@ public class RecordService {
 	}
 
 	@Transactional
-	public RecordListResponse getTempRecords(int page, int size) {
+	public TempRecordListResponse getTempRecords(int page, int size) {
 		if (page < 0 || size < 0) {
 			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
 		}
@@ -74,19 +74,19 @@ public class RecordService {
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Page<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP, pageable);
-		return RecordListResponse.of(records.getTotalPages(), records);
+		return TempRecordListResponse.of(records.getTotalPages(), records);
 	}
 
 	@Transactional
-	public RecordListResponse getRecordsByDay(Long userId, String pivotDate) {
+	public RecordDayListResponse getRecordsByDay(Long userId, String pivotDate) {
 		User user = userService.getUserById(userId);
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
 		List<Record> records = recordRepository.getSavedRecordsByDay(user.getUserId(), pivot);
-		return RecordListResponse.of(records);
+		return RecordDayListResponse.of(records);
 	}
 
 	@Transactional
-	public RecordListResponse getRecordsByMonth(Long userId, String pivotDate, Integer page, Integer size) {
+	public RecordMonthListResponse getRecordsByMonth(Long userId, String pivotDate, Integer page, Integer size) {
 		if (page < 0 || size < 0) {
 			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
 		}
@@ -95,7 +95,7 @@ public class RecordService {
 		User user = userService.getUserById(userId);
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
 		Page<Record> records = recordRepository.getSavedRecordsByMonth(user.getUserId(), pivot, pageable);
-		return RecordListResponse.of(records.getTotalPages(), records);
+		return RecordMonthListResponse.of(records.getTotalPages(), records);
 	}
 
 	@Transactional
