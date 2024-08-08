@@ -39,8 +39,13 @@ public class RecordService {
 	public RecordCreateResponse createRecord(RecordCreateRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
-		createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
-		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
+		if (recordRequest.getCodeblocks() != null) {
+			createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
+		}
+
+		if (recordRequest.getTags() != null) {
+			recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
+		}
 		return RecordCreateResponse.of(createdRecord);
 	}
 
@@ -73,7 +78,7 @@ public class RecordService {
 
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Page<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP, pageable);
+		Page<Record> records = recordRepository.findAllByUserAndStatusOrderByCreatedAtDesc(user, Status.TEMP, pageable);
 		return TempRecordListResponse.of(records.getTotalPages(), records);
 	}
 

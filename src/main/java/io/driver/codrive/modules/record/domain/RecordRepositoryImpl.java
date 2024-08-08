@@ -33,6 +33,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		return from(record)
 			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()),
 				record.status.eq(Status.SAVED))
+			.orderBy(record.createdAt.desc())
 			.fetch();
 	}
 
@@ -45,6 +46,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 				record.status.eq(Status.SAVED))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
+			.orderBy(record.createdAt.desc())
 			.fetch();
 
 		long total = from(record)
@@ -68,6 +70,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 			.select(Projections.fields(RecordCountDto.class,
 				formattedDay.as("date"),
 				record.count().as("count")))
+			.orderBy(record.createdAt.desc())
 			.fetch();
 	}
 
@@ -85,6 +88,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 			.select(Projections.fields(RecordCountDto.class,
 				formattedDate.as("date"),
 				record.count().as("count")))
+			.orderBy(record.createdAt.desc())
 			.fetch();
 	}
 

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record PasswordRequest(
 	@Schema(description = "비밀번호", example = "비밀번호")
-	@NotBlank
+	@NotBlank(message = "비밀번호를 입력해주세요.")
 	String password
 ) {
 }

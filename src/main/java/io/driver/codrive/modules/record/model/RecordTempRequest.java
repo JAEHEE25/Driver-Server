@@ -12,11 +12,12 @@ import io.driver.codrive.modules.record.domain.Status;
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record RecordTempRequest(
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
-	@NotBlank
+	@NotBlank(message = "문제 풀이 제목을 입력해주세요.")
 	String title,
 
 	@Schema(description = "난이도", example = "1")
@@ -30,11 +31,12 @@ public record RecordTempRequest(
 	@Size(max = 2, message = "문제 유형 태그는 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON", "PROGRAMMERS", "SWEA",
-		"LEETCODE", "HACKERRANK", "OTHER"})
+	@Schema(description = "문제 플랫폼", example = "BAEKJOON")
 	Platform platform,
 
-	@Schema(description = "문제 URL", example = "PROBLEM_URL")
+	@Schema(description = "문제 URL", example = "https://codrive.co.kr")
+	@Pattern(regexp = "^(https?|ftp)://[\\w.-]+(:[0-9]+)?(/([\\w/_.]*)?)?$",
+		message = "URL 형식이 올바르지 않습니다.")
 	String problemUrl,
 
 	@Schema(description = "작성한 코드 블록", implementation = CodeblockCreateRequest.class,

@@ -1,7 +1,4 @@
-package io.driver.codrive.global.exception.handler;
-
-import io.driver.codrive.global.exception.ApplicationException;
-import io.driver.codrive.global.exception.ErrorType;
+package io.driver.codrive.global.exception;
 
 public class ForbiddenApplcationException extends ApplicationException {
 	public ForbiddenApplcationException(String message) {
