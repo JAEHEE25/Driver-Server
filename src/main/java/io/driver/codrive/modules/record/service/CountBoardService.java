@@ -33,15 +33,25 @@ public class CountBoardService {
 	private List<RecordCountDto> getRecordCountDtos(User user, Period period, LocalDate pivotDate) {
 		if (period == Period.MONTHLY) {
 			createMonthlyCountBoard(pivotDate);
-			return recordRepository.getSavedRecordCountByMonth(user.getUserId(), pivotDate);
-		} else { //WEEKLY
+			return recordRepository.getMonthlyRecordCountBoard(user.getUserId(), pivotDate);
+		} else if (period == Period.WEEKLY) {
 			createWeeklyCountBoard(pivotDate);
-			return recordRepository.getSavedRecordCountByWeek(user.getUserId(), pivotDate);
+			return recordRepository.getWeeklyRecordCountBoard(user.getUserId(), pivotDate);
+		} else {
+			createYearlyCountBoard();
+			return recordRepository.getYearlyRecordCount(user.getUserId(), pivotDate);
 		}
 	}
 
 	private void updateCountBoard(List<RecordCountDto> recordCountDtos) {
 		recordCountDtos.forEach(dto -> countBoard.put(dto.getDate(), dto.getCount()));
+	}
+
+	private void createYearlyCountBoard() {
+		countBoard.clear();
+		for (int month = 1; month <= 12; month++) {
+			countBoard.put(String.valueOf(month), 0L);
+		}
 	}
 
 	private void createMonthlyCountBoard(LocalDate pivotDate) {

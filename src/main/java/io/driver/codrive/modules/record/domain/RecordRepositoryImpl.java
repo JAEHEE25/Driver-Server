@@ -28,7 +28,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<Record> getSavedRecordsByDay(Long userId, LocalDate pivotDate) {
+	public List<Record> getDailyRecords(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
 		return from(record)
 			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()),
@@ -38,7 +38,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public Page<Record> getSavedRecordsByMonth(Long userId, LocalDate pivotDate, Pageable pageable) {
+	public Page<Record> getMonthlyRecords(Long userId, LocalDate pivotDate, Pageable pageable) {
 		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
 		List<Record> records = from(record)
@@ -58,7 +58,23 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<RecordCountDto> getSavedRecordCountByMonth(Long userId, LocalDate pivotDate) {
+	public List<RecordCountDto> getYearlyRecordCount(Long userId, LocalDate pivotDate) {
+		StringTemplate formattedYear = getFormattedDate("%Y");
+		StringTemplate formattedMonth = getFormattedDate("%c");
+		String pivotDateYear = DateUtils.formatYear(pivotDate);
+
+		return from(record)
+			.where(record.user.userId.eq(userId), formattedYear.eq(pivotDateYear),
+				record.status.eq(Status.SAVED))
+			.groupBy(formattedMonth)
+			.select(Projections.fields(RecordCountDto.class,
+				formattedMonth.as("date"),
+				record.count().as("count")))
+			.fetch();
+	}
+
+	@Override
+	public List<RecordCountDto> getMonthlyRecordCountBoard(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
 		StringTemplate formattedDay = getFormattedDate("%e");
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
@@ -70,25 +86,23 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 			.select(Projections.fields(RecordCountDto.class,
 				formattedDay.as("date"),
 				record.count().as("count")))
-			.orderBy(record.createdAt.desc())
 			.fetch();
 	}
 
 	@Override
-	public List<RecordCountDto> getSavedRecordCountByWeek(Long userId,
+	public List<RecordCountDto> getWeeklyRecordCountBoard(Long userId,
 		LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
 		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
 		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
-		StringTemplate formattedDate = getFormattedDate("%e");
+		StringTemplate formattedDay = getFormattedDate("%e");
 
 		return from(record)
 			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime),
 				record.status.eq(Status.SAVED))
-			.groupBy(formattedDate)
+			.groupBy(formattedDay)
 			.select(Projections.fields(RecordCountDto.class,
-				formattedDate.as("date"),
+				formattedDay.as("date"),
 				record.count().as("count")))
-			.orderBy(record.createdAt.desc())
 			.fetch();
 	}
 
