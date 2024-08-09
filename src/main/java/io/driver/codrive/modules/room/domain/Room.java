@@ -40,6 +40,9 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	private String information;
 
+	@Column(nullable = false)
+	private String uuid;
+
 	@ManyToOne
 	@JoinColumn(name = "owner_id", nullable = false)
 	private User owner;
