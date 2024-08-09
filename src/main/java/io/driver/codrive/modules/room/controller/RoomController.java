@@ -63,6 +63,22 @@ public class RoomController {
 	}
 
 	@Operation(
+		summary = "UUID로 그룹 정보 조회",
+		parameters = {
+			@Parameter(name = "uuid", in = ParameterIn.PATH, required = true, description = "그룹 UUID"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomUuidResponse.class))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@GetMapping("/uuid/{uuid}")
+	public ResponseEntity<BaseResponse<RoomUuidResponse>> getRoomInfoByUuid(@PathVariable(name = "uuid") String uuid) {
+		RoomUuidResponse response = roomService.getRoomInfoByUuid(uuid);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
 		summary = "전체 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
