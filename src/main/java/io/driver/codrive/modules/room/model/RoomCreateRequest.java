@@ -2,6 +2,7 @@ package io.driver.codrive.modules.room.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.validator.constraints.Range;
 
@@ -54,6 +55,7 @@ public record RoomCreateRequest(
 			.capacity(capacity)
 			.introduce(introduce)
 			.information(information)
+			.uuid(String.valueOf(UUID.randomUUID()))
 			.owner(user)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
