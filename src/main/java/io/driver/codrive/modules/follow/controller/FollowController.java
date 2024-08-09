@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Follow API", description = "팔로우 기능 관련 API")
+@Tag(name = "Follow API", description = "팔로우 관련 API")
 @RestController
 @RequestMapping(APIConstants.API_PREFIX + "/follow")
 @RequiredArgsConstructor

@@ -14,7 +14,6 @@ import io.driver.codrive.modules.auth.model.LoginResponse;
 import io.driver.codrive.global.jwt.JwtProvider;
 import io.driver.codrive.global.exception.UnauthorizedApplicationException;
 import io.driver.codrive.modules.language.service.LanguageService;
-import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -104,22 +103,4 @@ public class AuthService {
 		user.changeProfileImg(userProfile.profileImg());
 		return user;
 	}
-
-	//로컬 테스트용
-	@Transactional
-	public void createUser() {
-		User user = User.builder()
-			.email("email")
-			.name("name")
-			.nickname("nickname")
-			.profileImg("IMAGE_URL")
-			.githubUrl("GITHUB_URL")
-			.language(languageService.getLanguageByName("Java"))
-			.level(1)
-			.role(Role.MEMBER)
-			.withdraw(false)
-			.build();
-		userRepository.save(user);
-	}
-
 }

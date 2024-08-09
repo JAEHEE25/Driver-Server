@@ -32,9 +32,9 @@ public record RecordModifyRequest(
 	@Size(min = 1, max = 2, message = "문제 유형 태그는 {min}개 이상 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON")
+	@Schema(description = "문제 플랫폼", example = "백준")
 	@NotNull(message = "문제 플랫폼을 선택해주세요.")
-	Platform platform,
+	String platform,
 
 	@Schema(description = "문제 URL", example = "https://codrive.co.kr")
 	@Pattern(regexp = "^(https?|ftp)://[\\w.-]+(:[0-9]+)?(/([\\w/_.]*)?)?$",
@@ -53,7 +53,7 @@ public record RecordModifyRequest(
 			.title(title)
 			.level(level)
 			.recordCategoryMappings(new ArrayList<>())
-			.platform(platform)
+			.platform(Platform.getPlatformByName(platform))
 			.problemUrl(problemUrl)
 			.codeblocks(new ArrayList<>())
 			.status(Status.SAVED)

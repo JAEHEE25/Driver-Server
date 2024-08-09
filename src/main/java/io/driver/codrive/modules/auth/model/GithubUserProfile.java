@@ -20,7 +20,7 @@ public record GithubUserProfile(
 		return User.builder()
 			.email(email)
 			.name(name)
-			.nickname(name)
+			.nickname(email)
 			.profileImg(profileImg)
 			.githubUrl(null)
 			.language(language)

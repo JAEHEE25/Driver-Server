@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
+	private static final int TEMP_RECORD_LIMIT = 3;
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
@@ -37,16 +38,11 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 
 	@Transactional
-	public RecordCreateResponse createRecord(RecordCreateRequest recordRequest) {
+	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
-		if (recordRequest.getCodeblocks() != null) {
-			createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
-		}
-
-		if (recordRequest.getTags() != null) {
-			recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
-		}
+		createCodeblocks(recordRequest.codeblocks(), createdRecord);
+		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
 		return RecordCreateResponse.of(createdRecord);
 	}
 
@@ -72,11 +68,36 @@ public class RecordService {
 	}
 
 	@Transactional
-	public TempRecordListResponse getTempRecords(int page, int size) {
+	public RecordCreateResponse createTempRecord(RecordTempRequest recordRequest) {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		checkTempRecordLimit(user);
+
+		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		if (recordRequest.codeblocks() != null) {
+			createCodeblocks(recordRequest.codeblocks(), createdRecord);
+		}
+		if (recordRequest.tags() != null) {
+			recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
+		}
+		return RecordCreateResponse.of(createdRecord);
+	}
+
+	private void validatePageAndSize(int page, int size) {
 		if (page < 0 || size < 0) {
 			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
 		}
+	}
 
+	private void checkTempRecordLimit(User user) {
+		List<Record> tempRecords = recordRepository.findAllByUserAndStatus(user, Status.TEMP);
+		if (tempRecords.size() >= TEMP_RECORD_LIMIT) {
+			throw new IllegalArgumentApplicationException("임시 저장 최대 개수를 초과했습니다.");
+		}
+	}
+
+	@Transactional
+	public TempRecordListResponse getTempRecordsByPage(int page, int size) {
+		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Page<Record> records = recordRepository.findAllByUserAndStatusOrderByCreatedAtDesc(user, Status.TEMP, pageable);
@@ -92,32 +113,26 @@ public class RecordService {
 	}
 
 	@Transactional
-	public RecordMonthListResponse getRecordsByMonth(Long userId, String pivotDate, Integer page, Integer size) {
-		if (page < 0 || size < 0) {
-			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
-		}
-
+	public RecordMonthListResponse getRecordsByMonth(Long userId, String requestPivotDate, Integer page, Integer size) {
+		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(userId);
-		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
-		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivot, pageable);
+		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
+		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, pageable);
 		return RecordMonthListResponse.of(records.getTotalPages(), records);
 	}
 
 	@Transactional
-	public RecordCountBoardResponse getRecordsCount(Long userId, Period period, String pivotDate) {
+	public RecordCountBoardResponse getRecordsCount(Long userId, Period period, String requestPivotDate) {
 		User user = userService.getUserById(userId);
-		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
-		List<RecordCountBoardResponse.RecordCountResponse> records = countBoardService.getCountBoard(user, period, pivot);
+		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
+		List<RecordCountBoardResponse.RecordCountResponse> records = countBoardService.getCountBoard(user, period, pivotDate);
 		return RecordCountBoardResponse.of(records);
 	}
 
 	@Transactional
 	public UnsolvedMonthResponse getUnsolvedMonths(Long userId, String pivotDate) {
 		RecordCountBoardResponse response = getRecordsCount(userId, null, pivotDate);
-		for (RecordCountBoardResponse.RecordCountResponse record : response.board()) {
-			System.out.println(record.date() + " " + record.count());
-		}
 		List<Integer> unsolvedMonths = response.board().stream()
 			.filter(data -> data.count() == 0)
 			.map(data -> Integer.valueOf(data.date()))
