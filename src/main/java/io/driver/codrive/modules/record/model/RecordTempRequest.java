@@ -12,7 +12,6 @@ import io.driver.codrive.modules.record.domain.Status;
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record RecordTempRequest(
@@ -31,12 +30,10 @@ public record RecordTempRequest(
 	@Size(max = 2, message = "문제 유형 태그는 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON")
-	Platform platform,
+	@Schema(description = "문제 플랫폼", example = "백준")
+	String platform,
 
 	@Schema(description = "문제 URL", example = "https://codrive.co.kr")
-	@Pattern(regexp = "^(https?|ftp)://[\\w.-]+(:[0-9]+)?(/([\\w/_.]*)?)?$",
-		message = "URL 형식이 올바르지 않습니다.")
 	String problemUrl,
 
 	@Schema(description = "작성한 코드 블록", implementation = CodeblockCreateRequest.class,
@@ -44,48 +41,22 @@ public record RecordTempRequest(
 	@Size(max = 10, message = "코드 블록은 {min}개 이하로 입력해주세요.")
 	List<CodeblockCreateRequest> codeblocks
 
-) implements RecordCreateRequest {
-	@Override
-	public String getTitle() {
-		return title;
-	}
-
-	@Override
-	public int getLevel() {
-		return level;
-	}
-
-	@Override
-	public List<String> getTags() {
-		return tags;
-	}
-
-	@Override
-	public Platform getPlatform() {
-		return platform;
-	}
-
-	@Override
-	public String getProblemUrl() {
-		return problemUrl;
-	}
-
-	@Override
-	public List<CodeblockCreateRequest> getCodeblocks() {
-		return codeblocks;
-	}
-
-	@Override
+) {
 	public Record toEntity(User user) {
 		return Record.builder()
 			.user(user)
-			.title(getTitle())
-			.level(getLevel())
+			.title(title)
+			.level(level)
 			.recordCategoryMappings(new ArrayList<>())
 			.platform(getPlatform())
-			.problemUrl(getProblemUrl())
+			.problemUrl(problemUrl)
 			.codeblocks(new ArrayList<>())
 			.status(Status.TEMP)
 			.build();
+	}
+
+	private Platform getPlatform() {
+		if (platform == null || platform.isEmpty()) return null;
+		return Platform.getPlatformByName(platform);
 	}
 }

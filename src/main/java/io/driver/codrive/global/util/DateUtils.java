@@ -4,13 +4,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DateUtils {
 
 	private LocalDate parsePivotDate(String pivotDate) {
-		return LocalDate.parse(pivotDate);
+		try {
+			return LocalDate.parse(pivotDate);
+		} catch (Exception e) {
+			throw new IllegalArgumentApplicationException("날짜 형식이 잘못되었습니다.");
+		}
 	}
 
 	public LocalDate getPivotDateOrToday(String pivotDate) {

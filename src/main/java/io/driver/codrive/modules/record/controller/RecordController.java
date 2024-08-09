@@ -36,14 +36,14 @@ public class RecordController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 		}
 	)
 	@PostMapping
 	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(
 		@Valid @RequestBody RecordSaveRequest request) {
-		RecordCreateResponse response = recordService.createRecord(request);
+		RecordCreateResponse response = recordService.createSavedRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -74,14 +74,15 @@ public class RecordController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"임시 저장 최대 개수를 초과했습니다. || "
+					+ "지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 		}
 	)
 	@PostMapping("/temp")
 	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(
 		@Valid @RequestBody RecordTempRequest request) {
-		RecordCreateResponse response = recordService.createRecord(request);
+		RecordCreateResponse response = recordService.createTempRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -100,7 +101,7 @@ public class RecordController {
 	public ResponseEntity<BaseResponse<TempRecordListResponse>> getTempRecords(
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "size", defaultValue = "1") Integer size) {
-		TempRecordListResponse response = recordService.getTempRecords(page, size);
+		TempRecordListResponse response = recordService.getTempRecordsByPage(page, size);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -208,7 +209,7 @@ public class RecordController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordModifyResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"문제 풀이 데이터를 찾을 수 없습니다.\"}"))),
 		}

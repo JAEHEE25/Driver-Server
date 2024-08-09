@@ -33,9 +33,9 @@ public record RecordSaveRequest(
 	@Size(min = 1, max = 2, message = "문제 유형 태그는 {min}개 이상 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON")
+	@Schema(description = "문제 플랫폼", example = "백준")
 	@NotNull(message = "문제 플랫폼을 선택해주세요.")
-	Platform platform,
+	String platform,
 
 	@Schema(description = "문제 URL", example = "https://codrive.co.kr")
 	@Pattern(regexp = "^(https?|ftp)://[\\w.-]+(:[0-9]+)?(/([\\w/_.]*)?)?$",
@@ -49,47 +49,15 @@ public record RecordSaveRequest(
 	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
 	List<CodeblockCreateRequest> codeblocks
 
-) implements RecordCreateRequest {
-
-	@Override
-	public String getTitle() {
-		return title;
-	}
-
-	@Override
-	public int getLevel() {
-		return level;
-	}
-
-	@Override
-	public List<String> getTags() {
-		return tags;
-	}
-
-	@Override
-	public Platform getPlatform() {
-		return platform;
-	}
-
-	@Override
-	public String getProblemUrl() {
-		return problemUrl;
-	}
-
-	@Override
-	public List<CodeblockCreateRequest> getCodeblocks() {
-		return codeblocks;
-	}
-
-	@Override
+) {
 	public Record toEntity(User user) {
 		return Record.builder()
 			.user(user)
-			.title(getTitle())
-			.level(getLevel())
+			.title(title)
+			.level(level)
 			.recordCategoryMappings(new ArrayList<>())
-			.platform(getPlatform())
-			.problemUrl(getProblemUrl())
+			.platform(Platform.getPlatformByName(platform))
+			.problemUrl(problemUrl)
 			.codeblocks(new ArrayList<>())
 			.status(Status.SAVED)
 			.build();
