@@ -60,6 +60,12 @@ public class RoomService {
 	}
 
 	@Transactional
+	public RoomUuidResponse getRoomInfoByUuid(String uuid) {
+		Room room = roomRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundApplcationException("그룹"));
+		return RoomUuidResponse.of(room);
+	}
+
+	@Transactional
 	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
 		Room room = getRoomById(roomId);
 		String imageUrl = room.getImageSrc();
