@@ -11,11 +11,10 @@ import lombok.Builder;
 @Builder
 public record CodeblockModifyRequest(
 	@Schema(description = "코드", example = "code")
-	@NotBlank
+	@NotBlank(message = "코드를 입력해주세요.")
 	String code,
 
 	@Schema(description = "메모", example = "memo")
-	@NotBlank
 	String memo
 ) {
 	public static List<Codeblock> of(List<CodeblockModifyRequest> requests, Record record) {

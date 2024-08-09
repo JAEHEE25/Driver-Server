@@ -20,6 +20,11 @@ public class DateUtils {
 		return parsePivotDate(pivotDate);
 	}
 
+	public static String formatYear(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        return date.format(formatter);
+    }
+
 	public static String formatYearMonth(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
         return date.format(formatter);

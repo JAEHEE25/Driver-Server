@@ -9,5 +9,5 @@ import io.driver.codrive.modules.user.domain.User;
 
 @Repository
 public interface RecordRepository extends JpaRepository<Record, Long>, RecordRepositoryCustom {
-	Page<Record> findAllByUserAndStatus(User user, Status status, Pageable pageable);
+	Page<Record> findAllByUserAndStatusOrderByCreatedAtDesc(User user, Status status, Pageable pageable);
 }

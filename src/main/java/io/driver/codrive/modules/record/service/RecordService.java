@@ -2,6 +2,7 @@ package io.driver.codrive.modules.record.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,8 +40,13 @@ public class RecordService {
 	public RecordCreateResponse createRecord(RecordCreateRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
-		createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
-		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
+		if (recordRequest.getCodeblocks() != null) {
+			createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
+		}
+
+		if (recordRequest.getTags() != null) {
+			recordCategoryMappingService.createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
+		}
 		return RecordCreateResponse.of(createdRecord);
 	}
 
@@ -73,7 +79,7 @@ public class RecordService {
 
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Page<Record> records = recordRepository.findAllByUserAndStatus(user, Status.TEMP, pageable);
+		Page<Record> records = recordRepository.findAllByUserAndStatusOrderByCreatedAtDesc(user, Status.TEMP, pageable);
 		return TempRecordListResponse.of(records.getTotalPages(), records);
 	}
 
@@ -81,7 +87,7 @@ public class RecordService {
 	public RecordDayListResponse getRecordsByDay(Long userId, String pivotDate) {
 		User user = userService.getUserById(userId);
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
-		List<Record> records = recordRepository.getSavedRecordsByDay(user.getUserId(), pivot);
+		List<Record> records = recordRepository.getDailyRecords(user.getUserId(), pivot);
 		return RecordDayListResponse.of(records);
 	}
 
@@ -94,7 +100,7 @@ public class RecordService {
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(userId);
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
-		Page<Record> records = recordRepository.getSavedRecordsByMonth(user.getUserId(), pivot, pageable);
+		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivot, pageable);
 		return RecordMonthListResponse.of(records.getTotalPages(), records);
 	}
 
@@ -104,6 +110,19 @@ public class RecordService {
 		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
 		List<RecordCountBoardResponse.RecordCountResponse> records = countBoardService.getCountBoard(user, period, pivot);
 		return RecordCountBoardResponse.of(records);
+	}
+
+	@Transactional
+	public UnsolvedMonthResponse getUnsolvedMonths(Long userId, String pivotDate) {
+		RecordCountBoardResponse response = getRecordsCount(userId, null, pivotDate);
+		for (RecordCountBoardResponse.RecordCountResponse record : response.board()) {
+			System.out.println(record.date() + " " + record.count());
+		}
+		List<Integer> unsolvedMonths = response.board().stream()
+			.filter(data -> data.count() == 0)
+			.map(data -> Integer.valueOf(data.date()))
+			.collect(Collectors.toList());
+		return UnsolvedMonthResponse.of(unsolvedMonths);
 	}
 
 	@Transactional

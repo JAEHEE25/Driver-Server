@@ -12,11 +12,12 @@ import io.driver.codrive.modules.record.domain.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record RecordModifyRequest(
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
-	@NotBlank
+	@NotBlank(message = "문제 풀이 제목을 입력해주세요.")
 	String title,
 
 	@Schema(description = "난이도", example = "1")
@@ -27,22 +28,23 @@ public record RecordModifyRequest(
 		allowableValues = {"해시", "스택/큐", "힙 (Heap)", "정렬", "완전탐색", "탐욕법 (Greedy)",
 			"동적계획법 (Dynamic Programming)", "깊이 우선 탐색 (DFS)", "너비 우선 탐색 (BFS)", "이분탐색",
 			"그래프", "트리", "투포인터"})
-	@NotNull
+	@NotNull(message = "문제 유형 태그를 선택해주세요.")
 	@Size(min = 1, max = 2, message = "문제 유형 태그는 {min}개 이상 {max}개 이하로 선택해주세요.")
 	List<String> tags,
 
-	@Schema(description = "문제 플랫폼", example = "BAEKJOON", allowableValues = {"BAEKJOON", "PROGRAMMERS", "SWEA",
-		"LEETCODE", "HACKERRANK", "OTHER"})
-	@NotNull
+	@Schema(description = "문제 플랫폼", example = "BAEKJOON")
+	@NotNull(message = "문제 플랫폼을 선택해주세요.")
 	Platform platform,
 
-	@Schema(description = "문제 URL", example = "PROBLEM_URL")
-	@NotBlank
+	@Schema(description = "문제 URL", example = "https://codrive.co.kr")
+	@Pattern(regexp = "^(https?|ftp)://[\\w.-]+(:[0-9]+)?(/([\\w/_.]*)?)?$",
+		message = "URL 형식이 올바르지 않습니다.")
+	@NotBlank(message = "문제 URL을 입력해주세요.")
 	String problemUrl,
 
 	@Schema(description = "작성한 코드 블록", implementation = CodeblockModifyRequest.class,
 		example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
-	@NotNull
+	@NotNull(message = "코드 블록을 입력해주세요.")
 	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
 	List<CodeblockModifyRequest> codeblocks
 ) {

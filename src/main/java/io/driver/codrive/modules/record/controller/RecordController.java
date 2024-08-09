@@ -178,6 +178,24 @@ public class RecordController {
 	}
 
 	@Operation(
+		summary = "문제 풀이 데이터가 없는 달 조회",
+		parameters = {
+			@Parameter(name = "userId", in = ParameterIn.PATH, required = true, description = "사용자 ID"),
+			@Parameter(name = "pivotDate", in = ParameterIn.QUERY, description = "yyyy-MM-dd 형식의 날짜로 입력해야 합니다. 입력하지 않을 경우 현재 날짜로 조회합니다."),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UnsolvedMonthResponse.class))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@GetMapping("/{userId}/unsolved-months")
+	public ResponseEntity<BaseResponse<UnsolvedMonthResponse>> getUnsolvedMonths(@PathVariable(name = "userId") Long userId,
+		@RequestParam(name = "pivotDate", required = false) String pivotDate) {
+		UnsolvedMonthResponse response = recordService.getUnsolvedMonths(userId, pivotDate);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
 		summary = "문제 풀이 수정",
 		parameters = {
 			@Parameter(name = "recordId", in = ParameterIn.PATH, required = true, description = "문제 풀이 ID"),
