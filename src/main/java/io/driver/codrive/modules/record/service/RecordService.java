@@ -143,6 +143,7 @@ public class RecordService {
 	@Transactional
 	public RecordModifyResponse modifyRecord(Long recordId, RecordModifyRequest request) {
 		Record record = getRecordById(recordId);
+		AuthUtils.checkOwnedEntity(record);
 		updateRecord(record, request);
 		return RecordModifyResponse.of(record);
 	}
@@ -161,6 +162,7 @@ public class RecordService {
 	@Transactional
 	public void deleteRecord(Long recordId) {
 		Record record = getRecordById(recordId);
+		AuthUtils.checkOwnedEntity(record);
 		recordRepository.delete(record);
 	}
 

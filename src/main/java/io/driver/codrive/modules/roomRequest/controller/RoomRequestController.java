@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Room Request API", description = "그룹 참여 관련 API")
+@Tag(name = "Room Request API", description = "그룹 참여 요청 관련 API")
 @RestController
 @RequestMapping(APIConstants.API_PREFIX + "/rooms")
 @RequiredArgsConstructor
@@ -72,6 +72,7 @@ public class RoomRequestController {
 
 	@Operation(
 		summary = "그룹 참여 요청 목록 조회",
+		description = "그룹장만 가능합니다.",
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
 		},
@@ -90,6 +91,7 @@ public class RoomRequestController {
 
 	@Operation(
 		summary = "그룹 참여 요청 승인",
+		description = "그룹장만 가능합니다.",
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
 			@Parameter(name = "requestId", in = ParameterIn.PATH, required = true),
@@ -109,6 +111,7 @@ public class RoomRequestController {
 
 	@Operation(
 		summary = "그룹 참여 요청 거절",
+		description = "그룹장만 가능합니다.",
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
 			@Parameter(name = "requestId", in = ParameterIn.PATH, required = true),

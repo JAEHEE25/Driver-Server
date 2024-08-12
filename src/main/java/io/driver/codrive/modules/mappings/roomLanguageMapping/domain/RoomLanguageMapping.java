@@ -1,6 +1,6 @@
 package io.driver.codrive.modules.mappings.roomLanguageMapping.domain;
 
-import io.driver.codrive.global.BaseEntity;
+import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.room.domain.Room;
 import jakarta.persistence.*;
@@ -36,5 +36,10 @@ public class RoomLanguageMapping extends BaseEntity {
 
 	public String getLanguageName() {
 		return language.getName();
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return this.room.getOwnerId();
 	}
 }

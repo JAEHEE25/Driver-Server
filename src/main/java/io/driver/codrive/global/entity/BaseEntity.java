@@ -1,4 +1,4 @@
-package io.driver.codrive.global;
+package io.driver.codrive.global.entity;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +11,7 @@ import lombok.Getter;
 
 @Getter
 @MappedSuperclass
-public abstract class BaseEntity {
-
+public abstract class BaseEntity implements OwnedEntity {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;

@@ -1,6 +1,6 @@
 package io.driver.codrive.modules.roomRequest.domain;
 
-import io.driver.codrive.global.BaseEntity;
+import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
@@ -32,5 +32,10 @@ public class RoomRequest extends BaseEntity {
 			.user(user)
 			.room(room)
 			.build();
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return this.room.getOwnerId();
 	}
 }

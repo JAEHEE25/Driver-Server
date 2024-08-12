@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
@@ -30,6 +31,7 @@ public class UserService {
 
 	public UserDetailResponse getUserInfo(Long userId) {
 		User user = getUserById(userId);
+		AuthUtils.checkOwnedEntity(user);
 		return UserDetailResponse.of(user);
 	}
 
@@ -42,6 +44,7 @@ public class UserService {
 	@Transactional
 	public ProfileChangeResponse updateCurrentUserProfile(Long userId, ProfileChangeRequest request) {
 		User user = getUserById(userId);
+		AuthUtils.checkOwnedEntity(user);
 		user.changeNickname(request.nickname());
 		user.changeLanguage(languageService.getLanguageByName(request.language()));
 		user.changeComment(request.comment());
@@ -52,6 +55,7 @@ public class UserService {
 	@Transactional
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
+		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
 	}
 
