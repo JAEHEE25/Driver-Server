@@ -29,7 +29,6 @@ public class Record extends BaseEntity {
 	@Column(nullable = false)
 	private Integer level;
 
-	@Enumerated(EnumType.STRING)
 	private Platform platform;
 
 	private String problemUrl;

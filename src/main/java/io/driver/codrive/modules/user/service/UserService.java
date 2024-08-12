@@ -10,7 +10,12 @@ import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
-import io.driver.codrive.modules.user.model.*;
+import io.driver.codrive.modules.user.model.request.NicknameRequest;
+import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
+import io.driver.codrive.modules.user.model.response.CreatedRoomListResponse;
+import io.driver.codrive.modules.user.model.response.JoinedRoomListResponse;
+import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
+import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service

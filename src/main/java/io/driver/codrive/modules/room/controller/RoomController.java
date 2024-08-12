@@ -9,9 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.room.model.*;
+import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
+import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
+import io.driver.codrive.modules.room.model.response.*;
 import io.driver.codrive.modules.room.service.RoomService;
-import io.driver.codrive.modules.room.model.RoomListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

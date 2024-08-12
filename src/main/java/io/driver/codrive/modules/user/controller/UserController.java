@@ -5,7 +5,12 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.user.model.*;
+import io.driver.codrive.modules.user.model.request.NicknameRequest;
+import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
+import io.driver.codrive.modules.user.model.response.CreatedRoomListResponse;
+import io.driver.codrive.modules.user.model.response.JoinedRoomListResponse;
+import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
+import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import io.driver.codrive.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

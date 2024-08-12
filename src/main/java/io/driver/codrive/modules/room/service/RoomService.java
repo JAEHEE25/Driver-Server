@@ -19,7 +19,9 @@ import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLangua
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
-import io.driver.codrive.modules.room.model.*;
+import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
+import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
+import io.driver.codrive.modules.room.model.response.*;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
