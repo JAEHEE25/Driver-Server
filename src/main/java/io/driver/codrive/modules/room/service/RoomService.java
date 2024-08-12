@@ -105,10 +105,7 @@ public class RoomService {
 
 	@Transactional
 	public RoomListResponse getRooms(int page, int size) {
-		if (page < 0 || size < 0) {
-			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
-		}
-
+		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
 		Page<RoomDetailResponse> rooms = roomRepository.findAll(pageable).map(RoomDetailResponse::of);
 		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
@@ -132,4 +129,17 @@ public class RoomService {
 		roomUserMappingService.deleteRoomUserMapping(room, user);
 	}
 
+	@Transactional
+	public RoomListResponse searchRooms(String keyword, int page, int size) {
+		validatePageAndSize(page, size);
+		Pageable pageable = PageRequest.of(page, size);
+		Page<RoomDetailResponse> rooms = roomRepository.findByTitleContaining(keyword, pageable).map(RoomDetailResponse::of);
+		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
+	}
+
+	private void validatePageAndSize(int page, int size) {
+		if (page < 0 || size < 0) {
+			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
+		}
+	}
 }

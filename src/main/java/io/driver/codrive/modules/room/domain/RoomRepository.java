@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface RoomRepository extends JpaRepository<Room, Long> {
 	Page<Room> findAll(Pageable pageable);
 	Optional<Room> findByUuid(String uuid);
+	Page<Room> findByTitleContaining(String keyword, Pageable pageable);
 }

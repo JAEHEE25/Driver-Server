@@ -171,4 +171,25 @@ public class RoomController {
 		roomService.kickMember(roomId, userId);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
+
+	@Operation(
+		summary = "그룹 검색",
+		parameters = {
+			@Parameter(name = "keyword", in = ParameterIn.QUERY, required = true, description = "검색 키워드"),
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
+			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지의 데이터 크기"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
+		}
+	)
+	@GetMapping("/search")
+	public ResponseEntity<BaseResponse<RoomListResponse>> searchRooms(
+		@RequestParam(name = "keyword") String keyword,
+		@RequestParam(name = "page", defaultValue = "0") Integer page,
+		@RequestParam(name = "size", defaultValue = "9") Integer size) {
+		RoomListResponse response = roomService.searchRooms(keyword, page, size);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
 }
