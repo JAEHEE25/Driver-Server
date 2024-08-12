@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
-import io.driver.codrive.global.util.RoleUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
@@ -79,17 +78,14 @@ public class RoomRequestService {
 	@Transactional
 	public RoomRequestListResponse getRoomRequests(Long roomId) {
 		Room room = roomService.getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		RoleUtils.checkOwnedRoom(room, user);
+		AuthUtils.checkOwnedEntity(room);
 		return RoomRequestListResponse.of(roomRequestRepository.findAllByRoom(room));
 	}
 
 	@Transactional
 	public void approveRequest(Long roomId, Long roomRequestId) {
 		Room room = roomService.getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		RoleUtils.checkOwnedRoom(room, user);
-
+		AuthUtils.checkOwnedEntity(room);
 		RoomRequest request = getRoomRequestById(roomRequestId);
 		roomUserMappingService.createRoomUserMapping(room, request.getUser());
 		roomRequestRepository.delete(request);
@@ -98,9 +94,7 @@ public class RoomRequestService {
 	@Transactional
 	public void denyRequest(Long roomId, Long roomRequestId) {
 		Room room = roomService.getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		RoleUtils.checkOwnedRoom(room, user);
-
+		AuthUtils.checkOwnedEntity(room);
 		RoomRequest request = getRoomRequestById(roomRequestId);
 		roomRequestRepository.delete(request);
 	}

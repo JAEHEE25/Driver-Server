@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
-import io.driver.codrive.global.util.RoleUtils;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
@@ -68,6 +67,7 @@ public class RoomService {
 	@Transactional
 	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
 		Room room = getRoomById(roomId);
+		AuthUtils.checkOwnedEntity(room);
 		String imageUrl = room.getImageSrc();
 		String newImageUrl = imageService.modifyImage(imageUrl, imageFile);
 		updateRoom(room, request, newImageUrl);
@@ -102,14 +102,6 @@ public class RoomService {
 	}
 
 	@Transactional
-	public void kickMember(Long roomId, Long userId) {
-		Room room = getRoomById(roomId);
-		User user = userService.getUserById(userId);
-		RoleUtils.checkOwnedRoom(room, user);
-		roomUserMappingService.deleteRoomUserMapping(room, user);
-	}
-
-	@Transactional
 	public RoomListResponse getRooms(int page, int size) {
 		if (page < 0 || size < 0) {
 			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
@@ -129,4 +121,13 @@ public class RoomService {
 		List<Room> randomRooms = rooms.stream().limit(NUMBER_OF_ELEMENTS).toList();
 		return RoomRecommendResponse.of(RoomDetailResponse.of(randomRooms));
 	}
+
+	@Transactional
+	public void kickMember(Long roomId, Long userId) {
+		Room room = getRoomById(roomId);
+		AuthUtils.checkOwnedEntity(room);
+		User user = userService.getUserById(userId);
+		roomUserMappingService.deleteRoomUserMapping(room, user);
+	}
+
 }

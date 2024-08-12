@@ -3,7 +3,7 @@ package io.driver.codrive.modules.room.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.driver.codrive.global.BaseEntity;
+import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.user.domain.User;
@@ -110,4 +110,8 @@ public class Room extends BaseEntity {
 		roomLanguageMappings.removeAll(mappings);
 	}
 
+	@Override
+	public Long getOwnerId() {
+		return this.owner.getUserId();
+	}
 }

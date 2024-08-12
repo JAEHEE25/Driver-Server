@@ -1,7 +1,7 @@
 package io.driver.codrive.modules.mappings.recordCategoryMapping.domain;
 
 import io.driver.codrive.modules.category.domain.Category;
-import io.driver.codrive.global.BaseEntity;
+import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.record.domain.Record;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,4 +38,8 @@ public class RecordCategoryMapping extends BaseEntity {
 		return category.getName();
 	}
 
+	@Override
+	public Long getOwnerId() {
+		return this.record.getOwnerId();
+	}
 }

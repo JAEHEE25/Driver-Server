@@ -23,10 +23,6 @@ public record RoomCreateRequest(
 	@Size(max = 20, message = "비밀번호는 {max}자 이하로 입력해주세요.")
 	String password,
 
-	@Schema(description = "그룹 대표 이미지 URL", example = "IMAGE_URL")
-	@NotBlank(message = "그룹 대표 이미지 URL을 입력해주세요.")
-	String imageSrc,
-
 	@Schema(description = "모집 인원", example = "20", minimum = "1", maximum = "50")
 	@Range(min = 1, max = 50, message = "모집 인원은 {min}명 이상 {max}명 이하로 입력해주세요.")
 	int capacity,

@@ -1,6 +1,6 @@
 package io.driver.codrive.modules.mappings.roomUserMapping.domain;
 
-import io.driver.codrive.global.BaseEntity;
+import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
@@ -36,5 +36,10 @@ public class RoomUserMapping extends BaseEntity {
 
 	public boolean isOwner() {
 		return this.room.getOwner().getUserId().equals(this.user.getUserId());
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return this.user.getUserId();
 	}
 }

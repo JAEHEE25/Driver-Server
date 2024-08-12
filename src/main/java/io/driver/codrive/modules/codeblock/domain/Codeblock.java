@@ -1,6 +1,6 @@
 package io.driver.codrive.modules.codeblock.domain;
 
-import io.driver.codrive.global.BaseEntity;
+import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.record.domain.Record;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,4 +25,9 @@ public class Codeblock extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "record_id", nullable = false)
 	private Record record;
+
+	@Override
+	public Long getOwnerId() {
+		return this.record.getOwnerId();
+	}
 }
