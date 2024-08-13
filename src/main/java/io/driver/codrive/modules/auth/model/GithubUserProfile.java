@@ -7,8 +7,8 @@ import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 
 public record GithubUserProfile(
-	@JsonProperty("email")
-	String email,
+	@JsonProperty("login")
+	String username,
 
 	@JsonProperty("name")
 	String name,
@@ -18,9 +18,9 @@ public record GithubUserProfile(
 ) {
 	public User toUser(Language language) {
 		return User.builder()
-			.email(email)
 			.name(name)
-			.nickname(email)
+			.username(username)
+			.nickname(name)
 			.profileImg(profileImg)
 			.githubUrl(null)
 			.language(language)
