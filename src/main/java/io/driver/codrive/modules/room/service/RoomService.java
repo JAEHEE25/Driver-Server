@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.language.domain.Language;
@@ -117,11 +116,9 @@ public class RoomService {
 	@Transactional
 	public RoomRecommendResponse getRecommendRoomRandomList(Long userId) {
 		User user = userService.getUserById(userId);
-		Language userLanguage = user.getLanguage();
-		List<Room> rooms = userLanguage.getRoomsByLanguage();
-		Collections.shuffle(rooms);
-		List<Room> randomRooms = rooms.stream().limit(NUMBER_OF_RANDOM_ROOMS).toList();
-		return RoomRecommendResponse.of(RoomDetailResponse.of(randomRooms));
+		AuthUtils.checkOwnedEntity(user);
+		List<Room> rooms = roomRepository.getRoomsByLanguageExcludingOwnRoom(user.getLanguage().getLanguageId(), user.getUserId());
+		return RoomRecommendResponse.of(rooms);
 	}
 
 	@Transactional
