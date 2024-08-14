@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
+import io.driver.codrive.modules.room.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
@@ -82,19 +83,18 @@ public class RoomController {
 	@Operation(
 		summary = "전체 그룹 목록 조회",
 		parameters = {
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지의 데이터 크기"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 		}
 	)
-	@GetMapping
-	public ResponseEntity<BaseResponse<RoomListResponse>> getRooms(
-		@RequestParam(name = "page", defaultValue = "0") Integer page,
-		@RequestParam(name = "size", defaultValue = "9") Integer size) {
-		RoomListResponse response = roomService.getRooms(page, size);
+	@GetMapping("/sort/{sortType}")
+	public ResponseEntity<BaseResponse<RoomListResponse>> getRooms(@PathVariable(name = "sortType") SortType sortType,
+		@RequestParam(name = "page", defaultValue = "0") Integer page) {
+		RoomListResponse response = roomService.getRooms(sortType, page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -150,7 +150,6 @@ public class RoomController {
 		RoomRecommendResponse response = roomService.getRecommendRoomRandomList(userId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
-
 
 	@Operation(
 		summary = "그룹 멤버 추방",

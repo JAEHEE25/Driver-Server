@@ -21,9 +21,9 @@ public class RoomUserMappingService {
 		if (getRoomUserMapping(room, user) != null) {
 			throw new IllegalArgumentApplicationException("이미 참여한 그룹입니다.");
 		}
-
-		RoomUserMapping mapping = roomUserMappingRepository.save(RoomUserMapping.toEntity(room, user));
+		RoomUserMapping mapping = roomUserMappingRepository.save(RoomUserMapping.toRoomUserMapping(room, user));
 		room.addRoomUserMappings(mapping);
+		room.changeMemberCount(room.getMemberCount() + 1);
 		user.addRoomUserMappings(mapping);
 	}
 
@@ -36,6 +36,7 @@ public class RoomUserMappingService {
 	public void deleteRoomUserMapping(Room room, User user) {
 		RoomUserMapping mapping = getRoomUserMapping(room, user);
 		room.deleteMember(mapping);
+		room.changeMemberCount(room.getMemberCount() - 1);
 		user.deleteJoinedRoom(mapping);
 		roomUserMappingRepository.delete(mapping);
 	}

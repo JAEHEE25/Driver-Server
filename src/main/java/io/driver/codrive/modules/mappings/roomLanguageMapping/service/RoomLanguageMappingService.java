@@ -36,7 +36,7 @@ public class RoomLanguageMappingService {
 		List<RoomLanguageMapping> roomLanguageMappings = new ArrayList<>();
 		tags.forEach(tag -> {
 			Language language = languageService.getLanguageByName(tag);
-			roomLanguageMappings.add(RoomLanguageMapping.toEntity(room, language));
+			roomLanguageMappings.add(RoomLanguageMapping.toRoomLanguageMapping(room, language));
 		});
 		return roomLanguageMappings;
 	}

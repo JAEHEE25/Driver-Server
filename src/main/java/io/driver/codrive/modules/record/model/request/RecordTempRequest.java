@@ -42,7 +42,7 @@ public record RecordTempRequest(
 	List<CodeblockCreateRequest> codeblocks
 
 ) {
-	public Record toEntity(User user) {
+	public Record toTempRecord(User user) {
 		return Record.builder()
 			.user(user)
 			.title(title)

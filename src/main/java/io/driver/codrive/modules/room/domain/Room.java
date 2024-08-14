@@ -35,6 +35,12 @@ public class Room extends BaseEntity {
 	private Integer capacity;
 
 	@Column(nullable = false)
+	private Integer requestedCount;
+
+	@Column(nullable = false)
+	private Integer memberCount;
+
+	@Column(nullable = false)
 	private String introduce;
 
 	@Column(nullable = false)
@@ -63,6 +69,14 @@ public class Room extends BaseEntity {
 
 	public void changeImageSrc(String imageSrc) {
 		this.imageSrc = imageSrc;
+	}
+
+	public void changeRequestedCount(Integer requestedCount) {
+		this.requestedCount = requestedCount;
+	}
+
+	public void changeMemberCount(Integer memberCount) {
+		this.memberCount = memberCount;
 	}
 
 	public void changeCapacity(Integer capacity) {

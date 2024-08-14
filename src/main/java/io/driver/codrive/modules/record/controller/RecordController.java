@@ -100,7 +100,7 @@ public class RecordController {
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 		}
 	)
-	@GetMapping("/records/temp")
+	@GetMapping("/temp")
 	public ResponseEntity<BaseResponse<TempRecordListResponse>> getTempRecords(
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "size", defaultValue = "1") Integer size) {

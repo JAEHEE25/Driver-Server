@@ -50,7 +50,7 @@ public record RecordSaveRequest(
 	List<CodeblockCreateRequest> codeblocks
 
 ) {
-	public Record toEntity(User user) {
+	public Record toSavedRecord(User user) {
 		return Record.builder()
 			.user(user)
 			.title(title)

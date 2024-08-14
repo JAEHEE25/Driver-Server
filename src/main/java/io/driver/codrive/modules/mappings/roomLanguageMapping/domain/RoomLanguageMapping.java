@@ -27,7 +27,7 @@ public class RoomLanguageMapping extends BaseEntity {
 	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
 
-	public static RoomLanguageMapping toEntity(Room room, Language language) {
+	public static RoomLanguageMapping toRoomLanguageMapping(Room room, Language language) {
 		return RoomLanguageMapping.builder()
 			.language(language)
 			.room(room)

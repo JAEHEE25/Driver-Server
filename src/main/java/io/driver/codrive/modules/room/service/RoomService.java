@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,7 @@ import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLangua
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
+import io.driver.codrive.modules.room.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
@@ -30,7 +32,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoomService {
-	private static final int NUMBER_OF_ELEMENTS = 6;
+	private static final int NUMBER_OF_ROOMS = 9;
+	private static final int NUMBER_OF_RANDOM_ROOMS = 6;
 	private final UserService userService;
 	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
@@ -41,7 +44,7 @@ public class RoomService {
 	public RoomCreateResponse createRoom(RoomCreateRequest request, MultipartFile imageFile) throws IOException {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		String imageSrc = imageService.uploadImage(imageFile);
-		Room savedRoom = roomRepository.save(request.toEntity(user, imageSrc));
+		Room savedRoom = roomRepository.save(request.toRoom(user, imageSrc));
 
 		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
@@ -78,7 +81,7 @@ public class RoomService {
 
 	@Transactional
 	public void updateRoom(Room room, RoomModifyRequest request, String newImageUrl) {
-		Room newRoom = request.toEntity(newImageUrl);
+		Room newRoom = request.toRoom(newImageUrl);
 		room.changeTitle(newRoom.getTitle());
 		room.changePassword(newRoom.getPassword());
 		room.changeImageSrc(newRoom.getImageSrc());
@@ -104,10 +107,10 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomListResponse getRooms(int page, int size) {
-		validatePageAndSize(page, size);
-		Pageable pageable = PageRequest.of(page, size);
-		Page<RoomDetailResponse> rooms = roomRepository.findAll(pageable).map(RoomDetailResponse::of);
+	public RoomListResponse getRooms(SortType sortType, int page) {
+		Sort sort = SortType.getSort(sortType);
+		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
+		Page<Room> rooms = roomRepository.findAll(pageable);
 		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
 	}
 
@@ -117,7 +120,7 @@ public class RoomService {
 		Language userLanguage = user.getLanguage();
 		List<Room> rooms = userLanguage.getRoomsByLanguage();
 		Collections.shuffle(rooms);
-		List<Room> randomRooms = rooms.stream().limit(NUMBER_OF_ELEMENTS).toList();
+		List<Room> randomRooms = rooms.stream().limit(NUMBER_OF_RANDOM_ROOMS).toList();
 		return RoomRecommendResponse.of(RoomDetailResponse.of(randomRooms));
 	}
 
@@ -131,15 +134,9 @@ public class RoomService {
 
 	@Transactional
 	public RoomListResponse searchRooms(String keyword, int page, int size) {
-		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
-		Page<RoomDetailResponse> rooms = roomRepository.findByTitleContaining(keyword, pageable).map(RoomDetailResponse::of);
+		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
 		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
 	}
 
-	private void validatePageAndSize(int page, int size) {
-		if (page < 0 || size < 0) {
-			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
-		}
-	}
 }

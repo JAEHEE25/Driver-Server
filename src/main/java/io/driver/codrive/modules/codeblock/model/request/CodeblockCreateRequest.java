@@ -16,10 +16,10 @@ public record CodeblockCreateRequest(
 	String memo
 ) {
 	public static List<Codeblock> of(List<CodeblockCreateRequest> requests, Record record) {
-		return requests.stream().map(request -> request.toEntity(record)).toList();
+		return requests.stream().map(request -> request.toCodeblock(record)).toList();
 	}
 
-	public Codeblock toEntity(Record record) {
+	public Codeblock toCodeblock(Record record) {
 		return Codeblock.builder()
 			.code(code)
 			.memo(memo)

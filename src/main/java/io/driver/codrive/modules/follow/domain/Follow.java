@@ -34,7 +34,7 @@ public class Follow extends BaseEntity {
 	@Column(nullable = false)
 	private Boolean canceled;
 
-	public static Follow toEntity(User following, User follower) {
+	public static Follow toFollow(User following, User follower) {
 		return Follow.builder()
 			.following(following)
 			.follower(follower)

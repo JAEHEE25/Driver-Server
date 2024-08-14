@@ -48,7 +48,7 @@ public record RecordModifyRequest(
 	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
 	List<CodeblockModifyRequest> codeblocks
 ) {
-	public Record toEntity() {
+	public Record toSavedRecord() {
 		return Record.builder()
 			.title(title)
 			.level(level)

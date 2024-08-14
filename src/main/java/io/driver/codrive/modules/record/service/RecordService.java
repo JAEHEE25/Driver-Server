@@ -44,7 +44,7 @@ public class RecordService {
 	@Transactional
 	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
 		return RecordCreateResponse.of(createdRecord);
@@ -76,7 +76,7 @@ public class RecordService {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		checkTempRecordLimit(user);
 
-		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		Record createdRecord = recordRepository.save(recordRequest.toTempRecord(user));
 		if (recordRequest.codeblocks() != null) {
 			createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		}
@@ -154,7 +154,7 @@ public class RecordService {
 
 	@Transactional
 	public void updateRecord(Record record, RecordModifyRequest request) {
-		Record newRecord = request.toEntity();
+		Record newRecord = request.toSavedRecord();
 		record.changeTitle(newRecord.getTitle());
 		record.changeLevel(newRecord.getLevel());
 		record.changePlatform(newRecord.getPlatform());

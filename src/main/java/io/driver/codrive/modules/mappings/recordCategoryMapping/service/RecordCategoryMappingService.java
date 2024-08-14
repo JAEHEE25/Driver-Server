@@ -36,7 +36,7 @@ public class RecordCategoryMappingService {
 		List<RecordCategoryMapping> recordCategoryMappings = new ArrayList<>();
 		tags.forEach(request -> {
 			Category category = categoryService.getCategoryByName(request);
-			recordCategoryMappings.add(RecordCategoryMapping.toEntity(record, category));
+			recordCategoryMappings.add(RecordCategoryMapping.toRecordCategoryMapping(record, category));
 		});
 		return recordCategoryMappings;
 	}

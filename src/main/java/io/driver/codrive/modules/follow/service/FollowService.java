@@ -32,7 +32,7 @@ public class FollowService {
 			throw new AlreadyExistsApplicationException("팔로우 데이터");
 		}
 
-		Follow follow = Follow.toEntity(following, follower);
+		Follow follow = Follow.toFollow(following, follower);
 		followRepository.save(follow);
 	}
 

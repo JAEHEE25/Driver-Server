@@ -61,7 +61,7 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("이미 참여 중인 그룹입니다.");
 		}
 
-		RoomRequest roomRequest = RoomRequest.toEntity(room, user);
+		RoomRequest roomRequest = RoomRequest.toRoomRequest(room, user);
 		roomRequestRepository.save(roomRequest);
 	}
 
@@ -88,6 +88,7 @@ public class RoomRequestService {
 		AuthUtils.checkOwnedEntity(room);
 		RoomRequest request = getRoomRequestById(roomRequestId);
 		roomUserMappingService.createRoomUserMapping(room, request.getUser());
+		room.changeRequestedCount(room.getRequestedCount() - 1);
 		roomRequestRepository.delete(request);
 	}
 

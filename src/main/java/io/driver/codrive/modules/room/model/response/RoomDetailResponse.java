@@ -9,9 +9,6 @@ import lombok.Builder;
 
 @Builder
 public record RoomDetailResponse(
-	@Schema(description = "그룹 ID", example = "1")
-	Long roomId,
-
 	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
 
@@ -20,6 +17,9 @@ public record RoomDetailResponse(
 
 	@Schema(description = "그룹 대표 이미지 URL", example = "IMAGE_URL")
 	String imageSrc,
+
+	@Schema(description = "신청 인원", example = "10")
+	int requestedCount,
 
 	@Schema(description = "모집 인원", example = "20")
 	int capacity,
@@ -41,10 +41,10 @@ public record RoomDetailResponse(
 
 	public static RoomDetailResponse of(Room room) {
 		return RoomDetailResponse.builder()
-				.roomId(room.getRoomId())
 				.title(room.getTitle())
 				.owner(OwnerDetailResponse.of(room.getOwner()))
 				.imageSrc(room.getImageSrc())
+				.requestedCount(room.getRequestedCount())
 				.capacity(room.getCapacity())
 				.tags(room.getLanguages())
 				.introduce(room.getIntroduce())
