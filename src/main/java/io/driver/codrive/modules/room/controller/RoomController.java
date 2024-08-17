@@ -121,17 +121,20 @@ public class RoomController {
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
 			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
-			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호")
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
+			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JoinedRoomListResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@GetMapping("/{userId}/member/{sortType}")
 	public ResponseEntity<BaseResponse<JoinedRoomListResponse>> getJoinedRoomList(@PathVariable(name = "userId") Long userId,
-		@PathVariable(name = "sortType") SortType sortType, @RequestParam(name = "page", defaultValue = "0") Integer page) {
-		JoinedRoomListResponse response = roomService.getJoinedRoomList(userId, sortType, page);
+		@PathVariable(name = "sortType") SortType sortType, @RequestParam(name = "page", defaultValue = "0") Integer page,
+		@RequestParam(name = "status", required = false) String status) {
+		JoinedRoomListResponse response = roomService.getJoinedRoomList(userId, sortType, page, status);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -140,17 +143,20 @@ public class RoomController {
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
 			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
-			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호")
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
+			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CreatedRoomListResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@GetMapping("/{userId}/owner/{sortType}")
 	public ResponseEntity<BaseResponse<CreatedRoomListResponse>> getCreatedRoomList(@PathVariable(name = "userId") Long userId,
-		@PathVariable(name = "sortType") SortType sortType, @RequestParam(name = "page", defaultValue = "0") Integer page) {
-		CreatedRoomListResponse response = roomService.getCreatedRoomList(userId, sortType, page);
+		@PathVariable(name = "sortType") SortType sortType, @RequestParam(name = "page", defaultValue = "0") Integer page,
+		@RequestParam(name = "status", required = false) String status) {
+		CreatedRoomListResponse response = roomService.getCreatedRoomList(userId, sortType, page, status);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

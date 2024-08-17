@@ -10,6 +10,7 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMappingRepository;
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
@@ -43,8 +44,8 @@ public class RoomUserMappingService {
 		roomUserMappingRepository.delete(mapping);
 	}
 
-	public Page<Room> getJoinedRooms(User user, Pageable pageable) {
-		return roomUserMappingRepository.findAllByUser(user, pageable).map(RoomUserMapping::getRoom);
+	public Page<Room> getJoinedRooms(Long userId, RoomStatus roomStatus, Pageable pageable) {
+		return roomUserMappingRepository.getRoomsByUserAndRoomStatus(userId, roomStatus, pageable);
 	}
 
 }

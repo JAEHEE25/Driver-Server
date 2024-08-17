@@ -125,21 +125,38 @@ public class RoomService {
 	}
 
 	@Transactional
-	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, int page) {
+	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, int page, String status) {
 		Sort sort = SortType.getSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
 		User user = userService.getUserById(userId);
-		Page<Room> rooms = roomUserMappingService.getJoinedRooms(user, pageable);
+		Page<Room> rooms = roomUserMappingService.getJoinedRooms(user.getUserId(), getRoomStatus(status), pageable);
 		return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.toList());
 	}
 
 	@Transactional
-	public CreatedRoomListResponse getCreatedRoomList(Long userId, SortType sortType, int page) {
+	public CreatedRoomListResponse getCreatedRoomList(Long userId, SortType sortType, int page, String status) {
 		Sort sort = SortType.getSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
 		User user = userService.getUserById(userId);
-		Page<Room> rooms = roomRepository.findAllByOwner(user, pageable);
+		Page<Room> rooms = getCreatedRoomsByRoomStatus(user, status, pageable);
 		return CreatedRoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+	}
+
+	private RoomStatus getRoomStatus(String status) {
+		RoomStatus roomStatus = null;
+		if (status != null) {
+			roomStatus = RoomStatus.getRoomStatusByName(status);
+		}
+		return roomStatus;
+	}
+
+	private Page<Room> getCreatedRoomsByRoomStatus(User user, String status, Pageable pageable) {
+		RoomStatus roomStatus = getRoomStatus(status);
+		if (roomStatus == null) {
+			return roomRepository.findAllByOwner(user, pageable);
+		} else {
+			return roomRepository.findAllByOwnerAndRoomStatus(user, getRoomStatus(status), pageable);
+		}
 	}
 
 	@Transactional
