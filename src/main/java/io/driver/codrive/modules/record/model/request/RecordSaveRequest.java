@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Range;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
-import io.driver.codrive.modules.record.domain.Status;
+import io.driver.codrive.modules.record.domain.RecordStatus;
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -59,7 +59,7 @@ public record RecordSaveRequest(
 			.platform(Platform.getPlatformByName(platform))
 			.problemUrl(problemUrl)
 			.codeblocks(new ArrayList<>())
-			.status(Status.SAVED)
+			.recordStatus(RecordStatus.SAVED)
 			.build();
 	}
 }

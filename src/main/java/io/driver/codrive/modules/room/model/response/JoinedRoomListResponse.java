@@ -2,8 +2,6 @@ package io.driver.codrive.modules.room.model.response;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-
 import io.driver.codrive.modules.room.domain.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

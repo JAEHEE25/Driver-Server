@@ -50,6 +50,10 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	private String uuid;
 
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private RoomStatus roomStatus;
+
 	@ManyToOne
 	@JoinColumn(name = "owner_id", nullable = false)
 	private User owner;
@@ -98,6 +102,10 @@ public class Room extends BaseEntity {
 	public void changeLanguages(List<RoomLanguageMapping> mappings) {
 		this.roomLanguageMappings.clear();
 		this.roomLanguageMappings.addAll(mappings);
+	}
+
+	public void changeRoomStatus(RoomStatus roomStatus) {
+		this.roomStatus = roomStatus;
 	}
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {

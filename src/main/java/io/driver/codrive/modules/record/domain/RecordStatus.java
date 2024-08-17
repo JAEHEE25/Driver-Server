@@ -1,5 +1,5 @@
 package io.driver.codrive.modules.record.domain;
 
-public enum Status {
+public enum RecordStatus {
 	TEMP, SAVED
 }

@@ -18,6 +18,7 @@ import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLangua
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
+import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.room.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
@@ -106,6 +107,13 @@ public class RoomService {
 			roomLanguageMappingService.deleteRoomLanguageMapping(room.getRoomLanguageMappings(), room);
 			roomLanguageMappingService.createRoomLanguageMapping(tags, room);
 		}
+	}
+
+	@Transactional
+	public void changeRoomStatus(Long roomId, String status) {
+		Room room = getRoomById(roomId);
+		RoomStatus roomStatus = RoomStatus.getRoomStatusByName(status);
+		room.changeRoomStatus(roomStatus);
 	}
 
 	@Transactional

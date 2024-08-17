@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.validator.constraints.Range;
 
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -51,6 +52,7 @@ public record RoomModifyRequest(
 			.memberCount(0)
 			.introduce(introduce)
 			.information(information)
+			.roomStatus(RoomStatus.ACTIVE)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
 			.build();

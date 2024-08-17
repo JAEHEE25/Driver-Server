@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.hibernate.validator.constraints.Range;
 
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -53,6 +54,7 @@ public record RoomCreateRequest(
 			.memberCount(0)
 			.introduce(introduce)
 			.information(information)
+			.roomStatus(RoomStatus.ACTIVE)
 			.uuid(String.valueOf(UUID.randomUUID()))
 			.owner(user)
 			.roomLanguageMappings(new ArrayList<>())

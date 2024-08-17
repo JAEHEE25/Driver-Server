@@ -32,7 +32,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
 		return from(record)
 			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()),
-				record.status.eq(Status.SAVED))
+				record.recordStatus.eq(RecordStatus.SAVED))
 			.orderBy(record.createdAt.desc())
 			.fetch();
 	}
@@ -43,7 +43,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
 		List<Record> records = from(record)
 			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
-				record.status.eq(Status.SAVED))
+				record.recordStatus.eq(RecordStatus.SAVED))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(record.createdAt.desc())
@@ -51,7 +51,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 		long total = from(record)
 			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
-				record.status.eq(Status.SAVED))
+				record.recordStatus.eq(RecordStatus.SAVED))
 			.fetchCount();
 
 		return new PageImpl<>(records, pageable, total);
@@ -65,7 +65,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 		return from(record)
 			.where(record.user.userId.eq(userId), formattedYear.eq(pivotDateYear),
-				record.status.eq(Status.SAVED))
+				record.recordStatus.eq(RecordStatus.SAVED))
 			.groupBy(formattedMonth)
 			.select(Projections.fields(RecordCountDto.class,
 				formattedMonth.as("date"),
@@ -81,7 +81,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 		return from(record)
 			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
-				record.status.eq(Status.SAVED))
+				record.recordStatus.eq(RecordStatus.SAVED))
 			.groupBy(formattedDay)
 			.select(Projections.fields(RecordCountDto.class,
 				formattedDay.as("date"),
@@ -98,7 +98,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 		return from(record)
 			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime),
-				record.status.eq(Status.SAVED))
+				record.recordStatus.eq(RecordStatus.SAVED))
 			.groupBy(formattedDay)
 			.select(Projections.fields(RecordCountDto.class,
 				formattedDay.as("date"),

@@ -175,6 +175,25 @@ public class RoomController {
 	}
 
 	@Operation(
+		summary = "그룹 상태 변경",
+		parameters = {
+			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
+			@Parameter(name = "status", in = ParameterIn.PATH, required = true, description = "그룹 상태", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다.\"}"))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@PatchMapping("/{roomId}/status/{status}")
+	public ResponseEntity<BaseResponse<Void>> changeRoomStatus(@PathVariable(name = "roomId") Long roomId,
+		@PathVariable(name = "status") String status) {
+		roomService.changeRoomStatus(roomId, status);
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
+	@Operation(
 		summary = "오늘의 추천 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
