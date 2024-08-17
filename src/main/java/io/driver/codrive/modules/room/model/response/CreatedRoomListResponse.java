@@ -7,11 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
-public record RoomListResponse(
-	@Schema(description = "그룹 목록 총 페이지 개수", examples = "5")
+public record CreatedRoomListResponse(
+	@Schema(description = "참여 중인 그룹 목록 총 페이지 개수", examples = "2")
 	int totalPage,
 
-	@Schema(description = "그룹 목록", examples = {"""
+	@Schema(description = "생성한 그룹 목록", examples = {"""
 	[
 		{
 		        "roomId": 1,
@@ -31,13 +31,12 @@ public record RoomListResponse(
 		}
 	]
 	"""}, implementation = RoomItemResponse.class)
-	List<RoomItemResponse> rooms
-
+	List<RoomItemResponse> createdRooms
 ) {
-	public static RoomListResponse of(int totalPage, List<Room> rooms) {
-		return RoomListResponse.builder()
+	public static CreatedRoomListResponse of(int totalPage, List<Room> createdRooms) {
+		return CreatedRoomListResponse.builder()
 			.totalPage(totalPage)
-			.rooms(RoomItemResponse.of(rooms))
+			.createdRooms(RoomItemResponse.of(createdRooms))
 			.build();
 	}
 }

@@ -1,7 +1,6 @@
 package io.driver.codrive.modules.room.service;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -12,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
-import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
@@ -25,6 +24,8 @@ import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
+import io.driver.codrive.modules.room.model.response.CreatedRoomListResponse;
+import io.driver.codrive.modules.room.model.response.JoinedRoomListResponse;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoomService {
 	private static final int NUMBER_OF_ROOMS = 9;
-	private static final int NUMBER_OF_RANDOM_ROOMS = 6;
 	private final UserService userService;
 	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
@@ -60,6 +60,16 @@ public class RoomService {
 	public RoomDetailResponse getRoomDetail(Long roomId) {
 		Room room = getRoomById(roomId);
 		return RoomDetailResponse.of(room);
+	}
+
+	@Transactional
+	public JoinedRoomInfoResponse getJoinedRoomInfo(Long roomId) {
+		Room room = getRoomById(roomId);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		if (!room.getRoomMembers().contains(user)) {
+			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
+		}
+		return JoinedRoomInfoResponse.of(room);
 	}
 
 	@Transactional
@@ -99,18 +109,29 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomMembersResponse getRoomMembers(Long roomId) {
-		Room room = getRoomById(roomId);
-		List<User> members = room.getRoomMembers();
-		return RoomMembersResponse.of(members);
-	}
-
-	@Transactional
 	public RoomListResponse getRooms(SortType sortType, int page) {
 		Sort sort = SortType.getSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
 		Page<Room> rooms = roomRepository.findAll(pageable);
-		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+	}
+
+	@Transactional
+	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, int page) {
+		Sort sort = SortType.getSort(sortType);
+		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
+		User user = userService.getUserById(userId);
+		Page<Room> rooms = roomUserMappingService.getJoinedRooms(user, pageable);
+		return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+	}
+
+	@Transactional
+	public CreatedRoomListResponse getCreatedRoomList(Long userId, SortType sortType, int page) {
+		Sort sort = SortType.getSort(sortType);
+		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
+		User user = userService.getUserById(userId);
+		Page<Room> rooms = roomRepository.findAllByOwner(user, pageable);
+		return CreatedRoomListResponse.of(rooms.getTotalPages(), rooms.toList());
 	}
 
 	@Transactional
@@ -122,18 +143,10 @@ public class RoomService {
 	}
 
 	@Transactional
-	public void kickMember(Long roomId, Long userId) {
-		Room room = getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
-		User user = userService.getUserById(userId);
-		roomUserMappingService.deleteRoomUserMapping(room, user);
-	}
-
-	@Transactional
 	public RoomListResponse searchRooms(String keyword, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
-		return RoomListResponse.of(rooms.toList(), rooms.getTotalPages());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.toList());
 	}
 
 }

@@ -103,19 +103,6 @@ public class User extends BaseEntity {
 		this.role = role;
 	}
 
-	public List<Room> getJoinedRooms() {
-		return roomUserMappings.stream()
-			.map(RoomUserMapping::getRoom)
-			.toList();
-	}
-
-	public List<Room> getCreatedRooms() {
-		return roomUserMappings.stream()
-			.filter(RoomUserMapping::isOwner)
-			.map(RoomUserMapping::getRoom)
-			.toList();
-	}
-
 	public void deleteJoinedRoom(RoomUserMapping mapping) {
 		this.roomUserMappings.remove(mapping);
 	}

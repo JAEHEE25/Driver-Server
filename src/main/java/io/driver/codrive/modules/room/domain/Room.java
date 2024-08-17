@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.global.entity.BaseEntity;
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.user.domain.User;
@@ -80,6 +81,9 @@ public class Room extends BaseEntity {
 	}
 
 	public void changeCapacity(Integer capacity) {
+		if (capacity < memberCount) {
+			throw new IllegalArgumentApplicationException("모집 인원은 현재 인원보다 적을 수 없습니다.");
+		}
 		this.capacity = capacity;
 	}
 

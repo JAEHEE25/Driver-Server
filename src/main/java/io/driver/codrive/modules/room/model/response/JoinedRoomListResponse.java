@@ -2,16 +2,18 @@ package io.driver.codrive.modules.room.model.response;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import io.driver.codrive.modules.room.domain.Room;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
-public record RoomListResponse(
-	@Schema(description = "그룹 목록 총 페이지 개수", examples = "5")
+public record JoinedRoomListResponse(
+	@Schema(description = "참여 중인 그룹 목록 총 페이지 개수", examples = "2")
 	int totalPage,
 
-	@Schema(description = "그룹 목록", examples = {"""
+	@Schema(description = "참여 중인 그룹 목록", examples = {"""
 	[
 		{
 		        "roomId": 1,
@@ -31,13 +33,12 @@ public record RoomListResponse(
 		}
 	]
 	"""}, implementation = RoomItemResponse.class)
-	List<RoomItemResponse> rooms
-
+	List<RoomItemResponse> joinedRooms
 ) {
-	public static RoomListResponse of(int totalPage, List<Room> rooms) {
-		return RoomListResponse.builder()
+	public static JoinedRoomListResponse of(int totalPage, List<Room> joinedRooms) {
+		return JoinedRoomListResponse.builder()
 			.totalPage(totalPage)
-			.rooms(RoomItemResponse.of(rooms))
+			.joinedRooms(RoomItemResponse.of(joinedRooms))
 			.build();
 	}
 }

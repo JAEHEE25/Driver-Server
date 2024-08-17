@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.user.model.response;
+package io.driver.codrive.modules.room.model.response;
 
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
