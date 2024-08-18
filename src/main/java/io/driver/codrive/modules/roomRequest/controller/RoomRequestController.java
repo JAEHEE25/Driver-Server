@@ -40,7 +40,7 @@ public class RoomRequestController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
 			@ApiResponse(responseCode = "400", content = @Content(examples =
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"해당 그룹은 공개 그룹입니다.|| 비밀번호가 일치하지 않습니다. || 이미 참여 중인 그룹입니다. || 잘못된 요청입니다. (error field 제공)\"}"))),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"정원이 초과되었습니다. || 활동 중인 그룹이 아닙니다. || 해당 그룹은 공개 그룹입니다.|| 비밀번호가 일치하지 않습니다. || 이미 참여 중인 그룹입니다. || 잘못된 요청입니다. (error field 제공)\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)
@@ -60,7 +60,7 @@ public class RoomRequestController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
 			@ApiResponse(responseCode = "400", content = @Content(examples =
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"해당 그룹은 비밀 그룹입니다.|| 이미 참여 중인 그룹입니다. || 이미 참여 요청한 그룹입니다.\"}"))),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"활동 중인 그룹이 아닙니다. || 해당 그룹은 비밀 그룹입니다.|| 이미 참여 중인 그룹입니다. || 이미 참여 요청한 그룹입니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)
@@ -98,6 +98,7 @@ public class RoomRequestController {
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"승인할 수 없는 요청입니다.\"}"))),
 			@ApiResponse(responseCode = "403", content = @Content(examples = @ExampleObject(value = "{\"code\": 403, \"message\": \"해당 그룹에 대한 권한이 없습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다. || 참여 요청 데이터를 찾을 수 없습니다. \"}"))),
 		}
@@ -106,26 +107,6 @@ public class RoomRequestController {
 	public ResponseEntity<BaseResponse<Void>> approveRequest(@PathVariable(name = "roomId") Long roomId,
 		@PathVariable(name = "requestId") Long roomRequestId) {
 		roomRequestService.approveRequest(roomId, roomRequestId);
-		return ResponseEntity.ok(BaseResponse.of(null));
-	}
-
-	@Operation(
-		summary = "그룹 참여 요청 거절",
-		description = "그룹장만 가능합니다.",
-		parameters = {
-			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
-			@Parameter(name = "requestId", in = ParameterIn.PATH, required = true),
-		},
-		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
-			@ApiResponse(responseCode = "403", content = @Content(examples = @ExampleObject(value = "{\"code\": 403, \"message\": \"해당 그룹에 대한 권한이 없습니다.\"}"))),
-			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다. || 참여 요청 데이터를 찾을 수 없습니다. \"}"))),
-		}
-	)
-	@DeleteMapping("/{roomId}/deny/{requestId}")
-	public ResponseEntity<BaseResponse<Void>> denyRequest(@PathVariable(name = "roomId") Long roomId,
-		@PathVariable(name = "requestId") Long roomRequestId) {
-		roomRequestService.denyRequest(roomId, roomRequestId);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 

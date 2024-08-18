@@ -9,6 +9,7 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
+import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class RoomMemberService {
 	private final RoomService roomService;
 	private final UserService userService;
+	private final RoomRequestService roomRequestService;
 	private final RoomUserMappingService roomUserMappingService;
 
 	@Transactional
@@ -33,6 +35,7 @@ public class RoomMemberService {
 		AuthUtils.checkOwnedEntity(room);
 		User user = userService.getUserById(userId);
 		roomUserMappingService.deleteRoomUserMapping(room, user);
+		roomRequestService.changeWaitingRoomRequestToRequested(room);
 	}
 
 }
