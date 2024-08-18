@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.record.domain.Period;
-import io.driver.codrive.modules.record.model.*;
+import io.driver.codrive.modules.record.model.request.RecordModifyRequest;
+import io.driver.codrive.modules.record.model.request.RecordSaveRequest;
+import io.driver.codrive.modules.record.model.request.RecordTempRequest;
+import io.driver.codrive.modules.record.model.response.*;
 import io.driver.codrive.modules.record.service.RecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -97,7 +100,7 @@ public class RecordController {
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 		}
 	)
-	@GetMapping("/records/temp")
+	@GetMapping("/temp")
 	public ResponseEntity<BaseResponse<TempRecordListResponse>> getTempRecords(
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "size", defaultValue = "1") Integer size) {

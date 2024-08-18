@@ -10,7 +10,10 @@ import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
-import io.driver.codrive.modules.user.model.*;
+import io.driver.codrive.modules.user.model.request.NicknameRequest;
+import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
+import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
+import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -57,18 +60,6 @@ public class UserService {
 		User user = getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
-	}
-
-	@Transactional
-	public JoinedRoomListResponse getJoinedRoomList(Long userId) {
-		User user = getUserById(userId);
-		return JoinedRoomListResponse.of(user.getJoinedRooms());
-	}
-
-	@Transactional
-	public CreatedRoomListResponse getCreatedRoomList(Long userId) {
-		User user = getUserById(userId);
-		return CreatedRoomListResponse.of(user.getCreatedRooms());
 	}
 
 	public void changeUserRole(User user, Role role) {

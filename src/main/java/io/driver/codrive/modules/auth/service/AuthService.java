@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import io.driver.codrive.modules.auth.model.GithubCodeDto;
+import io.driver.codrive.modules.auth.model.GithubLoginRequest;
 import io.driver.codrive.modules.auth.model.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.LoginResponse;
 import io.driver.codrive.global.jwt.JwtProvider;
@@ -37,8 +38,8 @@ public class AuthService {
 	private String clientSecret;
 
 	@Transactional
-	public LoginResponse socialLogin(String code) {
-		String githubAccessToken = extractAccessToken(getGithubAccessTokenResponse(code));
+	public LoginResponse socialLogin(GithubLoginRequest request) {
+		String githubAccessToken = extractAccessToken(getGithubAccessTokenResponse(request.code()));
 		GithubUserProfile userProfile = getUserProfile(githubAccessToken);
 		User user = updateUserInfo(userProfile);
 		String serviceAccessToken = jwtProvider.generateAccessToken(user.getUserId());
@@ -85,7 +86,7 @@ public class AuthService {
 			throw new UnauthorizedApplicationException("유효하지 않은 토큰입니다.");
 		}
 
-		log.info("Github Profile: {}", profile.email());
+		log.info("Github Profile: {}", profile.name());
 		return profile;
 	}
 
@@ -95,7 +96,7 @@ public class AuthService {
 			throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
 		}
 
-		User user = userRepository.findByEmail(userProfile.email())
+		User user = userRepository.findByUsername(userProfile.username())
 			.orElseGet(
 				() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("NOT_SELECTED"))));
 

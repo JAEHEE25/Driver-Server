@@ -27,7 +27,7 @@ public class Language {
 	@OneToMany(mappedBy = "language", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<RoomLanguageMapping> roomLanguageMappings;
 
-	public List<Room> getRoomsByLanguage() {
+	public List<Room> getRoomsByLanguageExceptOwnRoom() {
 		List<Room> rooms = new ArrayList<>();
 		roomLanguageMappings.forEach(mapping -> {
 			rooms.add(mapping.getRoom());

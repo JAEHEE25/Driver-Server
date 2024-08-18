@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.user.model.*;
+import io.driver.codrive.modules.user.model.request.NicknameRequest;
+import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
+import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
+import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import io.driver.codrive.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -102,37 +105,4 @@ public class UserController {
 		userService.updateCurrentUserWithdraw(userId);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
-
-	@Operation(
-		summary = "사용자가 참여한 그룹 목록 조회",
-		parameters = {
-			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
-		},
-		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JoinedRoomListResponse.class))),
-			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
-		}
-	)
-	@GetMapping("/{userId}/rooms")
-	public ResponseEntity<BaseResponse<JoinedRoomListResponse>> getJoinedRoomList(@PathVariable(name = "userId") Long userId) {
-		JoinedRoomListResponse response = userService.getJoinedRoomList(userId);
-		return ResponseEntity.ok(BaseResponse.of(response));
-	}
-
-	@Operation(
-		summary = "사용자가 생성한 그룹 목록 조회",
-		parameters = {
-			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
-		},
-		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CreatedRoomListResponse.class))),
-			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
-		}
-	)
-	@GetMapping("/{userId}/rooms/owner")
-	public ResponseEntity<BaseResponse<CreatedRoomListResponse>> getCreatedRoomList(@PathVariable(name = "userId") Long userId) {
-		CreatedRoomListResponse response = userService.getCreatedRoomList(userId);
-		return ResponseEntity.ok(BaseResponse.of(response));
-	}
-
 }

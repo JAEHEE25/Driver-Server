@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.*;
+import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
+import io.driver.codrive.modules.codeblock.model.request.CodeblockModifyRequest;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
@@ -21,8 +22,11 @@ import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCa
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
-import io.driver.codrive.modules.record.domain.Status;
-import io.driver.codrive.modules.record.model.*;
+import io.driver.codrive.modules.record.domain.RecordStatus;
+import io.driver.codrive.modules.record.model.request.RecordModifyRequest;
+import io.driver.codrive.modules.record.model.request.RecordSaveRequest;
+import io.driver.codrive.modules.record.model.request.RecordTempRequest;
+import io.driver.codrive.modules.record.model.response.*;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +44,7 @@ public class RecordService {
 	@Transactional
 	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
 		return RecordCreateResponse.of(createdRecord);
@@ -61,7 +65,7 @@ public class RecordService {
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
 		RecordDetailResponse response = RecordDetailResponse.of(record);
-		if (record.getStatus() == Status.TEMP) {
+		if (record.getRecordStatus() == RecordStatus.TEMP) {
 			recordRepository.delete(record);
 		}
 		return response;
@@ -72,7 +76,7 @@ public class RecordService {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		checkTempRecordLimit(user);
 
-		Record createdRecord = recordRepository.save(recordRequest.toEntity(user));
+		Record createdRecord = recordRepository.save(recordRequest.toTempRecord(user));
 		if (recordRequest.codeblocks() != null) {
 			createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		}
@@ -89,7 +93,7 @@ public class RecordService {
 	}
 
 	private void checkTempRecordLimit(User user) {
-		List<Record> tempRecords = recordRepository.findAllByUserAndStatus(user, Status.TEMP);
+		List<Record> tempRecords = recordRepository.findAllByUserAndRecordStatus(user, RecordStatus.TEMP);
 		if (tempRecords.size() >= TEMP_RECORD_LIMIT) {
 			throw new IllegalArgumentApplicationException("임시 저장 최대 개수를 초과했습니다.");
 		}
@@ -100,7 +104,7 @@ public class RecordService {
 		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Page<Record> records = recordRepository.findAllByUserAndStatusOrderByCreatedAtDesc(user, Status.TEMP, pageable);
+		Page<Record> records = recordRepository.findAllByUserAndRecordStatusOrderByCreatedAtDesc(user, RecordStatus.TEMP, pageable);
 		return TempRecordListResponse.of(records.getTotalPages(), records);
 	}
 
@@ -150,7 +154,7 @@ public class RecordService {
 
 	@Transactional
 	public void updateRecord(Record record, RecordModifyRequest request) {
-		Record newRecord = request.toEntity();
+		Record newRecord = request.toSavedRecord();
 		record.changeTitle(newRecord.getTitle());
 		record.changeLevel(newRecord.getLevel());
 		record.changePlatform(newRecord.getPlatform());

@@ -27,7 +27,7 @@ public class RoomUserMapping extends BaseEntity {
 	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
 
-	public static RoomUserMapping toEntity(Room room, User user) {
+	public static RoomUserMapping toRoomUserMapping(Room room, User user) {
 		return RoomUserMapping.builder()
 			.user(user)
 			.room(room)

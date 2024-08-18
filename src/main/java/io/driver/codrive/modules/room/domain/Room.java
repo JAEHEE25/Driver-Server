@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.global.entity.BaseEntity;
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.user.domain.User;
@@ -35,6 +36,12 @@ public class Room extends BaseEntity {
 	private Integer capacity;
 
 	@Column(nullable = false)
+	private Integer requestedCount;
+
+	@Column(nullable = false)
+	private Integer memberCount;
+
+	@Column(nullable = false)
 	private String introduce;
 
 	@Column(nullable = false)
@@ -42,6 +49,10 @@ public class Room extends BaseEntity {
 
 	@Column(nullable = false)
 	private String uuid;
+
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private RoomStatus roomStatus;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id", nullable = false)
@@ -65,7 +76,18 @@ public class Room extends BaseEntity {
 		this.imageSrc = imageSrc;
 	}
 
+	public void changeRequestedCount(Integer requestedCount) {
+		this.requestedCount = requestedCount;
+	}
+
+	public void changeMemberCount(Integer memberCount) {
+		this.memberCount = memberCount;
+	}
+
 	public void changeCapacity(Integer capacity) {
+		if (capacity < memberCount) {
+			throw new IllegalArgumentApplicationException("모집 인원은 현재 인원보다 적을 수 없습니다.");
+		}
 		this.capacity = capacity;
 	}
 
@@ -80,6 +102,10 @@ public class Room extends BaseEntity {
 	public void changeLanguages(List<RoomLanguageMapping> mappings) {
 		this.roomLanguageMappings.clear();
 		this.roomLanguageMappings.addAll(mappings);
+	}
+
+	public void changeRoomStatus(RoomStatus roomStatus) {
+		this.roomStatus = roomStatus;
 	}
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {

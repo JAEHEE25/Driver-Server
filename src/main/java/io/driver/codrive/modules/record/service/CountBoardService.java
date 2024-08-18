@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.model.RecordCountDto;
-import io.driver.codrive.modules.record.model.RecordCountBoardResponse;
+import io.driver.codrive.modules.record.model.response.RecordCountBoardResponse;
 import io.driver.codrive.modules.user.domain.User;
 import lombok.RequiredArgsConstructor;
 

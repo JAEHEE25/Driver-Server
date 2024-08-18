@@ -27,7 +27,7 @@ public class RecordCategoryMapping extends BaseEntity {
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
-	public static RecordCategoryMapping toEntity(Record record, Category category) {
+	public static RecordCategoryMapping toRecordCategoryMapping(Record record, Category category) {
 		return RecordCategoryMapping.builder()
 			.record(record)
 			.category(category)

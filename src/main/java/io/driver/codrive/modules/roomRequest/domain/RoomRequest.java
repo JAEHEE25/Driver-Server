@@ -27,7 +27,7 @@ public class RoomRequest extends BaseEntity {
 	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
 
-	public static RoomRequest toEntity(Room room, User user) {
+	public static RoomRequest toRoomRequest(Room room, User user) {
 		return RoomRequest.builder()
 			.user(user)
 			.room(room)

@@ -29,14 +29,13 @@ public class Record extends BaseEntity {
 	@Column(nullable = false)
 	private Integer level;
 
-	@Enumerated(EnumType.STRING)
 	private Platform platform;
 
 	private String problemUrl;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Status status;
+	private RecordStatus recordStatus;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)

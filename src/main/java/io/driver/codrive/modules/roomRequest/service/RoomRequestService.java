@@ -9,10 +9,10 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
-import io.driver.codrive.modules.roomRequest.model.PasswordRequest;
+import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
 import io.driver.codrive.modules.room.service.RoomService;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequestRepository;
-import io.driver.codrive.modules.roomRequest.model.RoomRequestListResponse;
+import io.driver.codrive.modules.roomRequest.model.response.RoomRequestListResponse;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,7 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("이미 참여 중인 그룹입니다.");
 		}
 
-		RoomRequest roomRequest = RoomRequest.toEntity(room, user);
+		RoomRequest roomRequest = RoomRequest.toRoomRequest(room, user);
 		roomRequestRepository.save(roomRequest);
 	}
 
@@ -88,6 +88,7 @@ public class RoomRequestService {
 		AuthUtils.checkOwnedEntity(room);
 		RoomRequest request = getRoomRequestById(roomRequestId);
 		roomUserMappingService.createRoomUserMapping(room, request.getUser());
+		room.changeRequestedCount(room.getRequestedCount() - 1);
 		roomRequestRepository.delete(request);
 	}
 
