@@ -1,6 +1,8 @@
 package io.driver.codrive.modules.mappings.roomUserMapping.service;
 
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMappingRepository;
+import io.driver.codrive.modules.mappings.roomUserMapping.model.LanguageMemberCountDto;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.user.domain.User;
@@ -48,4 +51,7 @@ public class RoomUserMappingService {
 		return roomUserMappingRepository.getRoomsByUserAndRoomStatus(userId, roomStatus, pageable);
 	}
 
+	public List<LanguageMemberCountDto> getLanguageMemberCountResponse(Room room) {
+		return roomUserMappingRepository.getLanguageMemberCount(room);
+	}
 }

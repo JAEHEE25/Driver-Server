@@ -70,7 +70,7 @@ public class RoomService {
 		if (!room.getRoomMembers().contains(user)) {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}
-		return JoinedRoomInfoResponse.of(room);
+		return JoinedRoomInfoResponse.of(room, roomUserMappingService.getLanguageMemberCountResponse(room));
 	}
 
 	@Transactional

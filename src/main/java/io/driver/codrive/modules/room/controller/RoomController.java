@@ -77,7 +77,7 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/{roomId}/join")
-	public ResponseEntity<BaseResponse<JoinedRoomInfoResponse>> joinRoom(@PathVariable(name = "roomId") Long roomId) {
+	public ResponseEntity<BaseResponse<JoinedRoomInfoResponse>> getJoinedRoomInfo(@PathVariable(name = "roomId") Long roomId) {
 		JoinedRoomInfoResponse response = roomService.getJoinedRoomInfo(roomId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}

@@ -8,14 +8,19 @@ import org.springframework.stereotype.Repository;
 
 import static io.driver.codrive.modules.mappings.roomUserMapping.domain.QRoomUserMapping.roomUserMapping;
 import static io.driver.codrive.modules.room.domain.QRoom.room;
+import static io.driver.codrive.modules.user.domain.QUser.*;
 
 import java.util.List;
 
+import com.querydsl.core.types.Projections;
+
+import io.driver.codrive.modules.mappings.roomUserMapping.model.LanguageMemberCountDto;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 
 @Repository
-public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport implements RoomUserMappingRepositoryCustom {
+public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport
+	implements RoomUserMappingRepositoryCustom {
 	public RoomUserMappingRepositoryImpl() {
 		super(RoomUserMapping.class);
 	}
@@ -38,6 +43,18 @@ public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport imp
 		}
 		long total = rooms.size();
 		return new PageImpl<>(rooms, pageable, total);
+	}
+
+	@Override
+	public List<LanguageMemberCountDto> getLanguageMemberCount(Room room) {
+		return from(roomUserMapping)
+			.join(roomUserMapping.user, user)
+			.where(roomUserMapping.room.eq(room))
+			.groupBy(user.language)
+			.select(Projections.fields(LanguageMemberCountDto.class,
+				user.language.name.as("language"),
+				user.count().as("count")))
+			.fetch();
 	}
 }
 
