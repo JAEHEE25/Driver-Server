@@ -71,20 +71,17 @@ public class RoomRequestController {
 	}
 
 	@Operation(
-		summary = "그룹 참여 요청 목록 조회",
-		description = "그룹장만 가능합니다.",
+		summary = "그룹 신청 현황 조회",
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomRequestListResponse.class))),
-			@ApiResponse(responseCode = "403", content = @Content(examples = @ExampleObject(value = "{\"code\": 403, \"message\": \"해당 그룹에 대한 권한이 없습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@GetMapping("/{roomId}/requests")
-	public ResponseEntity<BaseResponse<RoomRequestListResponse>> getRoomRequests(
-		@PathVariable(name = "roomId") Long roomId) {
+	public ResponseEntity<BaseResponse<RoomRequestListResponse>> getRoomRequests(@PathVariable(name = "roomId") Long roomId) {
 		RoomRequestListResponse response = roomRequestService.getRoomRequests(roomId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -99,11 +96,10 @@ public class RoomRequestController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"승인할 수 없는 요청입니다.\"}"))),
-			@ApiResponse(responseCode = "403", content = @Content(examples = @ExampleObject(value = "{\"code\": 403, \"message\": \"해당 그룹에 대한 권한이 없습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다. || 참여 요청 데이터를 찾을 수 없습니다. \"}"))),
 		}
 	)
-	@DeleteMapping("/{roomId}/approve/{requestId}")
+	@PatchMapping("/{roomId}/approve/{requestId}")
 	public ResponseEntity<BaseResponse<Void>> approveRequest(@PathVariable(name = "roomId") Long roomId,
 		@PathVariable(name = "requestId") Long roomRequestId) {
 		roomRequestService.approveRequest(roomId, roomRequestId);

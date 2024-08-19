@@ -39,6 +39,10 @@ public class RoomRequest extends BaseEntity {
 			.build();
 	}
 
+	public boolean compareStatus(RoomRequestStatus roomRequestStatus) {
+		return this.roomRequestStatus == roomRequestStatus;
+	}
+
 	public void changeRoomRequestStatus(RoomRequestStatus roomRequestStatus) {
 		this.roomRequestStatus = roomRequestStatus;
 	}

@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 public class RoomMemberService {
 	private final RoomService roomService;
 	private final UserService userService;
-	private final RoomRequestService roomRequestService;
 	private final RoomUserMappingService roomUserMappingService;
 
 	@Transactional
@@ -35,7 +34,6 @@ public class RoomMemberService {
 		AuthUtils.checkOwnedEntity(room);
 		User user = userService.getUserById(userId);
 		roomUserMappingService.deleteRoomUserMapping(room, user);
-		roomRequestService.changeWaitingRoomRequestToRequested(room);
 	}
 
 }

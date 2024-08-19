@@ -8,39 +8,43 @@ import lombok.Builder;
 
 @Builder
 public record RoomRequestListResponse(
+	@Schema(description = "승인된 참여 요청 수", examples = "10")
+	int approvedCount,
+
 	@Schema(description = "참여 요청 목록", examples = {"""
-        [
-            {
-                "requestId": 1,
-                "userId": 1,
-                "nickname": "닉네임"
-            }
-        ]
-"""})
+	[
+      {
+        "language": "Java",
+        "nickname": "닉네임",
+        "roomRequestStatus": "REQUESTED"
+      }
+    ]
+	"""})
 	List<RequestDetailResponse> requests
 ) {
-	public static RoomRequestListResponse of(List<RoomRequest> roomRequests) {
+	public static RoomRequestListResponse of(int approvedCount, List<RoomRequest> roomRequests) {
 		return RoomRequestListResponse.builder()
+			.approvedCount(approvedCount)
 			.requests(roomRequests.stream().map(RequestDetailResponse::of).toList())
 			.build();
 	}
 
 	@Builder
 	record RequestDetailResponse(
-		@Schema(description = "참여 요청 ID", example = "1")
-		Long requestId,
-
-		@Schema(description = "참여 요청한 사용자 ID", example = "1")
-		Long userId,
+		@Schema(description = "참여 요청한 사용자 언어", example = "Java")
+		String language,
 
 		@Schema(description = "참여 요청한 사용자 닉네임", example = "닉네임")
-		String nickname
+		String nickname,
+
+		@Schema(description = "참여 요청 상태", example = "APPROVED", allowableValues = {"WAITING", "REQUESTED", "JOINED"})
+		String roomRequestStatus
 	) {
 		public static RequestDetailResponse of(RoomRequest roomRequest) {
 			return RequestDetailResponse.builder()
-				.requestId(roomRequest.getRoomRequestId())
-				.userId(roomRequest.getUser().getUserId())
+				.language(roomRequest.getUser().getLanguage().getName())
 				.nickname(roomRequest.getUser().getNickname())
+				.roomRequestStatus(roomRequest.getRoomRequestStatus().name())
 				.build();
 		}
 	}

@@ -67,7 +67,7 @@ public class RoomService {
 	public JoinedRoomInfoResponse getJoinedRoomInfo(Long roomId) {
 		Room room = getRoomById(roomId);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		if (!room.getRoomMembers().contains(user)) {
+		if (!room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}
 		return JoinedRoomInfoResponse.of(room, roomUserMappingService.getLanguageMemberCountResponse(room));

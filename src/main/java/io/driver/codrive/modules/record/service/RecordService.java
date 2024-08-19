@@ -65,7 +65,7 @@ public class RecordService {
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
 		RecordDetailResponse response = RecordDetailResponse.of(record);
-		if (record.getRecordStatus() == RecordStatus.TEMP) {
+		if (record.compareRecordStatus(RecordStatus.TEMP)) {
 			recordRepository.delete(record);
 		}
 		return response;
@@ -179,7 +179,7 @@ public class RecordService {
 
 	@Transactional
 	public void updateCategories(Record record, List<String> tags) {
-		if (record.getCategories() != tags) {
+		if (!record.compareTags(tags)) {
 			recordCategoryMappingService.deleteRecordCategoryMapping(record.getRecordCategoryMappings(), record);
 			recordCategoryMappingService.createRecordCategoryMapping(tags, record);
 		}

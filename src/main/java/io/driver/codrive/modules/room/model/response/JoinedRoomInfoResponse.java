@@ -27,6 +27,12 @@ public record JoinedRoomInfoResponse(
 	@Schema(description = "모집 인원", example = "20")
 	int capacity,
 
+	@Schema(description = "승인된 참여 요청 수", example = "10")
+	int approvedCount,
+
+	@Schema(description = "신청 인원", example = "30")
+	int requestedCount,
+
 	@Schema(description = "그룹 상태", example = "활동 중")
 	String roomStatus,
 
@@ -43,6 +49,8 @@ public record JoinedRoomInfoResponse(
 			.title(room.getTitle())
 			.memberCount(room.getMemberCount())
 			.capacity(room.getCapacity())
+			.approvedCount(room.getApprovedCount())
+			.requestedCount(room.getRequestedCount())
 			.roomStatus(room.getRoomStatus().name())
 			.languageMemberCount(languageMemberCount)
 			.build();

@@ -1,6 +1,5 @@
 package io.driver.codrive.modules.record.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
@@ -47,6 +46,14 @@ public class Record extends BaseEntity {
 	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<RecordCategoryMapping> recordCategoryMappings;
 
+	public boolean compareRecordStatus(RecordStatus recordStatus) {
+		return this.recordStatus == recordStatus;
+	}
+
+	public boolean compareTags(List<String> tags) {
+		return getCategories().equals(tags);
+	}
+
 	public void changeTitle(String title) {
 		this.title = title;
 	}
@@ -82,11 +89,7 @@ public class Record extends BaseEntity {
 	}
 
 	public List<String> getCategories() {
-		List<String> categories = new ArrayList<>();
-		recordCategoryMappings.forEach(mapping -> {
-			categories.add(mapping.getCategoryName());
-		});
-		return categories;
+		return recordCategoryMappings.stream().map(RecordCategoryMapping::getCategoryName).toList();
 	}
 
 	@Override

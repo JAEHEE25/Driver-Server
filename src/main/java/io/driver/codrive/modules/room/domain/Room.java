@@ -1,12 +1,13 @@
 package io.driver.codrive.modules.room.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
+import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
+import io.driver.codrive.modules.roomRequest.domain.RoomRequestStatus;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -64,6 +65,33 @@ public class Room extends BaseEntity {
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<RoomUserMapping> roomUserMappings;
 
+	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<RoomRequest> roomRequests;
+
+	public boolean isPublicRoom() {
+		return password == null || password.isEmpty();
+	}
+
+	public boolean isFull() {
+		return memberCount >= capacity;
+	}
+
+	public boolean isCorrectPassword(String requestPassword) {
+		return password.equals(requestPassword);
+	}
+
+	public boolean compareStatus(RoomStatus status) {
+		return roomStatus == status;
+	}
+
+	public boolean existUserRequest(User user) {
+		return roomRequests.stream().anyMatch(request -> request.getUser().equals(user));
+	}
+
+	public boolean hasMember(User user) {
+		return roomUserMappings.stream().anyMatch(mapping -> mapping.getUser().equals(user));
+	}
+
 	public void changeTitle(String title) {
 		this.title = title;
 	}
@@ -112,20 +140,16 @@ public class Room extends BaseEntity {
 		this.roomUserMappings.add(roomUserMapping);
 	}
 
+	public void addRoomRequests(RoomRequest roomRequest) {
+		this.roomRequests.add(roomRequest);
+	}
+
 	public List<String> getLanguages() {
-		List<String> languages = new ArrayList<>();
-		roomLanguageMappings.forEach(mapping -> {
-			languages.add(mapping.getLanguageName());
-		});
-		return languages;
+		return roomLanguageMappings.stream().map(RoomLanguageMapping::getLanguageName).toList();
 	}
 
 	public List<User> getRoomMembers() {
-		List<User> users = new ArrayList<>();
-		roomUserMappings.forEach(mapping -> {
-			users.add(mapping.getUser());
-		});
-		return users;
+		return roomUserMappings.stream().map(RoomUserMapping::getUser).toList();
 	}
 
 	public void deleteMember(RoomUserMapping mapping) {
@@ -134,6 +158,10 @@ public class Room extends BaseEntity {
 
 	public void deleteLanguages(List<RoomLanguageMapping> mappings) {
 		roomLanguageMappings.removeAll(mappings);
+	}
+
+	public int getApprovedCount() {
+		return roomRequests.stream().filter(request -> request.getRoomRequestStatus() == RoomRequestStatus.JOINED).toList().size();
 	}
 
 	@Override
