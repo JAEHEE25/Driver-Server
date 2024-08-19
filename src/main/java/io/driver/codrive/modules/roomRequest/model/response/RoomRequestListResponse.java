@@ -40,7 +40,7 @@ public record RoomRequestListResponse(
 				.roomRequestId(roomRequest.getRoomRequestId())
 				.language(roomRequest.getUser().getLanguage().getName())
 				.nickname(roomRequest.getUser().getNickname())
-				.roomRequestStatus(roomRequest.getRoomRequestStatus().name())
+				.roomRequestStatus(roomRequest.getUserRequestStatus().name())
 				.build();
 		}
 	}

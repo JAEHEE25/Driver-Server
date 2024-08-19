@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
@@ -19,6 +18,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 
 import io.driver.codrive.global.util.DateUtils;
+import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.record.model.RecordCountDto;
 
 @Repository
@@ -49,12 +49,12 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 			.orderBy(record.createdAt.desc())
 			.fetch();
 
-		long total = from(record)
+		int total = (int) from(record)
 			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
 				record.recordStatus.eq(RecordStatus.SAVED))
 			.fetchCount();
 
-		return new PageImpl<>(records, pageable, total);
+		return PageUtils.getPage(records, pageable, total);
 	}
 
 	@Override
