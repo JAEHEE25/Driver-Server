@@ -23,7 +23,6 @@ import io.driver.codrive.modules.room.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
-import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.room.model.response.CreatedRoomListResponse;
 import io.driver.codrive.modules.room.model.response.JoinedRoomListResponse;
@@ -48,7 +47,6 @@ public class RoomService {
 
 		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
-		userService.changeUserRole(user, Role.OWNER);
 		return RoomCreateResponse.of(savedRoom);
 	}
 
@@ -118,7 +116,7 @@ public class RoomService {
 
 	@Transactional
 	public RoomListResponse getRooms(SortType sortType, int page) {
-		Sort sort = SortType.getSort(sortType);
+		Sort sort = SortType.getRoomSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
 		Page<Room> rooms = roomRepository.findAll(pageable);
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.toList());
@@ -126,7 +124,7 @@ public class RoomService {
 
 	@Transactional
 	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, int page, String status) {
-		Sort sort = SortType.getSort(sortType);
+		Sort sort = SortType.getRoomSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
 		User user = userService.getUserById(userId);
 		Page<Room> rooms = roomUserMappingService.getJoinedRooms(user.getUserId(), getRoomStatus(status), pageable);
@@ -135,7 +133,7 @@ public class RoomService {
 
 	@Transactional
 	public CreatedRoomListResponse getCreatedRoomList(Long userId, SortType sortType, int page, String status) {
-		Sort sort = SortType.getSort(sortType);
+		Sort sort = SortType.getRoomSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
 		User user = userService.getUserById(userId);
 		Page<Room> rooms = getCreatedRoomsByRoomStatus(user, status, pageable);

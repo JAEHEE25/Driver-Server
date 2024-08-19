@@ -11,26 +11,7 @@ public record RoomListResponse(
 	@Schema(description = "그룹 목록 총 페이지 개수", examples = "5")
 	int totalPage,
 
-	@Schema(description = "그룹 목록", examples = {"""
-	[
-		{
-		        "roomId": 1,
-		        "title": "그룹 제목",
-		        "owner": {
-		          "userId": 1,
-		          "nickname": "닉네임",
-		          "profileImg": "IMAGE_URL"
-		        },
-		        "imageSrc": "IMAGE_URL",
-		        "memberCount": 10,
-		        "capacity": 20,
-		        "tags": [
-		          "Python"
-		        ],
-		        "introduce": "그룹 한 줄 소개"
-		}
-	]
-	"""}, implementation = RoomItemResponse.class)
+	@Schema(description = "그룹 목록")
 	List<RoomItemResponse> rooms
 
 ) {

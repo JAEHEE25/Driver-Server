@@ -45,8 +45,9 @@ public class RecordService {
 	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
-		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
+		user.addRecord(createdRecord);
+		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		return RecordCreateResponse.of(createdRecord);
 	}
 

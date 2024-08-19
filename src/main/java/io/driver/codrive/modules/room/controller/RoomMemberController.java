@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
+import io.driver.codrive.modules.room.model.SortType;
 import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
 import io.driver.codrive.modules.room.service.RoomMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,17 +28,21 @@ public class RoomMemberController {
 	@Operation(
 		summary = "그룹 멤버 목록 조회",
 		parameters = {
-			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
+			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomMembersResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"활동 중인 그룹의 정보만 조회할 수 있습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)
-	@GetMapping("/{roomId}/members")
-	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(
-		@PathVariable(name = "roomId") Long roomId) {
-		RoomMembersResponse response = roomMemberService.getRoomMembers(roomId);
+	@GetMapping("/{roomId}/members/{sortType}")
+	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(@PathVariable(name = "roomId") Long roomId,
+		@PathVariable(name = "sortType") SortType sortType,
+		@RequestParam(name = "page", defaultValue = "0") Integer page) {
+		RoomMembersResponse response = roomMemberService.getRoomMembers(roomId, sortType, page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -45,8 +50,8 @@ public class RoomMemberController {
 		summary = "그룹 멤버 추방",
 		description = "그룹장만 가능합니다.",
 		parameters = {
-			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true),
-			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
+			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
+			@Parameter(name = "userId", in = ParameterIn.PATH, required = true, description = "추방할 사용자 ID"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),

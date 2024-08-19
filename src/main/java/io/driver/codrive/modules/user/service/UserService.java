@@ -7,7 +7,6 @@ import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.language.service.LanguageService;
-import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
@@ -61,9 +60,4 @@ public class UserService {
 		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
 	}
-
-	public void changeUserRole(User user, Role role) {
-		user.changeRole(role);
-	}
-
 }

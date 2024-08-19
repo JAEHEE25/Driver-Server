@@ -47,6 +47,10 @@ public class RoomUserMappingService {
 		roomUserMappingRepository.delete(mapping);
 	}
 
+	public Page<User> getRoomMembers(Room room, Pageable pageable) {
+		return roomUserMappingRepository.findAllByRoom(room, pageable).map(RoomUserMapping::getUser);
+	}
+
 	public Page<Room> getJoinedRooms(Long userId, RoomStatus roomStatus, Pageable pageable) {
 		return roomUserMappingRepository.getRoomsByUserAndRoomStatus(userId, roomStatus, pageable);
 	}
