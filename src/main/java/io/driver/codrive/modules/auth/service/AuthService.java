@@ -104,4 +104,20 @@ public class AuthService {
 		user.changeProfileImg(userProfile.profileImg());
 		return user;
 	}
+
+	//로컬 테스트용
+	public void addUser() {
+		User user = User.builder()
+			.name("name")
+			.username("username")
+			.nickname("닉네임")
+			.profileImg("profileImg")
+			.githubUrl(null)
+			.language(languageService.getLanguageByName("JavaScript"))
+			.goal(0)
+			.successRate(0)
+			.withdraw(false)
+			.build();
+		userRepository.save(user);
+	}
 }

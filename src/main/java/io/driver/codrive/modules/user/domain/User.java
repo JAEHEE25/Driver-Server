@@ -44,12 +44,10 @@ public class User extends BaseEntity {
 
 	private String githubUrl;
 
-	@Column(nullable = false)
-	private Integer level;
+	private Integer goal;
 
 	@Column(nullable = false)
-	@Enumerated(EnumType.STRING)
-	private Role role;
+	private Integer successRate;
 
 	@Column(nullable = false)
 	private Boolean withdraw;
@@ -69,6 +67,10 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Record> records;
+
+	public void addRecord(Record record) {
+		this.records.add(record);
+	}
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {
 		this.roomUserMappings.add(roomUserMapping);
@@ -98,12 +100,16 @@ public class User extends BaseEntity {
 		this.language = language;
 	}
 
-	public void changeRole(Role role) {
-		this.role = role;
-	}
-
 	public void deleteJoinedRoom(RoomUserMapping mapping) {
 		this.roomUserMappings.remove(mapping);
+	}
+
+	public String getRecentProblemTitle() {
+		if (records.isEmpty()) {
+			return null;
+		}
+		int lastIndex = records.size() - 1;
+		return records.get(lastIndex).getTitle();
 	}
 
 	@Override

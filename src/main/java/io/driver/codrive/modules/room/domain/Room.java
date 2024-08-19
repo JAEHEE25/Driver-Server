@@ -7,7 +7,7 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
-import io.driver.codrive.modules.roomRequest.domain.RoomRequestStatus;
+import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -148,10 +148,6 @@ public class Room extends BaseEntity {
 		return roomLanguageMappings.stream().map(RoomLanguageMapping::getLanguageName).toList();
 	}
 
-	public List<User> getRoomMembers() {
-		return roomUserMappings.stream().map(RoomUserMapping::getUser).toList();
-	}
-
 	public void deleteMember(RoomUserMapping mapping) {
 		roomUserMappings.remove(mapping);
 	}
@@ -161,7 +157,7 @@ public class Room extends BaseEntity {
 	}
 
 	public int getApprovedCount() {
-		return roomRequests.stream().filter(request -> request.getRoomRequestStatus() == RoomRequestStatus.JOINED).toList().size();
+		return roomRequests.stream().filter(request -> request.getUserRequestStatus() == UserRequestStatus.JOINED).toList().size();
 	}
 
 	@Override

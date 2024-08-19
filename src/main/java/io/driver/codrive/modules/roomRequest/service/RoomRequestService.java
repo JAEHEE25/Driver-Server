@@ -11,8 +11,9 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomStatus;
+import io.driver.codrive.modules.room.model.response.RoomParticipantItemDto;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
-import io.driver.codrive.modules.roomRequest.domain.RoomRequestStatus;
+import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
 import io.driver.codrive.modules.room.service.RoomService;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequestRepository;
@@ -67,7 +68,7 @@ public class RoomRequestService {
 
 		RoomRequest roomRequest = RoomRequest.toRoomRequest(room, user);
 		if (room.isFull()) {
-			roomRequest.changeRoomRequestStatus(RoomRequestStatus.WAITING);
+			roomRequest.changeRoomRequestStatus(UserRequestStatus.WAITING);
 		}
 		saveRoomRequest(roomRequest, room);
 	}
@@ -102,22 +103,34 @@ public class RoomRequestService {
 		return RoomRequestListResponse.of(room.getApprovedCount(), roomRequestRepository.findAllByRoom(room));
 	}
 
+	public List<RoomParticipantItemDto> getRoomParticipants(Room room) {
+		List<RoomRequest> requests = roomRequestRepository.findAllByRoom(room);
+		return requests.stream().map(request -> RoomParticipantItemDto.of(request.getUser(),
+			request.getUserRequestStatus(), request.getCreatedAt())).toList();
+	}
+
 	@Transactional
 	public void approveRequest(Long roomId, Long roomRequestId) {
 		Room room = roomService.getRoomById(roomId);
 		AuthUtils.checkOwnedEntity(room);
 		RoomRequest roomRequest = getRoomRequestById(roomRequestId);
 
-		if (!roomRequest.compareStatus(RoomRequestStatus.REQUESTED)) {
+		if (!roomRequest.compareStatus(UserRequestStatus.REQUESTED)) {
 			throw new IllegalArgumentApplicationException("승인할 수 없는 요청입니다.");
 		}
-		roomRequest.changeRoomRequestStatus(RoomRequestStatus.JOINED);
+		roomRequest.changeRoomRequestStatus(UserRequestStatus.JOINED);
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 		room.changeRequestedCount(room.getRequestedCount() - 1);
 	}
 
 	public void changeWaitingRoomRequestToRequested(Room room) {
-		List<RoomRequest> roomRequests = roomRequestRepository.findAllByRoomAndRoomRequestStatus(room, RoomRequestStatus.WAITING);
-		roomRequests.forEach(roomRequest -> roomRequest.changeRoomRequestStatus(RoomRequestStatus.REQUESTED));
+		List<RoomRequest> roomRequests = roomRequestRepository.findAllByRoomAndUserRequestStatus(room, UserRequestStatus.WAITING);
+		roomRequests.forEach(roomRequest -> roomRequest.changeRoomRequestStatus(UserRequestStatus.REQUESTED));
+	}
+
+	@Transactional
+	public void deleteRoomRequest(Room room, User user) {
+		RoomRequest roomRequest = roomRequestRepository.findByRoomAndUser(room, user).orElseThrow(() -> new NotFoundApplcationException("참여 요청 데이터"));
+		roomRequestRepository.delete(roomRequest);
 	}
 }

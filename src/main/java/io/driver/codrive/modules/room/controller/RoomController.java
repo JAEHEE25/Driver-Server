@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.room.model.SortType;
+import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
@@ -101,12 +101,12 @@ public class RoomController {
 	@Operation(
 		summary = "전체 그룹 목록 조회",
 		parameters = {
-			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다. || 지원하지 않는 정렬 방식입니다.\"}"))),
 		}
 	)
 	@GetMapping("/sort/{sortType}")
@@ -120,13 +120,13 @@ public class RoomController {
 		summary = "참여한 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
-			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
 			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JoinedRoomListResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다.\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다. || 지원하지 않는 정렬 방식입니다. || 페이지 정보가 올바르지 않습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
@@ -142,13 +142,13 @@ public class RoomController {
 		summary = "생성한 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
-			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준"),
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
 			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CreatedRoomListResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다.\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 상태 타입입니다. || 지원하지 않는 정렬 방식입니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)

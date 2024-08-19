@@ -21,7 +21,7 @@ public class RoomRequest extends BaseEntity {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private RoomRequestStatus roomRequestStatus;
+	private UserRequestStatus userRequestStatus;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
@@ -35,16 +35,16 @@ public class RoomRequest extends BaseEntity {
 		return RoomRequest.builder()
 			.user(user)
 			.room(room)
-			.roomRequestStatus(RoomRequestStatus.REQUESTED)
+			.userRequestStatus(UserRequestStatus.REQUESTED)
 			.build();
 	}
 
-	public boolean compareStatus(RoomRequestStatus roomRequestStatus) {
-		return this.roomRequestStatus == roomRequestStatus;
+	public boolean compareStatus(UserRequestStatus userRequestStatus) {
+		return this.userRequestStatus == userRequestStatus;
 	}
 
-	public void changeRoomRequestStatus(RoomRequestStatus roomRequestStatus) {
-		this.roomRequestStatus = roomRequestStatus;
+	public void changeRoomRequestStatus(UserRequestStatus userRequestStatus) {
+		this.userRequestStatus = userRequestStatus;
 	}
 
 	@Override

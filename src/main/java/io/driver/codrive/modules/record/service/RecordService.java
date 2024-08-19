@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.util.DateUtils;
+import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockModifyRequest;
@@ -45,8 +46,9 @@ public class RecordService {
 	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
-		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
+		user.addRecord(createdRecord);
+		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		return RecordCreateResponse.of(createdRecord);
 	}
 
@@ -86,12 +88,6 @@ public class RecordService {
 		return RecordCreateResponse.of(createdRecord);
 	}
 
-	private void validatePageAndSize(int page, int size) {
-		if (page < 0 || size < 0) {
-			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
-		}
-	}
-
 	private void checkTempRecordLimit(User user) {
 		List<Record> tempRecords = recordRepository.findAllByUserAndRecordStatus(user, RecordStatus.TEMP);
 		if (tempRecords.size() >= TEMP_RECORD_LIMIT) {
@@ -101,8 +97,8 @@ public class RecordService {
 
 	@Transactional
 	public TempRecordListResponse getTempRecordsByPage(int page, int size) {
-		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
+		PageUtils.validatePageable(pageable);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Page<Record> records = recordRepository.findAllByUserAndRecordStatusOrderByCreatedAtDesc(user, RecordStatus.TEMP, pageable);
 		return TempRecordListResponse.of(records.getTotalPages(), records);
@@ -118,8 +114,8 @@ public class RecordService {
 
 	@Transactional
 	public RecordMonthListResponse getRecordsByMonth(Long userId, String requestPivotDate, Integer page, Integer size) {
-		validatePageAndSize(page, size);
 		Pageable pageable = PageRequest.of(page, size);
+		PageUtils.validatePageable(pageable);
 		User user = userService.getUserById(userId);
 		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
 		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, pageable);

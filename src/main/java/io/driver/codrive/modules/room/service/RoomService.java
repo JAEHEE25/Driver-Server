@@ -14,16 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
-import io.driver.codrive.modules.room.model.SortType;
+import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
-import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.room.model.response.CreatedRoomListResponse;
 import io.driver.codrive.modules.room.model.response.JoinedRoomListResponse;
@@ -48,7 +48,6 @@ public class RoomService {
 
 		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
-		userService.changeUserRole(user, Role.OWNER);
 		return RoomCreateResponse.of(savedRoom);
 	}
 
@@ -118,28 +117,31 @@ public class RoomService {
 
 	@Transactional
 	public RoomListResponse getRooms(SortType sortType, int page) {
-		Sort sort = SortType.getSort(sortType);
+		Sort sort = SortType.getRoomSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
+		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findAll(pageable);
-		return RoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 	}
 
 	@Transactional
 	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, int page, String status) {
-		Sort sort = SortType.getSort(sortType);
+		Sort sort = SortType.getRoomSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
+		PageUtils.validatePageable(pageable);
 		User user = userService.getUserById(userId);
 		Page<Room> rooms = roomUserMappingService.getJoinedRooms(user.getUserId(), getRoomStatus(status), pageable);
-		return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+		return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 	}
 
 	@Transactional
 	public CreatedRoomListResponse getCreatedRoomList(Long userId, SortType sortType, int page, String status) {
-		Sort sort = SortType.getSort(sortType);
+		Sort sort = SortType.getRoomSort(sortType);
 		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOMS, sort);
+		PageUtils.validatePageable(pageable);
 		User user = userService.getUserById(userId);
 		Page<Room> rooms = getCreatedRoomsByRoomStatus(user, status, pageable);
-		return CreatedRoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+		return CreatedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 	}
 
 	private RoomStatus getRoomStatus(String status) {
@@ -170,6 +172,7 @@ public class RoomService {
 	@Transactional
 	public RoomListResponse searchRooms(String keyword, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
+		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.toList());
 	}

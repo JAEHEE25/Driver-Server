@@ -1,7 +1,6 @@
 package io.driver.codrive.modules.mappings.roomUserMapping.domain;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
@@ -14,6 +13,7 @@ import java.util.List;
 
 import com.querydsl.core.types.Projections;
 
+import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.model.LanguageMemberCountDto;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomStatus;
@@ -41,8 +41,8 @@ public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport
 				.where(roomUserMapping.user.userId.eq(userId), room.roomStatus.eq(roomStatus))
 				.fetch();
 		}
-		long total = rooms.size();
-		return new PageImpl<>(rooms, pageable, total);
+		int total = rooms.size();
+		return PageUtils.getPage(rooms, pageable, total);
 	}
 
 	@Override

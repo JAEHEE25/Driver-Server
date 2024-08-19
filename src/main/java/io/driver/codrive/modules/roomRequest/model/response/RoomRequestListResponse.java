@@ -11,15 +11,7 @@ public record RoomRequestListResponse(
 	@Schema(description = "승인된 참여 요청 수", examples = "10")
 	int approvedCount,
 
-	@Schema(description = "참여 요청 목록", examples = {"""
-	[
-      {
-        "language": "Java",
-        "nickname": "닉네임",
-        "roomRequestStatus": "REQUESTED"
-      }
-    ]
-	"""})
+	@Schema(description = "참여 요청 목록")
 	List<RequestDetailResponse> requests
 ) {
 	public static RoomRequestListResponse of(int approvedCount, List<RoomRequest> roomRequests) {
@@ -31,6 +23,9 @@ public record RoomRequestListResponse(
 
 	@Builder
 	record RequestDetailResponse(
+		@Schema(description = "참여 요청 ID", example = "1")
+		Long roomRequestId,
+
 		@Schema(description = "참여 요청한 사용자 언어", example = "Java")
 		String language,
 
@@ -42,9 +37,10 @@ public record RoomRequestListResponse(
 	) {
 		public static RequestDetailResponse of(RoomRequest roomRequest) {
 			return RequestDetailResponse.builder()
+				.roomRequestId(roomRequest.getRoomRequestId())
 				.language(roomRequest.getUser().getLanguage().getName())
 				.nickname(roomRequest.getUser().getNickname())
-				.roomRequestStatus(roomRequest.getRoomRequestStatus().name())
+				.roomRequestStatus(roomRequest.getUserRequestStatus().name())
 				.build();
 		}
 	}

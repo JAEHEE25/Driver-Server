@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
-public record UserDetailResponse(
-	@Schema(description = "이름", example = "이름")
-	String name,
+public record UserListResponse(
+	@Schema(description = "사용자 ID", example = "1")
+	Long userId,
 
 	@Schema(description = "닉네임", example = "닉네임")
 	String nickname,
@@ -15,23 +15,23 @@ public record UserDetailResponse(
 	@Schema(description = "프로필 이미지 URL", example = "IMAGE_URL")
 	String profileImg,
 
-	@Schema(description = "한 줄 소개", example = "한 줄 소개")
-	String comment,
-
-	@Schema(description = "GitHub URL", example = "GITHUB_URL")
-	String githubUrl,
-
 	@Schema(description = "주 언어", example = "Java")
-	String language
+	String language,
 
+	@Schema(description = "성과율", example = "15")
+	int successRate,
+
+	@Schema(description = "가장 최근 푼 문제 제목", example = "가장 최근 푼 문제 제목")
+	String recentProblemTitle
 ) {
-	public static UserDetailResponse of(User user) {
-		return UserDetailResponse.builder()
-			.name(user.getName())
+	public static UserListResponse of(User user) {
+		return UserListResponse.builder()
+			.userId(user.getUserId())
 			.nickname(user.getNickname())
 			.profileImg(user.getProfileImg())
-			.githubUrl(user.getGithubUrl())
 			.language(user.getLanguage().getName())
+			.successRate(user.getSuccessRate())
+			.recentProblemTitle(user.getRecentProblemTitle())
 			.build();
 	}
 }

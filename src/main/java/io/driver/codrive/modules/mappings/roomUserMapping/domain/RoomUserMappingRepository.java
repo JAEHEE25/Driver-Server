@@ -14,4 +14,6 @@ import io.driver.codrive.modules.user.domain.User;
 @Repository
 public interface RoomUserMappingRepository extends JpaRepository<RoomUserMapping, Long>, RoomUserMappingRepositoryCustom {
 	Optional<RoomUserMapping> findByRoomAndUser(Room room, User user);
+	Page<RoomUserMapping> findAllByRoom(Room room, Pageable pageable);
+	List<RoomUserMapping> findAllByRoom(Room room);
 }

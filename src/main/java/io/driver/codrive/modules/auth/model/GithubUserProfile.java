@@ -3,7 +3,6 @@ package io.driver.codrive.modules.auth.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.driver.codrive.modules.language.domain.Language;
-import io.driver.codrive.modules.user.domain.Role;
 import io.driver.codrive.modules.user.domain.User;
 
 public record GithubUserProfile(
@@ -24,8 +23,8 @@ public record GithubUserProfile(
 			.profileImg(profileImg)
 			.githubUrl(null)
 			.language(language)
-			.level(1)
-			.role(Role.MEMBER)
+			.goal(0)
+			.successRate(0)
 			.withdraw(false)
 			.build();
 	}

@@ -41,4 +41,11 @@ public class AuthController {
 		LoginResponse response = authService.socialLogin(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
+
+	//로컬 테스트용
+	@PostMapping("/addUser")
+	public ResponseEntity<BaseResponse<Void>> login() {
+		authService.addUser();
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
 }
