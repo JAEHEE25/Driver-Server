@@ -9,6 +9,7 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
+import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,7 @@
 package io.driver.codrive.modules.roomRequest.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,7 +10,9 @@ import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
+import io.driver.codrive.modules.roomRequest.domain.RoomRequestStatus;
 import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
 import io.driver.codrive.modules.room.service.RoomService;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequestRepository;
@@ -29,19 +33,20 @@ public class RoomRequestService {
 	public void joinPrivateRoom(Long roomId, PasswordRequest request) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Room room = roomService.getRoomById(roomId);
-		String password = room.getPassword();
-		if (password == null) {
+		checkRoomStatus(room);
+		checkRoomMember(room, user);
+
+		if (room.isFull()) {
+			throw new IllegalArgumentApplicationException("정원이 초과되었습니다.");
+		}
+
+		if (room.isPublicRoom()) {
 			throw new IllegalArgumentApplicationException("해당 그룹은 공개 그룹입니다.");
 		}
 
-		if (!password.equals(request.password())) {
+		if (!room.isCorrectPassword(request.password())) {
 			throw new IllegalArgumentApplicationException("비밀번호가 일치하지 않습니다.");
 		}
-
-		if (roomUserMappingService.getRoomUserMapping(room, user) != null) {
-			throw new IllegalArgumentApplicationException("이미 참여 중인 그룹입니다.");
-		}
-
 		roomUserMappingService.createRoomUserMapping(room, user);
 	}
 
@@ -49,55 +54,70 @@ public class RoomRequestService {
 	public void joinPublicRoom(Long roomId) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Room room = roomService.getRoomById(roomId);
-		if (room.getPassword() != null) {
+		checkRoomStatus(room);
+		checkRoomMember(room, user);
+
+		if (!room.isPublicRoom()) {
 			throw new IllegalArgumentApplicationException("해당 그룹은 비밀 그룹입니다.");
 		}
 
-		if (getRoomRequestByRoomAndUser(room, user) != null) {
+		if (room.existUserRequest(user)) {
 			throw new IllegalArgumentApplicationException("이미 참여 요청한 그룹입니다.");
 		}
 
-		if (roomUserMappingService.getRoomUserMapping(room, user) != null) {
+		RoomRequest roomRequest = RoomRequest.toRoomRequest(room, user);
+		if (room.isFull()) {
+			roomRequest.changeRoomRequestStatus(RoomRequestStatus.WAITING);
+		}
+		saveRoomRequest(roomRequest, room);
+	}
+
+	private void checkRoomMember(Room room, User user) {
+		if (room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("이미 참여 중인 그룹입니다.");
 		}
+	}
 
-		RoomRequest roomRequest = RoomRequest.toRoomRequest(room, user);
+	private void checkRoomStatus(Room room) {
+		if (!room.compareStatus(RoomStatus.ACTIVE)) {
+			throw new IllegalArgumentApplicationException("활동 중인 그룹이 아닙니다.");
+		}
+	}
+
+	private void saveRoomRequest(RoomRequest roomRequest, Room room) {
 		roomRequestRepository.save(roomRequest);
+		room.addRoomRequests(roomRequest);
+		room.changeRequestedCount(room.getRequestedCount() + 1);
 	}
 
 	@Transactional
 	public RoomRequest getRoomRequestById(Long roomRequestId) {
-		return roomRequestRepository.findById(roomRequestId).orElseThrow(() -> new NotFoundApplcationException("참여 요청 데이터"));
-	}
-
-	@Transactional
-	public RoomRequest getRoomRequestByRoomAndUser(Room room, User user) {
-		return roomRequestRepository.findByRoomAndUser(room, user).orElse(null);
+		return roomRequestRepository.findById(roomRequestId)
+			.orElseThrow(() -> new NotFoundApplcationException("참여 요청 데이터"));
 	}
 
 	@Transactional
 	public RoomRequestListResponse getRoomRequests(Long roomId) {
 		Room room = roomService.getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
-		return RoomRequestListResponse.of(roomRequestRepository.findAllByRoom(room));
+		return RoomRequestListResponse.of(room.getApprovedCount(), roomRequestRepository.findAllByRoom(room));
 	}
 
 	@Transactional
 	public void approveRequest(Long roomId, Long roomRequestId) {
 		Room room = roomService.getRoomById(roomId);
 		AuthUtils.checkOwnedEntity(room);
-		RoomRequest request = getRoomRequestById(roomRequestId);
-		roomUserMappingService.createRoomUserMapping(room, request.getUser());
+		RoomRequest roomRequest = getRoomRequestById(roomRequestId);
+
+		if (!roomRequest.compareStatus(RoomRequestStatus.REQUESTED)) {
+			throw new IllegalArgumentApplicationException("승인할 수 없는 요청입니다.");
+		}
+		roomRequest.changeRoomRequestStatus(RoomRequestStatus.JOINED);
+		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 		room.changeRequestedCount(room.getRequestedCount() - 1);
-		roomRequestRepository.delete(request);
 	}
 
-	@Transactional
-	public void denyRequest(Long roomId, Long roomRequestId) {
-		Room room = roomService.getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
-		RoomRequest request = getRoomRequestById(roomRequestId);
-		roomRequestRepository.delete(request);
+	public void changeWaitingRoomRequestToRequested(Room room) {
+		List<RoomRequest> roomRequests = roomRequestRepository.findAllByRoomAndRoomRequestStatus(room, RoomRequestStatus.WAITING);
+		roomRequests.forEach(roomRequest -> roomRequest.changeRoomRequestStatus(RoomRequestStatus.REQUESTED));
 	}
-
 }

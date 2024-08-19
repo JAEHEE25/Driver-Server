@@ -55,6 +55,7 @@ public record RoomModifyRequest(
 			.roomStatus(RoomStatus.ACTIVE)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
+			.roomRequests(new ArrayList<>())
 			.build();
 	}
 }

@@ -24,7 +24,7 @@ public class RoomUserMappingService {
 
 	@Transactional
 	public void createRoomUserMapping(Room room, User user) {
-		if (getRoomUserMapping(room, user) != null) {
+		if (room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("이미 참여한 그룹입니다.");
 		}
 		RoomUserMapping mapping = roomUserMappingRepository.save(RoomUserMapping.toRoomUserMapping(room, user));

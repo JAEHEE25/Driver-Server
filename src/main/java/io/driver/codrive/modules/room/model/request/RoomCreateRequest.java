@@ -59,6 +59,7 @@ public record RoomCreateRequest(
 			.owner(user)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
+			.roomRequests(new ArrayList<>())
 			.build();
 	}
 }
