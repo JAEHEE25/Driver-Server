@@ -44,6 +44,7 @@ public class User extends BaseEntity {
 
 	private String githubUrl;
 
+	@Column(nullable = false)
 	private Integer goal;
 
 	@Column(nullable = false)
@@ -98,6 +99,10 @@ public class User extends BaseEntity {
 
 	public void changeLanguage(Language language) {
 		this.language = language;
+	}
+
+	public void changeGoal(Integer goal) {
+		this.goal = goal;
 	}
 
 	public void deleteJoinedRoom(RoomUserMapping mapping) {

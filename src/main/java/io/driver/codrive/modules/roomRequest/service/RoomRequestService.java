@@ -100,7 +100,7 @@ public class RoomRequestService {
 	@Transactional
 	public RoomRequestListResponse getRoomRequests(Long roomId) {
 		Room room = roomService.getRoomById(roomId);
-		return RoomRequestListResponse.of(room.getApprovedCount(), roomRequestRepository.findAllByRoom(room));
+		return RoomRequestListResponse.of(room.getMemberCount(), roomRequestRepository.findAllByRoom(room));
 	}
 
 	public List<RoomParticipantItemDto> getRoomParticipants(Room room) {
