@@ -1,5 +1,7 @@
 package io.driver.codrive.modules.user.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,9 +11,11 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
+import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
 import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
+import io.driver.codrive.modules.user.model.response.RandomUserListResponse;
 import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -55,9 +59,21 @@ public class UserService {
 	}
 
 	@Transactional
+	public void updateCurrentUserGoal(Long userId, GoalChangeRequest request) {
+		User user = getUserById(userId);
+		AuthUtils.checkOwnedEntity(user);
+		user.changeGoal(request.goal());
+	}
+
+	@Transactional
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
+	}
+
+	public RandomUserListResponse getRandomUsers() {
+		List<User> randomUsers = userRepository.getRandomUsersExceptMeAndFollowings(AuthUtils.getCurrentUserId());
+		return RandomUserListResponse.of(randomUsers);
 	}
 }

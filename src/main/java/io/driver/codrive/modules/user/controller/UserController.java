@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
+import io.driver.codrive.modules.user.model.response.RandomUserListResponse;
+import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
 import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
@@ -91,6 +93,28 @@ public class UserController {
 	}
 
 	@Operation(
+		summary = "목표 변경",
+		parameters = {
+			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
+		},
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				schema = @Schema(implementation = GoalChangeRequest.class)
+			)
+		),
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@PatchMapping("/{userId}/goal")
+	public ResponseEntity<BaseResponse<Void>> changeGoal(@PathVariable(name = "userId") Long userId,
+		@Valid @RequestBody GoalChangeRequest request) {
+		userService.updateCurrentUserGoal(userId, request);
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
+	@Operation(
 		summary = "사용자 탈퇴",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
@@ -105,4 +129,18 @@ public class UserController {
 		userService.updateCurrentUserWithdraw(userId);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
+
+	@Operation(
+		summary = "추천 사용자 목록 조회",
+		description = "자기자신 및 이미 팔로우 중인 사용자를 제외하고 랜덤으로 6명을 추천합니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RandomUserListResponse.class))),
+		}
+	)
+	@GetMapping("/random-users")
+	public ResponseEntity<BaseResponse<RandomUserListResponse>> getRandomUsers() {
+		RandomUserListResponse response = userService.getRandomUsers();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
 }

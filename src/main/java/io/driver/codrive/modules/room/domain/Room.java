@@ -156,10 +156,6 @@ public class Room extends BaseEntity {
 		roomLanguageMappings.removeAll(mappings);
 	}
 
-	public int getApprovedCount() {
-		return roomRequests.stream().filter(request -> request.getUserRequestStatus() == UserRequestStatus.JOINED).toList().size();
-	}
-
 	@Override
 	public Long getOwnerId() {
 		return this.owner.getUserId();

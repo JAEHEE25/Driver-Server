@@ -36,8 +36,7 @@ public record JoinedRoomInfoResponse(
 	@Schema(description = "그룹 상태", example = "활동 중")
 	String roomStatus,
 
-	@Schema(description = "사용 언어 별 인원", example = "[{\"language\": \"Java\", \"count\": 5}, {\"language\": \"Python\", \"count\": 10}]",
-		implementation = LanguageMemberCountDto.class)
+	@Schema(description = "사용 언어 별 인원")
 	List<LanguageMemberCountDto> languageMemberCount
 
 ) {
@@ -49,7 +48,7 @@ public record JoinedRoomInfoResponse(
 			.title(room.getTitle())
 			.memberCount(room.getMemberCount())
 			.capacity(room.getCapacity())
-			.approvedCount(room.getApprovedCount())
+			.approvedCount(room.getMemberCount())
 			.requestedCount(room.getRequestedCount())
 			.roomStatus(room.getRoomStatus().name())
 			.languageMemberCount(languageMemberCount)
