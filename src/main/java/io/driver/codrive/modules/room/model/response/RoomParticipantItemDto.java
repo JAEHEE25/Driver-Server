@@ -4,18 +4,18 @@ import java.time.LocalDateTime;
 
 import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.user.domain.User;
-import io.driver.codrive.modules.user.model.response.UserListResponse;
+import io.driver.codrive.modules.user.model.response.UserSummaryResponse;
 import lombok.Builder;
 
 @Builder
 public record RoomParticipantItemDto(
-	UserListResponse user,
+	UserSummaryResponse user,
 	String status,
 	LocalDateTime createdAt
 ) {
 	public static RoomParticipantItemDto of(User user, UserRequestStatus status, LocalDateTime createdAt) {
 		return RoomParticipantItemDto.builder()
-			.user(UserListResponse.of(user))
+			.user(UserSummaryResponse.of(user))
 			.status(status.name())
 			.createdAt(createdAt)
 			.build();

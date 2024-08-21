@@ -30,6 +30,16 @@ public enum SortType {
 		}
 	}
 
+	public static Sort getRecordSort(SortType sortType) {
+		if (sortType == NEW) {
+			return Sort.by(Sort.Direction.DESC, "createdAt");
+		} else if (sortType == OLD) {
+			return Sort.by(Sort.Direction.ASC, "createdAt");
+		} else {
+			throw new IllegalArgumentApplicationException("지원하지 않는 정렬 방식입니다.");
+		}
+	}
+
 	public static Comparator<RoomParticipantItemDto> getParticipantComparator(SortType sortType) {
 		if (sortType == NEW) {
 			return Comparator.comparing(RoomParticipantItemDto::createdAt).reversed();

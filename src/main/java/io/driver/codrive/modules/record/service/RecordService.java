@@ -2,8 +2,9 @@ package io.driver.codrive.modules.record.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.util.DateUtils;
+import io.driver.codrive.global.util.CalculateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
@@ -20,7 +21,6 @@ import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
-import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.domain.RecordStatus;
@@ -39,7 +39,6 @@ public class RecordService {
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
-	private final CountBoardService countBoardService;
 	private final RecordRepository recordRepository;
 
 	@Transactional
@@ -49,6 +48,7 @@ public class RecordService {
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
 		user.addRecord(createdRecord);
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
+		updateSuccessRate(user);
 		return RecordCreateResponse.of(createdRecord);
 	}
 
@@ -105,42 +105,6 @@ public class RecordService {
 	}
 
 	@Transactional
-	public RecordDayListResponse getRecordsByDay(Long userId, String pivotDate) {
-		User user = userService.getUserById(userId);
-		LocalDate pivot = DateUtils.getPivotDateOrToday(pivotDate);
-		List<Record> records = recordRepository.getDailyRecords(user.getUserId(), pivot);
-		return RecordDayListResponse.of(records);
-	}
-
-	@Transactional
-	public RecordMonthListResponse getRecordsByMonth(Long userId, String requestPivotDate, Integer page, Integer size) {
-		Pageable pageable = PageRequest.of(page, size);
-		PageUtils.validatePageable(pageable);
-		User user = userService.getUserById(userId);
-		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
-		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, pageable);
-		return RecordMonthListResponse.of(records.getTotalPages(), records);
-	}
-
-	@Transactional
-	public RecordCountBoardResponse getRecordsCount(Long userId, Period period, String requestPivotDate) {
-		User user = userService.getUserById(userId);
-		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
-		List<RecordCountBoardResponse.RecordCountResponse> records = countBoardService.getCountBoard(user, period, pivotDate);
-		return RecordCountBoardResponse.of(records);
-	}
-
-	@Transactional
-	public UnsolvedMonthResponse getUnsolvedMonths(Long userId, String pivotDate) {
-		RecordCountBoardResponse response = getRecordsCount(userId, null, pivotDate);
-		List<Integer> unsolvedMonths = response.board().stream()
-			.filter(data -> data.count() == 0)
-			.map(data -> Integer.valueOf(data.date()))
-			.collect(Collectors.toList());
-		return UnsolvedMonthResponse.of(unsolvedMonths);
-	}
-
-	@Transactional
 	public RecordModifyResponse modifyRecord(Long recordId, RecordModifyRequest request) {
 		Record record = getRecordById(recordId);
 		AuthUtils.checkOwnedEntity(record);
@@ -181,4 +145,23 @@ public class RecordService {
 		}
 	}
 
+	@Transactional
+	public RecordRecentListResponse getRecentRecords(Long userId) {
+		User user = userService.getUserById(userId);
+		List<Record> records = recordRepository.findAllByUserAndRecordStatusOrderByCreatedAtDesc(user, RecordStatus.SAVED);
+		return RecordRecentListResponse.of(records);
+	}
+
+	@Transactional
+	public void updateSuccessRate(User user) {
+		int weeklyCount = getRecordsCountByThisWeek(user);
+		int successRate = CalculateUtils.calculateSuccessRate(weeklyCount);
+		user.changeSuccessRate(successRate);
+	}
+
+	@Transactional
+	public Integer getRecordsCountByThisWeek(User user) {
+		LocalDate pivotDate = LocalDate.now();
+		return recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
+	}
 }

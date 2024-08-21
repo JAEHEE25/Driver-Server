@@ -4,7 +4,7 @@ import java.util.List;
 
 
 import io.driver.codrive.modules.user.domain.User;
-import io.driver.codrive.modules.user.model.response.UserListResponse;
+import io.driver.codrive.modules.user.model.response.UserSummaryResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -14,13 +14,13 @@ public record RoomMembersResponse(
 	int totalPage,
 
 	@Schema(description = "그룹 멤버 목록")
-	List<UserListResponse> members
+	List<UserSummaryResponse> members
 ) {
 
 	public static RoomMembersResponse of(int totalPage, List<User> members) {
 		return RoomMembersResponse.builder()
 			.totalPage(totalPage)
-			.members(members.stream().map(UserListResponse::of).toList())
+			.members(members.stream().map(UserSummaryResponse::of).toList())
 			.build();
 	}
 }

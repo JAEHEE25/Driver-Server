@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
@@ -15,7 +16,7 @@ import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
 import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
-import io.driver.codrive.modules.user.model.response.RandomUserListResponse;
+import io.driver.codrive.modules.user.model.response.UserListResponse;
 import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -72,8 +73,23 @@ public class UserService {
 		userRepository.delete(user);
 	}
 
-	public RandomUserListResponse getRandomUsers() {
-		List<User> randomUsers = userRepository.getRandomUsersExceptMeAndFollowings(AuthUtils.getCurrentUserId());
-		return RandomUserListResponse.of(randomUsers);
+	public UserListResponse getRandomUsers() {
+		User user = getUserById(AuthUtils.getCurrentUserId());
+		List<User> randomUsers = userRepository.getRandomUsersExceptMeAndFollowings(user.getUserId());
+		return UserListResponse.of(randomUsers, user);
+	}
+
+	@Transactional
+	public UserListResponse getFollowings() {
+		User user = getUserById(AuthUtils.getCurrentUserId());
+		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
+		return UserListResponse.of(followings, user);
+	}
+
+	@Transactional
+	public UserListResponse getFollowers() {
+		User user = getUserById(AuthUtils.getCurrentUserId());
+		List<User> followers = user.getFollowers().stream().map(Follow::getFollower).toList();
+		return UserListResponse.of(followers, user);
 	}
 }

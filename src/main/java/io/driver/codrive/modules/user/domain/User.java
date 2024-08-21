@@ -57,10 +57,10 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "language_id", nullable = false)
 	private Language language;
 
-	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Follow> followings;
 
-	@OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Follow> followers;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -75,6 +75,22 @@ public class User extends BaseEntity {
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {
 		this.roomUserMappings.add(roomUserMapping);
+	}
+
+	public void addFollowing(Follow follow) {
+		this.followings.add(follow);
+	}
+
+	public void addFollower(Follow follow) {
+		this.followers.add(follow);
+	}
+
+	public void deleteFollowing(Follow follow) {
+		this.followings.remove(follow);
+	}
+
+	public void deleteFollower(Follow follow) {
+		this.followers.remove(follow);
 	}
 
 	public void changeName(String name) {
@@ -105,6 +121,10 @@ public class User extends BaseEntity {
 		this.goal = goal;
 	}
 
+	public void changeSuccessRate(Integer successRate) {
+		this.successRate = successRate;
+	}
+
 	public void deleteJoinedRoom(RoomUserMapping mapping) {
 		this.roomUserMappings.remove(mapping);
 	}
@@ -115,6 +135,13 @@ public class User extends BaseEntity {
 		}
 		int lastIndex = records.size() - 1;
 		return records.get(lastIndex).getTitle();
+	}
+
+	public Boolean isFollowing(User target) {
+		if (this.equals(target)) {
+			return null;
+		}
+		return this.followings.stream().anyMatch(follow -> follow.getFollowing().equals(target));
 	}
 
 	@Override
