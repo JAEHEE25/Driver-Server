@@ -106,11 +106,4 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
 	}
 
-	@Override
-	public List<Record> getRecentRecords(Long userId) {
-		return from(record)
-			.where(record.user.userId.eq(userId), record.recordStatus.eq(RecordStatus.SAVED))
-			.orderBy(record.createdAt.desc())
-			.fetch();
-	}
 }

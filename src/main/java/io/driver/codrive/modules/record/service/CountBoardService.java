@@ -26,7 +26,6 @@ import io.driver.codrive.modules.record.model.RecordCountDto;
 import io.driver.codrive.modules.record.model.response.BoardResponse;
 import io.driver.codrive.modules.record.model.response.RecordMonthListResponse;
 import io.driver.codrive.modules.record.model.response.UnsolvedMonthResponse;
-import io.driver.codrive.modules.record.model.response.WeeklyRecordCountResponse;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -103,14 +102,6 @@ public class CountBoardService {
 		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
 		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, pageable);
 		return RecordMonthListResponse.of(records.getTotalPages(), records, user, currentUser.isFollowing(user));
-	}
-
-	@Transactional
-	public WeeklyRecordCountResponse getRecordsCountByWeek(Long userId) {
-		User user = userService.getUserById(userId);
-		LocalDate pivotDate = LocalDate.now();
-		Integer count = recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
-		return WeeklyRecordCountResponse.of(user.getNickname(), count);
 	}
 
 	@Transactional

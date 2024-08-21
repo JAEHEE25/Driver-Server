@@ -121,6 +121,10 @@ public class User extends BaseEntity {
 		this.goal = goal;
 	}
 
+	public void changeSuccessRate(Integer successRate) {
+		this.successRate = successRate;
+	}
+
 	public void deleteJoinedRoom(RoomUserMapping mapping) {
 		this.roomUserMappings.remove(mapping);
 	}

@@ -157,7 +157,6 @@ public class RecordController {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordRecentListResponse.class))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
-
 	)
 	@GetMapping("{userId}/recent")
 	public ResponseEntity<BaseResponse<RecordRecentListResponse>> getRecentRecords(@PathVariable(name = "userId") Long userId) {
