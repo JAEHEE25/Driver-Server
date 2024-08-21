@@ -1,19 +1,34 @@
 package io.driver.codrive.modules.record.service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.model.SortType;
+import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.DateUtils;
+import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.record.domain.Period;
+import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.model.RecordCountDto;
-import io.driver.codrive.modules.record.model.response.RecordCountBoardResponse;
+import io.driver.codrive.modules.record.model.response.BoardResponse;
+import io.driver.codrive.modules.record.model.response.RecordMonthListResponse;
+import io.driver.codrive.modules.record.model.response.UnsolvedMonthResponse;
+import io.driver.codrive.modules.record.model.response.WeeklyRecordCountResponse;
 import io.driver.codrive.modules.user.domain.User;
+import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,29 +36,108 @@ import lombok.RequiredArgsConstructor;
 public class CountBoardService {
 	private final Map<String, Long> countBoard = new LinkedHashMap<>();
 	private final RecordRepository recordRepository;
+	private final UserService userService;
 
-	public List<RecordCountBoardResponse.RecordCountResponse> getCountBoard(User user, Period period, LocalDate pivotDate) {
-		List<RecordCountDto> countDtos = getRecordCountDtos(user, period, pivotDate);
-		updateCountBoard(countDtos);
+	@Transactional
+	public BoardResponse getRecordsBoard(Long userId, String requestPivotDate) {
+		User user = userService.getUserById(userId);
+		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
+		return getBoardResponse(user, pivotDate);
+	}
+
+	private BoardResponse getBoardResponse(User user, LocalDate pivotDate) {
+		updateCountBoard(user, Period.MONTHLY, pivotDate);
+		int totalCount = getTotalCount();
+		int longestPeriod = getLongestPeriod();
+		int maxCount = getMaxCount();
+		List<BoardResponse.RecordSolvedResponse> board = getRecordSolvedBoard();
+		return BoardResponse.of(totalCount, longestPeriod, maxCount, board);
+	}
+
+	private void updateCountBoard(User user, Period period, LocalDate pivotDate) {
+		updateCountBoardByDto(getRecordCountDtos(user, period, pivotDate));
+	}
+
+	private List<BoardResponse.RecordSolvedResponse> getRecordSolvedBoard() {
 		return countBoard.entrySet().stream()
-			.map(entry -> RecordCountBoardResponse.RecordCountResponse.of(entry.getKey(), entry.getValue()))
+			.map(entry -> BoardResponse.RecordSolvedResponse.of(entry.getKey(), entry.getValue()))
 			.toList();
 	}
 
+	private int getTotalCount() {
+		return countBoard.values().stream().mapToInt(Long::intValue).sum();
+	}
+
+	private int getLongestPeriod() {
+		int longestPeriod = 0;
+		int currentPeriod = 0;
+
+		for (Long count : countBoard.values()) {
+			if (count > 0) {
+				currentPeriod++;
+			} else {
+				longestPeriod = Math.max(longestPeriod, currentPeriod);
+				currentPeriod = 0;
+			}
+		}
+		return longestPeriod;
+	}
+
+	private int getMaxCount() {
+		return countBoard.values().stream().mapToInt(Long::intValue).max().orElse(0);
+	}
+
+	@Transactional
+	public int getTodayRecordCount() {
+		return recordRepository.findAllByCreatedAt(LocalDateTime.now()).size();
+	}
+
+	@Transactional
+	public RecordMonthListResponse getRecordsByMonth(Long userId, SortType sortType, String requestPivotDate, Integer page, Integer size) {
+		Sort sort = SortType.getRecordSort(sortType);
+		Pageable pageable = PageRequest.of(page, size, sort);
+		PageUtils.validatePageable(pageable);
+
+		User user = userService.getUserById(userId);
+		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
+		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
+		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, pageable);
+		return RecordMonthListResponse.of(records.getTotalPages(), records, user, currentUser.isFollowing(user));
+	}
+
+	@Transactional
+	public WeeklyRecordCountResponse getRecordsCountByWeek(Long userId) {
+		User user = userService.getUserById(userId);
+		LocalDate pivotDate = LocalDate.now();
+		Integer count = recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
+		return WeeklyRecordCountResponse.of(user.getNickname(), count);
+	}
+
+	@Transactional
+	public UnsolvedMonthResponse getUnsolvedMonths(Long userId, String requestPivotDate) {
+		User user = userService.getUserById(userId);
+		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
+		updateCountBoard(user, Period.YEARLY, pivotDate);
+		List<Integer> unsolvedMonths = countBoard.entrySet().stream()
+			.filter(entry -> entry.getValue() == 0)
+			.map(entry -> Integer.parseInt(entry.getKey()))
+			.collect(Collectors.toList());
+		return UnsolvedMonthResponse.of(unsolvedMonths);
+	}
+
 	private List<RecordCountDto> getRecordCountDtos(User user, Period period, LocalDate pivotDate) {
-		if (period == Period.MONTHLY) {
+		if (period == Period.YEARLY) {
+			createYearlyCountBoard();
+			return recordRepository.getYearlyRecordCountBoard(user.getUserId(), pivotDate);
+		} else if (period == Period.MONTHLY) {
 			createMonthlyCountBoard(pivotDate);
 			return recordRepository.getMonthlyRecordCountBoard(user.getUserId(), pivotDate);
-		} else if (period == Period.WEEKLY) {
-			createWeeklyCountBoard(pivotDate);
-			return recordRepository.getWeeklyRecordCountBoard(user.getUserId(), pivotDate);
 		} else {
-			createYearlyCountBoard();
-			return recordRepository.getYearlyRecordCount(user.getUserId(), pivotDate);
+			return null;
 		}
 	}
 
-	private void updateCountBoard(List<RecordCountDto> recordCountDtos) {
+	private void updateCountBoardByDto(List<RecordCountDto> recordCountDtos) {
 		recordCountDtos.forEach(dto -> countBoard.put(dto.getDate(), dto.getCount()));
 	}
 
@@ -62,14 +156,4 @@ public class CountBoardService {
 		}
 	}
 
-	private void createWeeklyCountBoard(LocalDate pivotDate) {
-		countBoard.clear();
-		DayOfWeek dayOfWeek = pivotDate.getDayOfWeek();
-		LocalDate monday = pivotDate.minusDays(dayOfWeek.getValue() - DayOfWeek.MONDAY.getValue());
-
-		for (int day = 0; day < 7; day++) {
-			LocalDate plusDay = monday.plusDays(day);
-			countBoard.put(String.valueOf(plusDay.getDayOfMonth()), 0L);
-		}
-	}
 }

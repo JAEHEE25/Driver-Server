@@ -11,9 +11,9 @@ import io.driver.codrive.modules.record.model.RecordCountDto;
 
 @Repository
 public interface RecordRepositoryCustom {
-	List<Record> getDailyRecords(Long userId, LocalDate pivotDate);
 	Page<Record> getMonthlyRecords(Long userId, LocalDate pivotDate, Pageable pageable);
-	List<RecordCountDto> getYearlyRecordCount(Long userId, LocalDate pivotDate);
+	List<RecordCountDto> getYearlyRecordCountBoard(Long userId, LocalDate pivotDate);
 	List<RecordCountDto> getMonthlyRecordCountBoard(Long userId, LocalDate pivotDate);
-	List<RecordCountDto> getWeeklyRecordCountBoard(Long userId, LocalDate pivotDate);
+	Integer getRecordCountByWeek(Long userId, LocalDate pivotDate);
+	List<Record> getRecentRecords(Long userId);
 }

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.user.model.response.RandomUserListResponse;
+import io.driver.codrive.modules.user.model.response.UserListResponse;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
@@ -134,13 +134,36 @@ public class UserController {
 		summary = "추천 사용자 목록 조회",
 		description = "자기자신 및 이미 팔로우 중인 사용자를 제외하고 랜덤으로 6명을 추천합니다.",
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RandomUserListResponse.class))),
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserListResponse.class))),
 		}
 	)
 	@GetMapping("/random-users")
-	public ResponseEntity<BaseResponse<RandomUserListResponse>> getRandomUsers() {
-		RandomUserListResponse response = userService.getRandomUsers();
+	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers() {
+		UserListResponse response = userService.getRandomUsers();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
+	@Operation(
+		summary = "팔로잉 목록 조회",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserListResponse.class))),
+		}
+	)
+	@GetMapping("/followings")
+	public ResponseEntity<BaseResponse<UserListResponse>> getFollowings() {
+		UserListResponse response = userService.getFollowings();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "팔로워 목록 조회",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserListResponse.class))),
+		}
+	)
+	@GetMapping("/followers")
+	public ResponseEntity<BaseResponse<UserListResponse>> getFollowers() {
+		UserListResponse response = userService.getFollowers();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
 }

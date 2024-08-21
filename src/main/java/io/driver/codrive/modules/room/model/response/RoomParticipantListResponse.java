@@ -2,7 +2,7 @@ package io.driver.codrive.modules.room.model.response;
 
 import java.util.List;
 
-import io.driver.codrive.modules.user.model.response.UserListResponse;
+import io.driver.codrive.modules.user.model.response.UserSummaryResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -23,7 +23,7 @@ public record RoomParticipantListResponse(
 
 	@Builder
 	record RoomParticipantItemResponse(
-		UserListResponse user,
+		UserSummaryResponse user,
 		String status
 	) {
 		public static List<RoomParticipantItemResponse> of(List<RoomParticipantItemDto> participants) {

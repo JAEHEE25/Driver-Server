@@ -1,37 +1,58 @@
 package io.driver.codrive.modules.user.model.response;
 
+import java.util.List;
+
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
 public record UserListResponse(
-	@Schema(description = "사용자 ID", example = "1")
-	Long userId,
-
-	@Schema(description = "닉네임", example = "닉네임")
-	String nickname,
-
-	@Schema(description = "프로필 이미지 URL", example = "IMAGE_URL")
-	String profileImg,
-
-	@Schema(description = "주 언어", example = "Java")
-	String language,
-
-	@Schema(description = "성과율", example = "15")
-	int successRate,
-
-	@Schema(description = "가장 최근 푼 문제 제목", example = "가장 최근 푼 문제 제목")
-	String recentProblemTitle
+	@Schema(description = "사용자 목록")
+	List<UserItemResponse> users
 ) {
-	public static UserListResponse of(User user) {
+	public static UserListResponse of(List<User> users, User currentUser) {
 		return UserListResponse.builder()
-			.userId(user.getUserId())
-			.nickname(user.getNickname())
-			.profileImg(user.getProfileImg())
-			.language(user.getLanguage().getName())
-			.successRate(user.getSuccessRate())
-			.recentProblemTitle(user.getRecentProblemTitle())
+			.users(UserItemResponse.of(users, currentUser))
 			.build();
+	}
+
+	@Builder
+	record UserItemResponse(
+		@Schema(description = "사용자 ID", example = "1")
+		Long userId,
+
+		@Schema(description = "닉네임", example = "닉네임")
+		String nickname,
+
+		@Schema(description = "프로필 이미지 URL", example = "IMAGE_URL")
+		String profileImg,
+
+		@Schema(description = "주 언어", example = "Java")
+		String language,
+
+		@Schema(description = "GitHub URL", example = "GITHUB_URL")
+		String githubUrl,
+
+		@Schema(description = "팔로우 여부", example = "true")
+		Boolean isFollowing
+	) {
+		public static List<UserItemResponse> of(List<User> users, User currentUser) {
+			return users.stream()
+				.map(user -> UserItemResponse.of(user, currentUser.isFollowing(user)))
+				.toList();
+		}
+
+		public static UserItemResponse of(User user, Boolean isFollowing) {
+			return UserItemResponse.builder()
+				.userId(user.getUserId())
+				.nickname(user.getNickname())
+				.profileImg(user.getProfileImg())
+				.language(user.getLanguage().getName())
+				.githubUrl(user.getGithubUrl())
+				.isFollowing(isFollowing)
+				.build();
+		}
+
 	}
 }

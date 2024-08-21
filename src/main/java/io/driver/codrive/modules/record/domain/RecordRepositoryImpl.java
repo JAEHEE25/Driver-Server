@@ -28,16 +28,6 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<Record> getDailyRecords(Long userId, LocalDate pivotDate) {
-		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
-		return from(record)
-			.where(record.user.userId.eq(userId), formattedDate.eq(pivotDate.toString()),
-				record.recordStatus.eq(RecordStatus.SAVED))
-			.orderBy(record.createdAt.desc())
-			.fetch();
-	}
-
-	@Override
 	public Page<Record> getMonthlyRecords(Long userId, LocalDate pivotDate, Pageable pageable) {
 		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
@@ -58,7 +48,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<RecordCountDto> getYearlyRecordCount(Long userId, LocalDate pivotDate) {
+	public List<RecordCountDto> getYearlyRecordCountBoard(Long userId, LocalDate pivotDate) {
 		StringTemplate formattedYear = getFormattedDate("%Y");
 		StringTemplate formattedMonth = getFormattedDate("%c");
 		String pivotDateYear = DateUtils.formatYear(pivotDate);
@@ -90,20 +80,14 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public List<RecordCountDto> getWeeklyRecordCountBoard(Long userId,
-		LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
+	public Integer getRecordCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
 		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
 		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
-		StringTemplate formattedDay = getFormattedDate("%e");
 
-		return from(record)
+		return Math.toIntExact(from(record)
 			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime),
 				record.recordStatus.eq(RecordStatus.SAVED))
-			.groupBy(formattedDay)
-			.select(Projections.fields(RecordCountDto.class,
-				formattedDay.as("date"),
-				record.count().as("count")))
-			.fetch();
+			.fetchCount());
 	}
 
 	public StringTemplate getFormattedDate(String format) {
@@ -120,5 +104,13 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		int pivotDay = pivotDate.getDayOfWeek().getValue();
 		int sunday = DayOfWeek.SUNDAY.getValue();
 		return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
+	}
+
+	@Override
+	public List<Record> getRecentRecords(Long userId) {
+		return from(record)
+			.where(record.user.userId.eq(userId), record.recordStatus.eq(RecordStatus.SAVED))
+			.orderBy(record.createdAt.desc())
+			.fetch();
 	}
 }

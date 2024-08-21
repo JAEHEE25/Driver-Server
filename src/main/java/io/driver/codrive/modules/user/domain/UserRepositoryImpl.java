@@ -12,6 +12,7 @@ import com.querydsl.core.types.dsl.Expressions;
 
 @Repository
 public class UserRepositoryImpl extends QuerydslRepositorySupport implements UserRepositoryCustom {
+	private static final int RANDOM_USER_LIMIT = 6;
 	public UserRepositoryImpl() {
 		super(User.class);
 	}
@@ -22,7 +23,7 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Use
 			.leftJoin(follow).on(follow.following.userId.eq(user.userId).and(follow.follower.userId.eq(userId)))
 			.where(follow.followId.isNull(), user.userId.ne(userId))
 			.orderBy(Expressions.numberTemplate(Double.class, "function('RAND')").asc())
-			.limit(6)
+			.limit(RANDOM_USER_LIMIT)
 			.fetch();
 	}
 }
