@@ -1,6 +1,8 @@
 package io.driver.codrive.modules.follow.service;
 
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,7 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.user.domain.User;
+import io.driver.codrive.modules.user.model.response.UserListResponse;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -56,5 +59,12 @@ public class FollowService {
 	private Follow getFollowByUsers(User following, User follower) {
 		return followRepository.findByFollowingAndFollower(following, follower).orElse(null);
 	}
+
+	public UserListResponse getRandomUsers() {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<User> randomUsers = userService.getRandomUsersExceptMeAndFollowings(user);
+		return UserListResponse.of(randomUsers, user);
+	}
+
 
 }

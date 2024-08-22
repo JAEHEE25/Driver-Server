@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import io.driver.codrive.modules.follow.service.FollowService;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
+import io.driver.codrive.modules.user.model.response.UserListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -57,4 +59,16 @@ public class FollowController {
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 
+	@Operation(
+		summary = "추천 사용자 목록 조회",
+		description = "자기자신 및 이미 팔로우 중인 사용자를 제외하고 랜덤으로 6명을 추천합니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserListResponse.class))),
+		}
+	)
+	@GetMapping("/recommend")
+	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers() {
+		UserListResponse response = followService.getRandomUsers();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
 }
