@@ -3,6 +3,8 @@ package io.driver.codrive.modules.follow.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
+import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
 import io.driver.codrive.modules.follow.service.FollowService;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
@@ -69,6 +71,36 @@ public class FollowController {
 	@GetMapping("/recommend")
 	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers() {
 		UserListResponse response = followService.getRandomUsers();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "팔로잉 주간 문제 풀이 개수 조회",
+		description = "팔로우한 사용자들의 주간 문제 풀이 개수를 조회합니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = FollowingWeeklyCountResponse.class))),
+		}
+	)
+	@GetMapping("/followings/weekly-count")
+	public ResponseEntity<BaseResponse<FollowingWeeklyCountResponse>> getFollowingsWeeklyCount() {
+		FollowingWeeklyCountResponse response = followService.getFollowingsWeeklyCount();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "오늘 문제를 푼 팔로잉 목록 조회",
+		description = "팔로우한 사용자들 중 오늘 문제를 푼 사용자 목록을 조회합니다.",
+		parameters = {
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호")
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TodaySolvedFollowingResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
+		}
+	)
+	@GetMapping("/followings/today-solved")
+	public ResponseEntity<BaseResponse<TodaySolvedFollowingResponse>> getTodaySolvedFollowings(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+		TodaySolvedFollowingResponse response = followService.getTodaySolvedFollowings(page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 }

@@ -174,7 +174,7 @@ public class RoomService {
 		Pageable pageable = PageRequest.of(page, size);
 		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
-		return RoomListResponse.of(rooms.getTotalPages(), rooms.toList());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 	}
 
 }

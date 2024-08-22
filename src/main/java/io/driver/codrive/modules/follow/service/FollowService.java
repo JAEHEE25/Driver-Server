@@ -1,17 +1,22 @@
 package io.driver.codrive.modules.follow.service;
 
-
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.follow.domain.FollowRepository;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
+import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.model.response.UserListResponse;
 import io.driver.codrive.modules.user.service.UserService;
@@ -20,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class FollowService {
+	private static final int TODAY_SOLVED_FOLLOWINGS_SIZE = 3;
 	private final UserService userService;
 	private final FollowRepository followRepository;
 
@@ -66,5 +72,35 @@ public class FollowService {
 		return UserListResponse.of(randomUsers, user);
 	}
 
+	@Transactional
+	public FollowingWeeklyCountResponse getFollowingsWeeklyCount() {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<FollowingWeeklyCountResponse.WeeklyCountResponse> followingsWeeklyCount = user.getFollowings()
+			.stream().map(follow -> {
+				User following = follow.getFollowing();
+				return getWeeklyCountResponse(following);
+			}).toList();
+		return FollowingWeeklyCountResponse.of(followingsWeeklyCount);
+	}
+
+	@Transactional
+	protected FollowingWeeklyCountResponse.WeeklyCountResponse getWeeklyCountResponse(User following) {
+		String nickname = following.getNickname();
+		int count = userService.getThisWeekRecordsCount(following);
+		return FollowingWeeklyCountResponse.WeeklyCountResponse.of(nickname, count);
+	}
+
+	@Transactional
+	public TodaySolvedFollowingResponse getTodaySolvedFollowings(Integer page) {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
+		List<User> todaySolvedFollowings = followings.stream()
+			.filter(following -> userService.getTodayRecordCount(following) > 0)
+			.toList();
+
+		Pageable pageable = PageRequest.of(page, TODAY_SOLVED_FOLLOWINGS_SIZE);
+		Page<User> todaySolvedFollowingsByPage = PageUtils.getPage(todaySolvedFollowings, pageable, todaySolvedFollowings.size());
+		return TodaySolvedFollowingResponse.of(todaySolvedFollowingsByPage.getTotalPages(), todaySolvedFollowingsByPage.getContent());
+	}
 
 }

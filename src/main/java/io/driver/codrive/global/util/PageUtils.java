@@ -18,6 +18,7 @@ public class PageUtils {
 	}
 
 	public static <T> Page<T> getPage(List<T> content, Pageable pageable, int totalElements) {
+		validatePageable(pageable);
         int start = (int) pageable.getOffset();
 
 		if (start >= totalElements) {
