@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
+import io.driver.codrive.modules.user.model.response.UserAchievementResponse;
 import io.driver.codrive.modules.user.model.response.UserListResponse;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
@@ -166,4 +167,18 @@ public class UserController {
 		UserListResponse response = userService.getFollowers();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
+
+	@Operation(
+		summary = "사용자 성과 조회",
+		description = "현재 로그인한 사용자가 설정한 목표, 오늘 푼 문제 개수, 성과율, 이번 주 기준 지난 주와의 문제 풀이 개수 차이를 조회합니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserAchievementResponse.class))),
+		}
+	)
+	@GetMapping("/achievement")
+	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement() {
+		UserAchievementResponse response = userService.getAchievement();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
 }

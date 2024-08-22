@@ -1,7 +1,6 @@
 package io.driver.codrive.modules.record.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,11 +83,6 @@ public class CountBoardService {
 
 	private int getMaxCount() {
 		return countBoard.values().stream().mapToInt(Long::intValue).max().orElse(0);
-	}
-
-	@Transactional
-	public int getTodayRecordCount() {
-		return recordRepository.findAllByCreatedAt(LocalDateTime.now()).size();
 	}
 
 	@Transactional

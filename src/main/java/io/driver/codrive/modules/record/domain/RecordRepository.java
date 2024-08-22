@@ -15,5 +15,5 @@ public interface RecordRepository extends JpaRepository<Record, Long>, RecordRep
 	List<Record> findAllByUserAndRecordStatus(User user, RecordStatus recordStatus);
 	Page<Record> findAllByUserAndRecordStatusOrderByCreatedAtDesc(User user, RecordStatus recordStatus, Pageable pageable);
 	List<Record> findAllByUserAndRecordStatusOrderByCreatedAtDesc(User user, RecordStatus recordStatus);
-	List<Record> findAllByCreatedAt(LocalDateTime date);
+	List<Record> findAllByUserAndCreatedAtBetween(User user, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }
