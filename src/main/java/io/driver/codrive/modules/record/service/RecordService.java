@@ -1,10 +1,7 @@
 package io.driver.codrive.modules.record.service;
 
-import java.time.LocalDate;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.util.CalculateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
@@ -48,7 +44,7 @@ public class RecordService {
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
 		user.addRecord(createdRecord);
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
-		updateSuccessRate(user);
+		userService.updateSuccessRate(user);
 		return RecordCreateResponse.of(createdRecord);
 	}
 
@@ -152,16 +148,4 @@ public class RecordService {
 		return RecordRecentListResponse.of(records);
 	}
 
-	@Transactional
-	public void updateSuccessRate(User user) {
-		int weeklyCount = getRecordsCountByThisWeek(user);
-		int successRate = CalculateUtils.calculateSuccessRate(weeklyCount);
-		user.changeSuccessRate(successRate);
-	}
-
-	@Transactional
-	public Integer getRecordsCountByThisWeek(User user) {
-		LocalDate pivotDate = LocalDate.now();
-		return recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
-	}
 }
