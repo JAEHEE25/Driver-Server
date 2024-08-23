@@ -10,14 +10,12 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.DateUtils;
-import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
@@ -87,14 +85,11 @@ public class CountBoardService {
 
 	@Transactional
 	public RecordMonthListResponse getRecordsByMonth(Long userId, SortType sortType, String requestPivotDate, Integer page, Integer size) {
-		Sort sort = SortType.getRecordSort(sortType);
-		Pageable pageable = PageRequest.of(page, size, sort);
-		PageUtils.validatePageable(pageable);
-
+		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(userId);
 		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
 		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
-		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, pageable);
+		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, sortType, pageable);
 		return RecordMonthListResponse.of(records.getTotalPages(), records, user, currentUser.isFollowing(user));
 	}
 

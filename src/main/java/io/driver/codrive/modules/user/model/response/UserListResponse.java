@@ -34,7 +34,7 @@ public record UserListResponse(
 		@Schema(description = "GitHub URL", example = "GITHUB_URL")
 		String githubUrl,
 
-		@Schema(description = "팔로우 여부", example = "true")
+		@Schema(description = "팔로우 여부 (본인일 경우 null)", example = "true")
 		Boolean isFollowing
 	) {
 		public static List<UserItemResponse> of(List<User> users, User currentUser) {

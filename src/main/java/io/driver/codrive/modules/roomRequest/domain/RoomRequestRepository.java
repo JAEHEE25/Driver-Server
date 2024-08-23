@@ -3,6 +3,8 @@ package io.driver.codrive.modules.roomRequest.domain;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,8 @@ import io.driver.codrive.modules.user.domain.User;
 
 public interface RoomRequestRepository extends JpaRepository<RoomRequest, Long> {
 	Optional<RoomRequest> findByRoomAndUser(Room room, User user);
+
+	Page<RoomRequest> findAllByRoom(Room room, Pageable pageable);
 
 	List<RoomRequest> findAllByRoom(Room room);
 

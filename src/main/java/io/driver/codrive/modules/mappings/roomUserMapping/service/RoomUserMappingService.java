@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMappingRepository;
 import io.driver.codrive.modules.mappings.roomUserMapping.model.LanguageMemberCountDto;
@@ -51,8 +52,12 @@ public class RoomUserMappingService {
 		return roomUserMappingRepository.findAllByRoom(room, pageable).map(RoomUserMapping::getUser);
 	}
 
-	public Page<Room> getJoinedRooms(Long userId, RoomStatus roomStatus, Pageable pageable) {
-		return roomUserMappingRepository.getRoomsByUserAndRoomStatus(userId, roomStatus, pageable);
+	public Page<Room> getJoinedRoomsByPage(Long userId, RoomStatus roomStatus, SortType sortType, Pageable pageable) {
+		return roomUserMappingRepository.getRoomsByUserAndRoomStatusByPage(userId, roomStatus, sortType, pageable);
+	}
+
+	public List<Room> getJoinedRooms(User user) {
+		return roomUserMappingRepository.findAllByUser(user).stream().map(RoomUserMapping::getRoom).toList();
 	}
 
 	public List<LanguageMemberCountDto> getLanguageMemberCountResponse(Room room) {

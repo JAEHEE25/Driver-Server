@@ -5,13 +5,10 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.user.model.response.UserAchievementResponse;
-import io.driver.codrive.modules.user.model.response.UserListResponse;
+import io.driver.codrive.modules.user.model.response.*;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
-import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
-import io.driver.codrive.modules.user.model.response.UserDetailResponse;
 import io.driver.codrive.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -132,19 +129,6 @@ public class UserController {
 	}
 
 	@Operation(
-		summary = "추천 사용자 목록 조회",
-		description = "자기자신 및 이미 팔로우 중인 사용자를 제외하고 랜덤으로 6명을 추천합니다.",
-		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserListResponse.class))),
-		}
-	)
-	@GetMapping("/random-users")
-	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers() {
-		UserListResponse response = userService.getRandomUsers();
-		return ResponseEntity.ok(BaseResponse.of(response));
-	}
-
-	@Operation(
 		summary = "팔로잉 목록 조회",
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserListResponse.class))),
@@ -175,9 +159,25 @@ public class UserController {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserAchievementResponse.class))),
 		}
 	)
-	@GetMapping("/achievement")
+	@GetMapping("/achieve")
 	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement() {
 		UserAchievementResponse response = userService.getAchievement();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "프로필 조회",
+		parameters = {
+			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@GetMapping("/{userId}/profile")
+	public ResponseEntity<BaseResponse<UserProfileResponse>> getProfile(@PathVariable(name = "userId") Long userId) {
+		UserProfileResponse response = userService.getProfile(userId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

@@ -117,6 +117,22 @@ public class RoomController {
 	}
 
 	@Operation(
+		summary = "참여 중인 그룹 제목 목록 조회",
+		parameters = {
+			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JoinedRoomTitleResponse.class))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@GetMapping("/{userId}/member/title")
+	public ResponseEntity<BaseResponse<JoinedRoomTitleResponse>> getJoinedRoomTitle(@PathVariable(name = "userId") Long userId) {
+		JoinedRoomTitleResponse response = roomService.getJoinedRoomTitle(userId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
 		summary = "참여한 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
@@ -200,7 +216,7 @@ public class RoomController {
 	}
 
 	@Operation(
-		summary = "오늘의 추천 그룹 목록 조회",
+		summary = "추천 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
 		},
@@ -236,4 +252,22 @@ public class RoomController {
 		RoomListResponse response = roomService.searchRooms(keyword, page, size);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
+
+	@Operation(
+		summary = "최근 활동 중인 그룹 목록 조회",
+		parameters = {
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecentRoomResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
+		}
+	)
+	@GetMapping("/recent")
+	public ResponseEntity<BaseResponse<RecentRoomResponse>> getRecentRooms(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+		RecentRoomResponse response = null;
+			//roomService.getRecentRooms(page);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
 }

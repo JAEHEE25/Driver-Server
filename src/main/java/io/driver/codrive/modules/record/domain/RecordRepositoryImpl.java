@@ -13,10 +13,14 @@ import org.springframework.stereotype.Repository;
 import static io.driver.codrive.modules.record.domain.QRecord.record;
 
 import com.querydsl.core.types.ConstantImpl;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.record.model.RecordCountDto;
@@ -28,23 +32,15 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public Page<Record> getMonthlyRecords(Long userId, LocalDate pivotDate, Pageable pageable) {
+	public Page<Record> getMonthlyRecords(Long userId, LocalDate pivotDate, SortType sortType, Pageable pageable) {
 		StringTemplate formattedYearMonth = getFormattedDate("%Y-%m");
 		String pivotDateYearMonth = DateUtils.formatYearMonth(pivotDate);
 		List<Record> records = from(record)
 			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
 				record.recordStatus.eq(RecordStatus.SAVED))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
-			.orderBy(record.createdAt.desc())
+			.orderBy(createRecordOrderSpecifier(sortType))
 			.fetch();
-
-		int total = (int) from(record)
-			.where(record.user.userId.eq(userId), formattedYearMonth.eq(pivotDateYearMonth),
-				record.recordStatus.eq(RecordStatus.SAVED))
-			.fetchCount();
-
-		return PageUtils.getPage(records, pageable, total);
+		return PageUtils.getPage(records, pageable, records.size());
 	}
 
 	@Override
@@ -106,4 +102,13 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 		return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
 	}
 
+	private OrderSpecifier createRecordOrderSpecifier(SortType sortType) {
+		if (sortType == SortType.OLD) {
+			return new OrderSpecifier<>(Order.ASC, record.createdAt);
+		} else if (sortType == SortType.NEW) {
+			return new OrderSpecifier<>(Order.DESC, record.createdAt);
+		} else {
+			throw new IllegalArgumentApplicationException("지원하지 않는 정렬 방식입니다.");
+		}
+    }
 }

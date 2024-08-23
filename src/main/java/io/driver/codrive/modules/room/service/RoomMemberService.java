@@ -1,8 +1,5 @@
 package io.driver.codrive.modules.room.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -15,8 +12,8 @@ import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappin
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
-import io.driver.codrive.modules.room.model.response.RoomParticipantItemDto;
 import io.driver.codrive.modules.room.model.response.RoomParticipantListResponse;
+import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
 import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
@@ -25,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoomMemberService {
-	private static final int NUMBER_OF_ROOM_MEMBERS = 10;
+	private static final int ROOM_MEMBERS_SIZE = 10;
 	private final RoomService roomService;
 	private final UserService userService;
 	private final RoomRequestService roomRequestService;
@@ -40,7 +37,7 @@ public class RoomMemberService {
 		}
 
 		Sort sort = SortType.getMemberSort(sortType);
-		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOM_MEMBERS, sort);
+		Pageable pageable = PageRequest.of(page, ROOM_MEMBERS_SIZE, sort);
 		PageUtils.validatePageable(pageable);
 		Page<User> members = roomUserMappingService.getRoomMembers(room, pageable);
 		return RoomMembersResponse.of(members.getTotalPages(), members.getContent());
@@ -52,20 +49,15 @@ public class RoomMemberService {
 		if (!room.isFull()) {
 			roomRequestService.changeWaitingRoomRequestToRequested(room);
 		}
-		Comparator<RoomParticipantItemDto> comparator = SortType.getParticipantComparator(sortType);
-		Pageable pageable = PageRequest.of(page, NUMBER_OF_ROOM_MEMBERS);
-		return getRoomParticipantListResponse(room, comparator, pageable);
+		Sort sort = SortType.getRoomRequestSort(sortType);
+		Pageable pageable = PageRequest.of(page, ROOM_MEMBERS_SIZE, sort);
+		return getRoomParticipantListResponse(room, pageable);
 	}
 
 	@Transactional
-	public RoomParticipantListResponse getRoomParticipantListResponse(Room room, Comparator<RoomParticipantItemDto> comparator, Pageable pageable) {
-		List<RoomParticipantItemDto> membersAndRequests = new ArrayList<>(roomRequestService.getRoomParticipants(room));
-		if (membersAndRequests.isEmpty()) {
-			return null;
-		}
-		membersAndRequests.sort(comparator);
-		Page<RoomParticipantItemDto> membersAndRequestsByPage = PageUtils.getPage(membersAndRequests, pageable, membersAndRequests.size());
-		return RoomParticipantListResponse.of(membersAndRequestsByPage.getTotalPages(), membersAndRequestsByPage.getContent());
+	public RoomParticipantListResponse getRoomParticipantListResponse(Room room, Pageable pageable) {
+		Page<RoomRequest> requestsByPage = roomRequestService.getRoomParticipants(room, pageable);
+		return RoomParticipantListResponse.of(requestsByPage.getTotalPages(), requestsByPage.getContent());
 	}
 
 	@Transactional

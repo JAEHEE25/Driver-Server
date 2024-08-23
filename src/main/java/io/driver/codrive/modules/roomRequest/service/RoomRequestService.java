@@ -2,6 +2,8 @@ package io.driver.codrive.modules.roomRequest.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +13,6 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomStatus;
-import io.driver.codrive.modules.room.model.response.RoomParticipantItemDto;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
 import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
@@ -103,10 +104,8 @@ public class RoomRequestService {
 		return RoomRequestListResponse.of(room.getMemberCount(), roomRequestRepository.findAllByRoom(room));
 	}
 
-	public List<RoomParticipantItemDto> getRoomParticipants(Room room) {
-		List<RoomRequest> requests = roomRequestRepository.findAllByRoom(room);
-		return requests.stream().map(request -> RoomParticipantItemDto.of(request.getUser(),
-			request.getUserRequestStatus(), request.getCreatedAt())).toList();
+	public Page<RoomRequest> getRoomParticipants(Room room, Pageable pageable) {
+		return roomRequestRepository.findAllByRoom(room, pageable);
 	}
 
 	@Transactional

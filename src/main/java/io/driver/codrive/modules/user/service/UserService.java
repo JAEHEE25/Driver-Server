@@ -19,10 +19,7 @@ import io.driver.codrive.modules.user.domain.UserRepository;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
-import io.driver.codrive.modules.user.model.response.ProfileChangeResponse;
-import io.driver.codrive.modules.user.model.response.UserAchievementResponse;
-import io.driver.codrive.modules.user.model.response.UserListResponse;
-import io.driver.codrive.modules.user.model.response.UserDetailResponse;
+import io.driver.codrive.modules.user.model.response.*;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -79,12 +76,6 @@ public class UserService {
 		userRepository.delete(user);
 	}
 
-	public UserListResponse getRandomUsers() {
-		User user = getUserById(AuthUtils.getCurrentUserId());
-		List<User> randomUsers = userRepository.getRandomUsersExceptMeAndFollowings(user.getUserId());
-		return UserListResponse.of(randomUsers, user);
-	}
-
 	@Transactional
 	public UserListResponse getFollowings() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
@@ -97,6 +88,10 @@ public class UserService {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followers = user.getFollowers().stream().map(Follow::getFollower).toList();
 		return UserListResponse.of(followers, user);
+	}
+
+	public List<User> getRandomUsersExceptMeAndFollowings(User user){
+		return userRepository.getRandomUsersExceptMeAndFollowings(user.getUserId());
 	}
 
 	@Transactional
@@ -135,5 +130,13 @@ public class UserService {
 		LocalDate pivotDate = LocalDate.now().minusWeeks(1);
 		int lastWeeklyCount = recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
 		return weeklyCount - lastWeeklyCount;
+	}
+
+	@Transactional
+	public UserProfileResponse getProfile(Long userId) {
+		User user = getUserById(userId);
+		User currentUser = getUserById(AuthUtils.getCurrentUserId());
+		Boolean isFollowing = currentUser.isFollowing(user);
+		return UserProfileResponse.of(user, isFollowing);
 	}
 }
