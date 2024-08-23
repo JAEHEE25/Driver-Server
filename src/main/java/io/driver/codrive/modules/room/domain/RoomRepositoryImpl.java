@@ -13,7 +13,7 @@ import static io.driver.codrive.modules.language.domain.QLanguage.language;
 
 @Repository
 public class RoomRepositoryImpl extends QuerydslRepositorySupport implements RoomRepositoryCustom {
-	private static final int RANDOM_ROOM_LIMIT = 6;
+	private static final int RANDOM_ROOM_SIZE = 6;
 	public RoomRepositoryImpl() {
 		super(Room.class);
 	}
@@ -25,7 +25,7 @@ public class RoomRepositoryImpl extends QuerydslRepositorySupport implements Roo
                 .join(roomLanguageMapping.language, language)
 				.where(language.languageId.eq(languageId), room.owner.userId.ne(userId))
                 .orderBy(Expressions.numberTemplate(Double.class, "function('RAND')").asc())
-				.limit(RANDOM_ROOM_LIMIT)
+				.limit(RANDOM_ROOM_SIZE)
 				.fetch();
 	}
 }

@@ -35,7 +35,7 @@ public class RoomMemberController {
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomMembersResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"활동 중인 그룹의 정보만 조회할 수 있습니다. || 지원하지 않는 정렬 방식입니다.\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"활동 중인 그룹의 정보만 조회할 수 있습니다. || 지원하지 않는 정렬 방식입니다. || 페이지 정보가 올바르지 않습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import io.driver.codrive.modules.user.domain.User;
 
 @Repository
-public interface FollowRepository extends JpaRepository<Follow, Long> {
+public interface FollowRepository extends JpaRepository<Follow, Long>, FollowRepositoryCustom {
 
 	Optional<Follow> findByFollowingAndFollower(User following, User follower);
 }

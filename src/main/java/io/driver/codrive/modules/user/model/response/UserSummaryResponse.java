@@ -1,5 +1,7 @@
 package io.driver.codrive.modules.user.model.response;
 
+import java.util.List;
+
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -24,6 +26,12 @@ public record UserSummaryResponse(
 	@Schema(description = "가장 최근 푼 문제 제목", example = "가장 최근 푼 문제 제목")
 	String recentProblemTitle
 ) {
+	public static List<UserSummaryResponse> of(List<User> users) {
+		return users.stream()
+			.map(UserSummaryResponse::of)
+			.toList();
+	}
+
 	public static UserSummaryResponse of(User user) {
 		return UserSummaryResponse.builder()
 			.userId(user.getUserId())

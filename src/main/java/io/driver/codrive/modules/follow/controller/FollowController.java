@@ -3,12 +3,16 @@ package io.driver.codrive.modules.follow.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.global.model.SortType;
+import io.driver.codrive.modules.follow.model.response.FollowingSummaryListResponse;
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
 import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
+import io.driver.codrive.modules.follow.model.response.WeeklyFollowingResponse;
 import io.driver.codrive.modules.follow.service.FollowService;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.user.model.response.UserListResponse;
+import io.driver.codrive.modules.user.model.response.UserSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -103,4 +107,40 @@ public class FollowController {
 		TodaySolvedFollowingResponse response = followService.getTodaySolvedFollowings(page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
+
+	@Operation(
+		summary = "주간 팔로잉 현황 조회",
+		description = "팔로우하는 사용자 3명의 현황을 조회합니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = WeeklyFollowingResponse.class))),
+		}
+	)
+	@GetMapping("/followings/weekly")
+	public ResponseEntity<BaseResponse<WeeklyFollowingResponse>> getWeeklyFollowings() {
+		WeeklyFollowingResponse response = followService.getWeeklyFollowings();
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "팔로잉 현황 목록 조회",
+		description = "팔로우한 사용자들의 요약 정보를 조회합니다.",
+		parameters = {
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
+			@Parameter(name = "groupId", in = ParameterIn.QUERY, description = "그룹 ID"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserSummaryResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
+		}
+	)
+	@GetMapping("/followings/summary/{sortType}")
+	public ResponseEntity<BaseResponse<FollowingSummaryListResponse>> getFollowingsSummary(
+		@PathVariable(name = "sortType") SortType sortType,
+		@RequestParam(name = "page", defaultValue = "0") Integer page,
+		@RequestParam(name = "roomId", required = false) Long roomId) {
+		FollowingSummaryListResponse response = followService.getFollowingsSummary(sortType, page, roomId);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
 }
