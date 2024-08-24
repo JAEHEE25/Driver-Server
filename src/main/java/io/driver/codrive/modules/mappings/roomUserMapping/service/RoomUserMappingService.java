@@ -56,10 +56,6 @@ public class RoomUserMappingService {
 		return roomUserMappingRepository.getRoomsByUserAndRoomStatusByPage(userId, roomStatus, sortType, pageable);
 	}
 
-	public List<Room> getJoinedRooms(User user) {
-		return roomUserMappingRepository.findAllByUser(user).stream().map(RoomUserMapping::getRoom).toList();
-	}
-
 	public List<LanguageMemberCountDto> getLanguageMemberCountResponse(Room room) {
 		return roomUserMappingRepository.getLanguageMemberCount(room);
 	}

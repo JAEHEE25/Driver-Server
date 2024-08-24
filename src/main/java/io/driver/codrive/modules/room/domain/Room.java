@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.room.domain;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import io.driver.codrive.global.entity.BaseEntity;
@@ -7,7 +8,6 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.domain.RoomLanguageMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
-import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -54,6 +54,9 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private RoomStatus roomStatus;
+
+	@Column(nullable = false)
+	private LocalDateTime lastUpdatedAt;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id", nullable = false)
@@ -138,6 +141,10 @@ public class Room extends BaseEntity {
 
 	public void addRoomUserMappings(RoomUserMapping roomUserMapping) {
 		this.roomUserMappings.add(roomUserMapping);
+	}
+
+	public void changeLastUpdatedAt(LocalDateTime lastUpdatedAt) {
+		this.lastUpdatedAt = lastUpdatedAt;
 	}
 
 	public void addRoomRequests(RoomRequest roomRequest) {

@@ -8,15 +8,11 @@ import lombok.Builder;
 
 @Builder
 public record TodaySolvedFollowingResponse(
-	@Schema(description = "총 페이지 수", example = "1")
-	int totalPage,
-
-	@Schema(description = "오늘 문제를 푼 팔로잉 목록")
+	@Schema(description = "오늘 문제를 푼 사용자 목록")
 	List<TodaySolvedFollowingItemResponse> followings
 ) {
-	public static TodaySolvedFollowingResponse of(int totalPage, List<User> followings) {
+	public static TodaySolvedFollowingResponse of(List<User> followings) {
 		return TodaySolvedFollowingResponse.builder()
-			.totalPage(totalPage)
 			.followings(TodaySolvedFollowingItemResponse.of(followings))
 			.build();
 	}
