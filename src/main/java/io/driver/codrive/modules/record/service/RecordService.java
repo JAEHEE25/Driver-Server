@@ -45,6 +45,7 @@ public class RecordService {
 		user.addRecord(createdRecord);
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		userService.updateSuccessRate(user);
+		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
 		return RecordCreateResponse.of(createdRecord);
 	}
 

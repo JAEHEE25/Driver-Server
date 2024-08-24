@@ -1,7 +1,9 @@
 package io.driver.codrive.modules.room.service;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +19,6 @@ import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
-import io.driver.codrive.modules.record.service.RecordService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
@@ -35,9 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoomService {
 	private static final int ROOMS_SIZE = 9;
-	private static final int RECENT_ROOM_SIZE = 4;
 	private final UserService userService;
-	private final RecordService recordService;
 	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
 	private final RoomUserMappingService roomUserMappingService;
@@ -130,7 +129,7 @@ public class RoomService {
 	@Transactional
 	public JoinedRoomTitleResponse getJoinedRoomTitle(Long userId) {
 		User user = userService.getUserById(userId);
-		List<Room> rooms = roomUserMappingService.getJoinedRooms(user);
+		List<Room> rooms = user.getJoinedRooms();
 		return JoinedRoomTitleResponse.of(rooms);
 	}
 
@@ -185,4 +184,17 @@ public class RoomService {
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 	}
 
+	@Transactional
+	public RecentRoomResponse getRecentRooms() {
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<Room> rooms = user.getJoinedRooms();
+		if (!rooms.isEmpty()) {
+			rooms = rooms.stream().sorted(getRecentRoomComparator()).collect(Collectors.toList());
+		}
+		return RecentRoomResponse.of(rooms);
+	}
+
+	private Comparator<Room> getRecentRoomComparator() {
+		return Comparator.comparing(Room::getLastUpdatedAt).reversed();
+	}
 }

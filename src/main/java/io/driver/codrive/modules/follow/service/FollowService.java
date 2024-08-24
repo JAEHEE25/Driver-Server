@@ -30,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class FollowService {
-	private static final int TODAY_SOLVED_FOLLOWINGS_SIZE = 3;
 	private static final int WEEKLY_FOLLOWINGS = 3;
 	private static final int FOLLOWINGS_SIZE = 10;
 	private final UserService userService;
@@ -99,16 +98,13 @@ public class FollowService {
 	}
 
 	@Transactional
-	public TodaySolvedFollowingResponse getTodaySolvedFollowings(Integer page) {
+	public TodaySolvedFollowingResponse getTodaySolvedFollowings() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
 		List<User> todaySolvedFollowings = followings.stream()
 			.filter(following -> userService.getTodayRecordCount(following) > 0)
 			.toList();
-
-		Pageable pageable = PageRequest.of(page, TODAY_SOLVED_FOLLOWINGS_SIZE);
-		Page<User> todaySolvedFollowingsByPage = PageUtils.getPage(todaySolvedFollowings, pageable, todaySolvedFollowings.size());
-		return TodaySolvedFollowingResponse.of(todaySolvedFollowingsByPage.getTotalPages(), todaySolvedFollowingsByPage.getContent());
+		return TodaySolvedFollowingResponse.of(todaySolvedFollowings);
 	}
 
 	@Transactional

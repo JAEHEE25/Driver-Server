@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.room.model.request;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +57,7 @@ public record RoomCreateRequest(
 			.information(information)
 			.roomStatus(RoomStatus.ACTIVE)
 			.uuid(String.valueOf(UUID.randomUUID()))
+			.lastUpdatedAt(LocalDateTime.now())
 			.owner(user)
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())

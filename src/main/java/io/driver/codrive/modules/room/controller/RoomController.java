@@ -255,18 +255,13 @@ public class RoomController {
 
 	@Operation(
 		summary = "최근 활동 중인 그룹 목록 조회",
-		parameters = {
-			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecentRoomResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
 		}
 	)
 	@GetMapping("/recent")
-	public ResponseEntity<BaseResponse<RecentRoomResponse>> getRecentRooms(@RequestParam(name = "page", defaultValue = "0") Integer page) {
-		RecentRoomResponse response = null;
-			//roomService.getRecentRooms(page);
+	public ResponseEntity<BaseResponse<RecentRoomResponse>> getRecentRooms() {
+		RecentRoomResponse response = roomService.getRecentRooms();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

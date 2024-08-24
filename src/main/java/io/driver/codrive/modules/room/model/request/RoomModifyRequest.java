@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.room.model.request;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public record RoomModifyRequest(
 			.introduce(introduce)
 			.information(information)
 			.roomStatus(RoomStatus.ACTIVE)
+			.lastUpdatedAt(LocalDateTime.now())
 			.roomLanguageMappings(new ArrayList<>())
 			.roomUserMappings(new ArrayList<>())
 			.roomRequests(new ArrayList<>())

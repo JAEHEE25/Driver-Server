@@ -10,6 +10,7 @@ import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.record.domain.Record;
+import io.driver.codrive.modules.room.domain.Room;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -135,6 +136,10 @@ public class User extends BaseEntity {
 		}
 		int lastIndex = records.size() - 1;
 		return records.get(lastIndex).getTitle();
+	}
+
+	public List<Room> getJoinedRooms() {
+		return roomUserMappings.stream().map(RoomUserMapping::getRoom).toList();
 	}
 
 	public Boolean isFollowing(User target) {
