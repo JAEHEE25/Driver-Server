@@ -46,6 +46,7 @@ public class RoomMemberService {
 	@Transactional
 	public RoomParticipantListResponse getRoomParticipants(Long roomId, SortType sortType, int page) {
 		Room room = roomService.getRoomById(roomId);
+		AuthUtils.checkOwnedEntity(room);
 		if (!room.isFull()) {
 			roomRequestService.changeWaitingRoomRequestToRequested(room);
 		}

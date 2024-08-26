@@ -113,6 +113,7 @@ public class RoomService {
 	@Transactional
 	public void changeRoomStatus(Long roomId, String status) {
 		Room room = getRoomById(roomId);
+		AuthUtils.checkOwnedEntity(room);
 		RoomStatus roomStatus = RoomStatus.getRoomStatusByName(status);
 		room.changeRoomStatus(roomStatus);
 	}
@@ -134,11 +135,25 @@ public class RoomService {
 	}
 
 	@Transactional
-	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, int page, String status) {
-		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
+	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, Integer page, String status) {
 		User user = userService.getUserById(userId);
-		Page<Room> rooms = roomUserMappingService.getJoinedRoomsByPage(user.getUserId(), getRoomStatus(status), sortType, pageable);
-		return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
+		RoomStatus roomStatus = getRoomStatus(status);
+		if (page != null) {
+			Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
+			Page<Room> rooms = roomUserMappingService.getJoinedRoomsByPage(user.getUserId(), roomStatus, sortType, pageable);
+			return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
+		}
+		return JoinedRoomListResponse.of(getJoinedRoomsByStatusAndSort(roomStatus, user, sortType));
+	}
+
+	private List<Room> getJoinedRoomsByStatusAndSort(RoomStatus roomStatus, User user, SortType sortType) {
+		List<Room> rooms;
+		if (roomStatus == null) {
+			rooms = user.getJoinedRooms();
+		} else {
+			rooms = user.getJoinedRooms().stream().filter(room -> room.getRoomStatus() == roomStatus).toList();
+		}
+		return rooms.stream().sorted(SortType.getJoinedRoomComparator(sortType)).collect(Collectors.toList());
 	}
 
 	@Transactional
@@ -177,8 +192,8 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomListResponse searchRooms(String keyword, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+	public RoomListResponse searchRooms(String keyword, int page) {
+		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
 		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
@@ -197,4 +212,5 @@ public class RoomService {
 	private Comparator<Room> getRecentRoomComparator() {
 		return Comparator.comparing(Room::getLastUpdatedAt).reversed();
 	}
+
 }

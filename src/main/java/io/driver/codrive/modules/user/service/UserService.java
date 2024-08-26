@@ -90,6 +90,7 @@ public class UserService {
 		return UserListResponse.of(followers, user);
 	}
 
+	@Transactional
 	public List<User> getRandomUsersExceptMeAndFollowings(User user){
 		return userRepository.getRandomUsersExceptMeAndFollowings(user.getUserId());
 	}

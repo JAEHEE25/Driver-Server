@@ -8,8 +8,8 @@ import lombok.Builder;
 
 @Builder
 public record JoinedRoomListResponse(
-	@Schema(description = "참여 중인 그룹 목록 총 페이지 개수", examples = "2")
-	int totalPage,
+	@Schema(description = "참여 중인 그룹 목록 총 페이지 개수", examples = "2", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+	Integer totalPage,
 
 	@Schema(description = "참여 중인 그룹 목록")
 	List<RoomItemResponse> joinedRooms
@@ -17,6 +17,12 @@ public record JoinedRoomListResponse(
 	public static JoinedRoomListResponse of(int totalPage, List<Room> joinedRooms) {
 		return JoinedRoomListResponse.builder()
 			.totalPage(totalPage)
+			.joinedRooms(RoomItemResponse.of(joinedRooms))
+			.build();
+	}
+
+	public static JoinedRoomListResponse of(List<Room> joinedRooms) {
+		return JoinedRoomListResponse.builder()
 			.joinedRooms(RoomItemResponse.of(joinedRooms))
 			.build();
 	}

@@ -24,7 +24,10 @@ public record RoomParticipantListResponse(
 
 	@Builder
 	record RoomParticipantItemResponse(
+		@Schema(description = "사용자 정보")
 		UserSummaryResponse user,
+
+		@Schema(description = "사용자 요청 상태", example = "REQUESTED", allowableValues = {"WAITING", "REQUESTED", "JOINED"})
 		String status
 	) {
 		public static List<RoomParticipantItemResponse> of(List<RoomRequest> requests) {

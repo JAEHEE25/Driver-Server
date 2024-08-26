@@ -49,6 +49,7 @@ public class RoomMemberController {
 
 	@Operation(
 		summary = "그룹 참여 요청 및 멤버 목록 조회",
+		description = "그룹장만 가능합니다.",
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
 			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, OLD)"),
