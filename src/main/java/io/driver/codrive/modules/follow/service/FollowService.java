@@ -73,6 +73,7 @@ public class FollowService {
 		return followRepository.findByFollowingAndFollower(following, follower).orElse(null);
 	}
 
+	@Transactional
 	public UserListResponse getRandomUsers() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		List<User> randomUsers = userService.getRandomUsersExceptMeAndFollowings(user);

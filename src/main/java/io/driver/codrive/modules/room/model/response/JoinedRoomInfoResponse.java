@@ -33,7 +33,7 @@ public record JoinedRoomInfoResponse(
 	@Schema(description = "신청 인원", example = "30")
 	int requestedCount,
 
-	@Schema(description = "그룹 상태", example = "활동 중")
+	@Schema(description = "그룹 상태", example = "ACTIVE", allowableValues = {"CLOSED", "ACTIVE", "INACTIVE"})
 	String roomStatus,
 
 	@Schema(description = "사용 언어 별 인원")

@@ -117,7 +117,7 @@ public class RoomController {
 	}
 
 	@Operation(
-		summary = "참여 중인 그룹 제목 목록 조회",
+		summary = "참여한 그룹 제목 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
 		},
@@ -136,9 +136,9 @@ public class RoomController {
 		summary = "참여한 그룹 목록 조회",
 		parameters = {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
-			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
+			@Parameter(name = "sortType", in = ParameterIn.PATH, required = true, description = "페이지 정렬 기준 (NEW, DICT)"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
+			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"CLOSED", "ACTIVE", "INACTIVE"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JoinedRoomListResponse.class))),
@@ -148,7 +148,7 @@ public class RoomController {
 	)
 	@GetMapping("/{userId}/member/{sortType}")
 	public ResponseEntity<BaseResponse<JoinedRoomListResponse>> getJoinedRoomList(@PathVariable(name = "userId") Long userId,
-		@PathVariable(name = "sortType") SortType sortType, @RequestParam(name = "page", defaultValue = "0") Integer page,
+		@PathVariable(name = "sortType") SortType sortType, @RequestParam(name = "page", required = false) Integer page,
 		@RequestParam(name = "status", required = false) String status) {
 		JoinedRoomListResponse response = roomService.getJoinedRoomList(userId, sortType, page, status);
 		return ResponseEntity.ok(BaseResponse.of(response));
@@ -160,7 +160,7 @@ public class RoomController {
 			@Parameter(name = "userId", in = ParameterIn.PATH, required = true),
 			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
+			@Parameter(name = "status", in = ParameterIn.QUERY, description = "그룹 상태 (선택하지 않을 경우 전체 데이터를 조회합니다.)", schema = @Schema(allowableValues = {"CLOSED", "ACTIVE", "INACTIVE"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CreatedRoomListResponse.class))),
@@ -198,9 +198,10 @@ public class RoomController {
 
 	@Operation(
 		summary = "그룹 상태 변경",
+		description = "그룹장만 가능합니다.",
 		parameters = {
 			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
-			@Parameter(name = "status", in = ParameterIn.PATH, required = true, description = "그룹 상태", schema = @Schema(allowableValues = {"모집 마감", "활동 중", "활동 종료"})),
+			@Parameter(name = "status", in = ParameterIn.PATH, required = true, description = "그룹 상태", schema = @Schema(allowableValues = {"CLOSED", "ACTIVE", "INACTIVE"})),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
@@ -237,7 +238,6 @@ public class RoomController {
 		parameters = {
 			@Parameter(name = "keyword", in = ParameterIn.QUERY, required = true, description = "검색 키워드"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-			@Parameter(name = "size", in = ParameterIn.QUERY, description = "페이지의 데이터 크기"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
@@ -245,11 +245,9 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/search")
-	public ResponseEntity<BaseResponse<RoomListResponse>> searchRooms(
-		@RequestParam(name = "keyword") String keyword,
-		@RequestParam(name = "page", defaultValue = "0") Integer page,
-		@RequestParam(name = "size", defaultValue = "9") Integer size) {
-		RoomListResponse response = roomService.searchRooms(keyword, page, size);
+	public ResponseEntity<BaseResponse<RoomListResponse>> searchRooms(@RequestParam(name = "keyword") String keyword,
+		@RequestParam(name = "page", defaultValue = "0") Integer page) {
+		RoomListResponse response = roomService.searchRooms(keyword, page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
