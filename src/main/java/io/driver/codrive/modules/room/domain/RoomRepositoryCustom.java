@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoomRepositoryCustom {
-	List<Room> getRoomsByLanguageExcludingOwnRoom(Long languageId, Long userId);
+	List<Room> getRoomsByLanguageExcludingJoinedRoom(Long languageId, Long userId);
 }

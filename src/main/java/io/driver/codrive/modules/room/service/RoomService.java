@@ -124,7 +124,8 @@ public class RoomService {
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE, sort);
 		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findAll(pageable);
-		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
 	}
 
 	@Transactional
@@ -187,7 +188,7 @@ public class RoomService {
 	public RoomRecommendResponse getRecommendRoomRandomList(Long userId) {
 		User user = userService.getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
-		List<Room> rooms = roomRepository.getRoomsByLanguageExcludingOwnRoom(user.getLanguage().getLanguageId(), user.getUserId());
+		List<Room> rooms = roomRepository.getRoomsByLanguageExcludingJoinedRoom(user.getLanguage().getLanguageId(), user.getUserId());
 		return RoomRecommendResponse.of(rooms);
 	}
 
@@ -196,7 +197,8 @@ public class RoomService {
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
 		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
-		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
 	}
 
 	@Transactional

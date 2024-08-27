@@ -3,6 +3,7 @@ package io.driver.codrive.modules.room.model.response;
 import java.util.List;
 
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -30,10 +31,12 @@ public record RoomItemResponse(
 	List<String> tags,
 
 	@Schema(description = "그룹 한 줄 소개", example = "그룹 한 줄 소개")
-	String introduce
-) {
+	String introduce,
 
-	public static RoomItemResponse of(Room room) {
+	@Schema(description = "해당 그룹의 멤버인지 여부", example = "true")
+	boolean isMember
+) {
+	public static RoomItemResponse of(Room room, boolean isMember) {
 		return RoomItemResponse.builder()
 			.roomId(room.getRoomId())
 			.title(room.getTitle())
@@ -43,13 +46,19 @@ public record RoomItemResponse(
 			.capacity(room.getCapacity())
 			.tags(room.getLanguages())
 			.introduce(room.getIntroduce())
+			.isMember(isMember)
 			.build();
 	}
 
-	public static List<RoomItemResponse> of(List<Room> rooms) {
+	public static List<RoomItemResponse> of(List<Room> rooms, User user) {
 		return rooms.stream()
-			.map(RoomItemResponse::of)
+			.map(room -> RoomItemResponse.of(room, room.hasMember(user)))
 			.toList();
 	}
 
+	public static List<RoomItemResponse> of(List<Room> rooms, boolean isMember) {
+		return rooms.stream()
+			.map(room -> RoomItemResponse.of(room, isMember))
+			.toList();
+	}
 }

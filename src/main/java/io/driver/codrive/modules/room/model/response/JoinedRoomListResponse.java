@@ -17,13 +17,13 @@ public record JoinedRoomListResponse(
 	public static JoinedRoomListResponse of(int totalPage, List<Room> joinedRooms) {
 		return JoinedRoomListResponse.builder()
 			.totalPage(totalPage)
-			.joinedRooms(RoomItemResponse.of(joinedRooms))
+			.joinedRooms(RoomItemResponse.of(joinedRooms, true))
 			.build();
 	}
 
 	public static JoinedRoomListResponse of(List<Room> joinedRooms) {
 		return JoinedRoomListResponse.builder()
-			.joinedRooms(RoomItemResponse.of(joinedRooms))
+			.joinedRooms(RoomItemResponse.of(joinedRooms, true))
 			.build();
 	}
 }
