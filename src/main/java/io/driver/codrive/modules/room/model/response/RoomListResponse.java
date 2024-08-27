@@ -3,6 +3,7 @@ package io.driver.codrive.modules.room.model.response;
 import java.util.List;
 
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -15,10 +16,10 @@ public record RoomListResponse(
 	List<RoomItemResponse> rooms
 
 ) {
-	public static RoomListResponse of(int totalPage, List<Room> rooms) {
+	public static RoomListResponse of(int totalPage, List<Room> rooms, User user) {
 		return RoomListResponse.builder()
 			.totalPage(totalPage)
-			.rooms(RoomItemResponse.of(rooms))
+			.rooms(RoomItemResponse.of(rooms, user))
 			.build();
 	}
 }

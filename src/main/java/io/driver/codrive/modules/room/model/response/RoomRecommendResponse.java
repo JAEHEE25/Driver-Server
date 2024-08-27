@@ -13,7 +13,7 @@ public record RoomRecommendResponse(
 ) {
 	public static RoomRecommendResponse of(List<Room> rooms) {
 		return RoomRecommendResponse.builder()
-			.rooms(RoomItemResponse.of(rooms))
+			.rooms(RoomItemResponse.of(rooms, false))
 			.build();
 	}
 }

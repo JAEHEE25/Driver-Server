@@ -17,7 +17,7 @@ public record CreatedRoomListResponse(
 	public static CreatedRoomListResponse of(int totalPage, List<Room> createdRooms) {
 		return CreatedRoomListResponse.builder()
 			.totalPage(totalPage)
-			.createdRooms(RoomItemResponse.of(createdRooms))
+			.createdRooms(RoomItemResponse.of(createdRooms, true))
 			.build();
 	}
 }
