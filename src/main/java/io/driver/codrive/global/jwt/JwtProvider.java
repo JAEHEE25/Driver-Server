@@ -7,7 +7,6 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 import io.driver.codrive.global.config.JwtConfig;
-import io.driver.codrive.modules.auth.domain.RefreshToken;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

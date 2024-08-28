@@ -14,8 +14,8 @@ public class JwtConfig {
 	private String secretKey;
 
 	@Value("${jwt.access_token.expiration_ms}")
-	private Long accessTokenExpirationMills; //30분 todo 수정
+	private Long accessTokenExpirationMills;
 
 	@Value("${jwt.refresh_token.expiration_ms}")
-	private Long refreshTokenExpirationMills; //7일
+	private Long refreshTokenExpirationMills;
 }

@@ -39,13 +39,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		IOException,
 		ServletException {
 		SecurityContextHolder.clearContext();
-		HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+		HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequest;
 		String accessToken = resolveToken(httpServletRequest);
 
 		if (StringUtils.hasText(accessToken)) {
 			Claims claims = getClaims(accessToken);
 
-			if (isValidToken(claims)) {
+			if (claims != null && isValidToken(claims)) {
 				Long userId = Long.valueOf(claims.getSubject());
 				Authentication authentication = AuthenticationToken.getAuthentication(userId, accessToken);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -65,11 +65,16 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 	}
 
 	private Claims getClaims(String accessToken) {
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(accessToken)
-			.getPayload();
+		try {
+			return Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(accessToken)
+				.getPayload();
+		} catch (Exception e) {
+            log.error("Invalid JWT token", e);
+            return null;
+		}
 	}
 
 	private boolean isValidToken(Claims claims) {

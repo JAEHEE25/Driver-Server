@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Auth API", description = "인증 관련 API")
@@ -55,7 +54,7 @@ public class AuthController {
 		summary = "사용자 추가 (로컬 테스트용)",
 		description = "가상의 사용자를 추가할 수 있는 API입니다.",
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Void.class))),
+			@ApiResponse(responseCode = "200"),
 		}
 	)
 	@PostMapping("/addUser")
