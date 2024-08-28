@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.auth.model;
+package io.driver.codrive.modules.auth.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

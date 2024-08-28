@@ -15,7 +15,7 @@ public record RoomItemResponse(
 	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
 
-	@Schema(description = "그룹장", implementation = OwnerDetailResponse.class)
+	@Schema(description = "그룹장 프로필", implementation = OwnerDetailResponse.class)
 	OwnerDetailResponse owner,
 
 	@Schema(description = "그룹 대표 이미지 URL", example = "IMAGE_URL")

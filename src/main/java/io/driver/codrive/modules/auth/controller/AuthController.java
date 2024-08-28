@@ -3,8 +3,10 @@ package io.driver.codrive.modules.auth.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.auth.model.GithubLoginRequest;
-import io.driver.codrive.modules.auth.model.LoginResponse;
+import io.driver.codrive.modules.auth.model.request.GithubLoginRequest;
+import io.driver.codrive.modules.auth.model.request.RefreshTokenRequest;
+import io.driver.codrive.modules.auth.model.response.AccessTokenResponse;
+import io.driver.codrive.modules.auth.model.response.LoginResponse;
 import io.driver.codrive.modules.auth.service.AuthService;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Auth API", description = "인증 관련 API")
@@ -42,9 +45,21 @@ public class AuthController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
-	//로컬 테스트용
+	@PostMapping("/refresh")
+	public ResponseEntity<BaseResponse<AccessTokenResponse>> refresh(@RequestBody RefreshTokenRequest request) {
+		AccessTokenResponse response = authService.refresh(request);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "사용자 추가 (로컬 테스트용)",
+		description = "가상의 사용자를 추가할 수 있는 API입니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Void.class))),
+		}
+	)
 	@PostMapping("/addUser")
-	public ResponseEntity<BaseResponse<Void>> login() {
+	public ResponseEntity<BaseResponse<Void>> addUser() {
 		authService.addUser();
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}

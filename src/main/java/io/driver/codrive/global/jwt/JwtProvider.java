@@ -7,6 +7,7 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 import io.driver.codrive.global.config.JwtConfig;
+import io.driver.codrive.modules.auth.domain.RefreshToken;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -22,7 +23,7 @@ public class JwtProvider {
 	}
 
 	public String generateAccessToken(Long userId) {
-		return createAccessToken(userId, jwtConfig.getExpirationMills());
+		return createAccessToken(userId, jwtConfig.getAccessTokenExpirationMills());
 	}
 
 	private String createAccessToken(Long userId, Long expirationTime) {
@@ -33,4 +34,10 @@ public class JwtProvider {
 			.compact();
 	}
 
+	public String createRefreshToken() {
+		return Jwts.builder()
+			.expiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpirationMills()))
+			.signWith(secretKey)
+			.compact();
+	}
 }
