@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.auth.model;
+package io.driver.codrive.modules.auth.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

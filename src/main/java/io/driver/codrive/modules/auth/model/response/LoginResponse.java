@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.auth.model;
+package io.driver.codrive.modules.auth.model.response;
 
 import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,13 +13,17 @@ public record LoginResponse(
 	String nickname,
 
 	@Schema(description = "발급한 Access Token", example = "ACCESS_TOKEN")
-	String accessToken
+	String accessToken,
+
+	@Schema(description = "발급한 Refresh Token", example = "REFRESH_TOKEN")
+	String refreshToken
 ) {
-	public static LoginResponse of(User user, String accessToken) {
+	public static LoginResponse of(User user, String accessToken, String refreshToken) {
 		return LoginResponse.builder()
 			.userId(user.getUserId())
 			.nickname(user.getNickname())
 			.accessToken(accessToken)
+			.refreshToken(refreshToken)
 			.build();
 	}
 }

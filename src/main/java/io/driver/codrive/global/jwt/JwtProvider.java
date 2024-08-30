@@ -22,7 +22,7 @@ public class JwtProvider {
 	}
 
 	public String generateAccessToken(Long userId) {
-		return createAccessToken(userId, jwtConfig.getExpirationMills());
+		return createAccessToken(userId, jwtConfig.getAccessTokenExpirationMills());
 	}
 
 	private String createAccessToken(Long userId, Long expirationTime) {
@@ -33,4 +33,10 @@ public class JwtProvider {
 			.compact();
 	}
 
+	public String createRefreshToken() {
+		return Jwts.builder()
+			.expiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpirationMills()))
+			.signWith(secretKey)
+			.compact();
+	}
 }

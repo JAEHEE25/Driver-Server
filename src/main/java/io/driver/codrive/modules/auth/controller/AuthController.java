@@ -3,8 +3,10 @@ package io.driver.codrive.modules.auth.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.modules.auth.model.GithubLoginRequest;
-import io.driver.codrive.modules.auth.model.LoginResponse;
+import io.driver.codrive.modules.auth.model.request.GithubLoginRequest;
+import io.driver.codrive.modules.auth.model.request.RefreshTokenRequest;
+import io.driver.codrive.modules.auth.model.response.AccessTokenResponse;
+import io.driver.codrive.modules.auth.model.response.LoginResponse;
 import io.driver.codrive.modules.auth.service.AuthService;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
@@ -42,9 +44,33 @@ public class AuthController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
-	//로컬 테스트용
+	@Operation(
+		summary = "토큰 갱신",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				schema = @Schema(implementation = RefreshTokenRequest.class)
+			)
+		),
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AccessTokenResponse.class))),
+			@ApiResponse(responseCode = "401", content = @Content(examples = @ExampleObject(value = "{\"code\": 401, \"message\": \"Refresh Token이 유효하지 않습니다. Refresh Token이 만료되었습니다.\"}"))),
+		}
+	)
+	@PostMapping("/refresh")
+	public ResponseEntity<BaseResponse<AccessTokenResponse>> refresh(@RequestBody RefreshTokenRequest request) {
+		AccessTokenResponse response = authService.refresh(request);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "사용자 추가 (로컬 테스트용)",
+		description = "가상의 사용자를 추가할 수 있는 API입니다.",
+		responses = {
+			@ApiResponse(responseCode = "200"),
+		}
+	)
 	@PostMapping("/addUser")
-	public ResponseEntity<BaseResponse<Void>> login() {
+	public ResponseEntity<BaseResponse<Void>> addUser() {
 		authService.addUser();
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}

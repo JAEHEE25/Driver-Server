@@ -204,11 +204,11 @@ public class RoomService {
 	@Transactional
 	public RecentRoomResponse getRecentRooms() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<Room> rooms = user.getJoinedRooms();
+		List<Room> rooms = roomRepository.findAll();
 		if (!rooms.isEmpty()) {
 			rooms = rooms.stream().sorted(getRecentRoomComparator()).collect(Collectors.toList());
 		}
-		return RecentRoomResponse.of(rooms);
+		return RecentRoomResponse.of(rooms, user);
 	}
 
 	private Comparator<Room> getRecentRoomComparator() {
