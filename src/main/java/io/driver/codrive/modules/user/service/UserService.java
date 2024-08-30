@@ -97,8 +97,10 @@ public class UserService {
 
 	@Transactional
 	public void updateSuccessRate(User user) {
-		int weeklyCount = getThisWeekRecordsCount(user);
-		int successRate = CalculateUtils.calculateSuccessRate(weeklyCount);
+		LocalDate pivotDate = LocalDate.now();
+		int solvedDayCountByWeek = recordRepository.getSolvedDaysByWeek(user.getUserId(), pivotDate);
+		System.out.println("solvedDayCountByWeek: " + solvedDayCountByWeek);
+		int successRate = CalculateUtils.calculateSuccessRate(solvedDayCountByWeek);
 		user.changeSuccessRate(successRate);
 	}
 

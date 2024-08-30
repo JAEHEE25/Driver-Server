@@ -86,6 +86,19 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 			.fetchCount());
 	}
 
+	@Override
+	public Integer getSolvedDaysByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
+		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
+		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
+		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
+
+		return Math.toIntExact(from(record)
+			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime),
+				record.recordStatus.eq(RecordStatus.SAVED))
+			.groupBy(formattedDate)
+			.fetchCount());
+	}
+
 	public StringTemplate getFormattedDate(String format) {
 		return Expressions.stringTemplate("DATE_FORMAT({0}, {1})", record.createdAt, ConstantImpl.create(format));
 	}
