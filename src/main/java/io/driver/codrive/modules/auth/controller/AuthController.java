@@ -44,6 +44,18 @@ public class AuthController {
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
+	@Operation(
+		summary = "토큰 갱신",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				schema = @Schema(implementation = RefreshTokenRequest.class)
+			)
+		),
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AccessTokenResponse.class))),
+			@ApiResponse(responseCode = "401", content = @Content(examples = @ExampleObject(value = "{\"code\": 401, \"message\": \"Refresh Token이 유효하지 않습니다. Refresh Token이 만료되었습니다.\"}"))),
+		}
+	)
 	@PostMapping("/refresh")
 	public ResponseEntity<BaseResponse<AccessTokenResponse>> refresh(@RequestBody RefreshTokenRequest request) {
 		AccessTokenResponse response = authService.refresh(request);
