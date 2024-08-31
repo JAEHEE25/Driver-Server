@@ -155,6 +155,10 @@ public class Room extends BaseEntity {
 		return roomLanguageMappings.stream().map(RoomLanguageMapping::getLanguageName).toList();
 	}
 
+	public List<User> getMembers() {
+		return roomUserMappings.stream().map(RoomUserMapping::getUser).toList();
+	}
+
 	public void deleteMember(RoomUserMapping mapping) {
 		roomUserMappings.remove(mapping);
 	}

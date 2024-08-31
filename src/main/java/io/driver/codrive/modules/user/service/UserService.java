@@ -91,8 +91,8 @@ public class UserService {
 	}
 
 	@Transactional
-	public List<User> getRandomUsersExceptMeAndFollowings(User user){
-		return userRepository.getRandomUsersExceptMeAndFollowings(user.getUserId());
+	public List<User> getRandomUsersExcludingMeAndFollowings(User user){
+		return userRepository.getRandomUsersExcludingMeAndFollowings(user.getUserId());
 	}
 
 	@Transactional

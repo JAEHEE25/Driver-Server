@@ -14,6 +14,6 @@ import io.driver.codrive.modules.room.domain.RoomStatus;
 
 @Repository
 public interface RoomUserMappingRepositoryCustom {
-	Page<Room> getRoomsByUserAndRoomStatusByPage(Long userId, RoomStatus roomStatus, SortType sortType, Pageable pageable);
+	Page<Room> getRoomsByUserAndRoomStatusExcludingOwnByPage(Long userId, RoomStatus roomStatus, SortType sortType, Pageable pageable);
 	List<LanguageMemberCountDto> getLanguageMemberCount(Room room);
 }

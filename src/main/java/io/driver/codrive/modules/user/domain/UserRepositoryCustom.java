@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepositoryCustom {
-	List<User> getRandomUsersExceptMeAndFollowings(Long userId);
+	List<User> getRandomUsersExcludingMeAndFollowings(Long userId);
 }
