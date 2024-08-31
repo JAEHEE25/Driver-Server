@@ -37,7 +37,10 @@ public record JoinedRoomInfoResponse(
 	String roomStatus,
 
 	@Schema(description = "사용 언어 별 인원")
-	List<LanguageMemberCountDto> languageMemberCount
+	List<LanguageMemberCountDto> languageMemberCount,
+
+	@Schema(description = "공개 그룹인지 여부", example = "true")
+	boolean isPublicRoom
 
 ) {
 	public static JoinedRoomInfoResponse of(Room room, List<LanguageMemberCountDto> languageMemberCount) {
@@ -52,6 +55,7 @@ public record JoinedRoomInfoResponse(
 			.requestedCount(room.getRequestedCount())
 			.roomStatus(room.getRoomStatus().name())
 			.languageMemberCount(languageMemberCount)
+			.isPublicRoom(room.isPublicRoom())
 			.build();
 	}
 }

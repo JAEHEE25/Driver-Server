@@ -34,7 +34,10 @@ public record RoomItemResponse(
 	String introduce,
 
 	@Schema(description = "해당 그룹의 멤버인지 여부", example = "true")
-	boolean isMember
+	boolean isMember,
+
+	@Schema(description = "공개 그룹인지 여부", example = "true")
+	boolean isPublicRoom
 ) {
 	public static RoomItemResponse of(Room room, boolean isMember) {
 		return RoomItemResponse.builder()
@@ -47,6 +50,7 @@ public record RoomItemResponse(
 			.tags(room.getLanguages())
 			.introduce(room.getIntroduce())
 			.isMember(isMember)
+			.isPublicRoom(room.isPublicRoom())
 			.build();
 	}
 

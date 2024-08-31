@@ -135,8 +135,8 @@ public class UserController {
 		}
 	)
 	@GetMapping("/followings")
-	public ResponseEntity<BaseResponse<UserListResponse>> getFollowings() {
-		UserListResponse response = userService.getFollowings();
+	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowings() {
+		FollowListResponse response = userService.getFollowings();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -147,8 +147,8 @@ public class UserController {
 		}
 	)
 	@GetMapping("/followers")
-	public ResponseEntity<BaseResponse<UserListResponse>> getFollowers() {
-		UserListResponse response = userService.getFollowers();
+	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowers() {
+		FollowListResponse response = userService.getFollowers();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

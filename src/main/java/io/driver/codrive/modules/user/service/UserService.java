@@ -77,17 +77,17 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserListResponse getFollowings() {
+	public FollowListResponse getFollowings() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
-		return UserListResponse.of(followings, user);
+		return FollowListResponse.ofFollowings(followings);
 	}
 
 	@Transactional
-	public UserListResponse getFollowers() {
+	public FollowListResponse getFollowers() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followers = user.getFollowers().stream().map(Follow::getFollower).toList();
-		return UserListResponse.of(followers, user);
+		return FollowListResponse.ofFollowers(followers, user);
 	}
 
 	@Transactional
