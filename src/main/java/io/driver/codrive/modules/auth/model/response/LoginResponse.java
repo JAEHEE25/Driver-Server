@@ -12,16 +12,24 @@ public record LoginResponse(
 	@Schema(description = "소셜 로그인 코드", example = "닉네임")
 	String nickname,
 
+	@Schema(description = "프로필 이미지", example = "PROFILE_IMG")
+	String profileImg,
+
+	@Schema(description = "사용자 존재 여부", example = "true")
+	boolean isExistUser,
+
 	@Schema(description = "발급한 Access Token", example = "ACCESS_TOKEN")
 	String accessToken,
 
 	@Schema(description = "발급한 Refresh Token", example = "REFRESH_TOKEN")
 	String refreshToken
 ) {
-	public static LoginResponse of(User user, String accessToken, String refreshToken) {
+	public static LoginResponse of(User user, boolean isExistUser, String accessToken, String refreshToken) {
 		return LoginResponse.builder()
 			.userId(user.getUserId())
 			.nickname(user.getNickname())
+			.profileImg(user.getProfileImg())
+			.isExistUser(isExistUser)
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.build();

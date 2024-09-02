@@ -42,12 +42,12 @@ public class AuthService {
 	public LoginResponse socialLogin(GithubLoginRequest request) {
 		String githubAccessToken = extractGithubAccessToken(getGithubAccessTokenResponse(request.code()));
 		GithubUserProfile userProfile = getUserProfile(githubAccessToken);
+		boolean isExistUser = userRepository.existsByUsername(userProfile.username());
 		User user = updateUserInfo(userProfile);
-
 		String accessToken = tokenService.generateAccessToken(user.getUserId());
 		String refreshToken = tokenService.generateRefreshToken();
 		tokenService.saveRefreshToken(accessToken, refreshToken, user.getUserId());
-		return LoginResponse.of(user, accessToken, refreshToken);
+		return LoginResponse.of(user, isExistUser, accessToken, refreshToken);
 	}
 
 	private String getGithubAccessTokenResponse(String code) {
@@ -96,10 +96,6 @@ public class AuthService {
 
 	@Transactional
 	protected User updateUserInfo(GithubUserProfile userProfile) {
-		if (userProfile == null) {
-			throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-		}
-
 		User user = userRepository.findByUsername(userProfile.username())
 			.orElseGet(
 				() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("NOT_SELECTED"))));
