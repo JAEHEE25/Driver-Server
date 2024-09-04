@@ -1,5 +1,7 @@
 package io.driver.codrive.modules.record.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.util.CalculateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
@@ -44,9 +47,27 @@ public class RecordService {
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
 		user.addRecord(createdRecord);
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
-		userService.updateSuccessRate(user);
+		updateSuccessRate(user);
 		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
 		return RecordCreateResponse.of(createdRecord);
+	}
+
+	private void updateSuccessRate(User user) {
+		int solvedDayCountByWeek = recordRepository.getSolvedDaysByWeek(user.getUserId(), LocalDate.now());
+		int successRate = CalculateUtils.calculateSuccessRate(solvedDayCountByWeek);
+		user.changeSuccessRate(successRate);
+	}
+
+	@Transactional
+	public int getRecordsCountByWeek(User user, LocalDate pivotDate) {
+		return recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
+	}
+
+	@Transactional
+	public int getTodayRecordCount(User user) {
+		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); //오늘 00:00:00
+		LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59); //오늘 23:59:59
+		return recordRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay).size();
 	}
 
 	@Transactional

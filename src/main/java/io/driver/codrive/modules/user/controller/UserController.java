@@ -9,6 +9,7 @@ import io.driver.codrive.modules.user.model.response.*;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
+import io.driver.codrive.modules.user.service.UserAchievementFacade;
 import io.driver.codrive.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
+	private final UserAchievementFacade userAchievementFacade;
 
 	@Operation(
 		summary = "사용자 정보 조회",
@@ -161,7 +163,7 @@ public class UserController {
 	)
 	@GetMapping("/achieve")
 	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement() {
-		UserAchievementResponse response = userService.getAchievement();
+		UserAchievementResponse response = userAchievementFacade.getAchievement();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
