@@ -9,12 +9,13 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
 	@Bean
 	public OpenAPI openAPI() {
-		return new OpenAPI()
+		return new OpenAPI().addServersItem(new Server().url("/"))
 			.components(new Components()
 				.addSecuritySchemes("Authorization", new SecurityScheme().type(SecurityScheme.Type.APIKEY)
 					.in(SecurityScheme.In.HEADER)

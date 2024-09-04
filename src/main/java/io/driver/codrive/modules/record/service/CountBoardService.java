@@ -76,7 +76,7 @@ public class CountBoardService {
 				currentPeriod = 0;
 			}
 		}
-		return longestPeriod;
+		return Math.max(longestPeriod, currentPeriod);
 	}
 
 	private int getMaxCount() {

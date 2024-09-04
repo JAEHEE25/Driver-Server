@@ -24,6 +24,9 @@ public record RoomParticipantListResponse(
 
 	@Builder
 	record RoomParticipantItemResponse(
+		@Schema(description = "참여 요청 ID", example = "1")
+		Long requestId,
+
 		@Schema(description = "사용자 정보")
 		UserSummaryResponse user,
 
@@ -35,7 +38,8 @@ public record RoomParticipantListResponse(
 		}
 		public static RoomParticipantItemResponse of(RoomRequest request) {
 			return RoomParticipantItemResponse.builder()
-				.user(UserSummaryResponse.of(request.getUser()))
+				.requestId(request.getRoomRequestId())
+				.user(io.driver.codrive.modules.user.model.response.UserSummaryResponse.of(request.getUser()))
 				.status(request.getUserRequestStatus().name())
 				.build();
 		}

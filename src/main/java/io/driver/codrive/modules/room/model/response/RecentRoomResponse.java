@@ -36,7 +36,11 @@ public record RecentRoomResponse(
 		String introduce,
 
 		@Schema(description = "해당 그룹의 멤버인지 여부", example = "true")
-		boolean isMember
+		boolean isMember,
+
+		@Schema(description = "공개 그룹인지 여부", example = "true")
+		boolean isPublicRoom
+
 	) {
 		public static List<RecentRoomItemResponse> of(List<Room> rooms, User user) {
 			return rooms.stream()
@@ -52,6 +56,7 @@ public record RecentRoomResponse(
 				.title(room.getTitle())
 				.introduce(room.getIntroduce())
 				.isMember(isMember)
+				.isPublicRoom(room.isPublicRoom())
 				.build();
 		}
 	}

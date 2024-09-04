@@ -76,7 +76,7 @@ public class FollowService {
 	@Transactional
 	public UserListResponse getRandomUsers() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<User> randomUsers = userService.getRandomUsersExceptMeAndFollowings(user);
+		List<User> randomUsers = userService.getRandomUsersExcludingMeAndFollowings(user);
 		return UserListResponse.of(randomUsers, user);
 	}
 

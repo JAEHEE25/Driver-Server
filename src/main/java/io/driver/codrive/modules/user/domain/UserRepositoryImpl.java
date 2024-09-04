@@ -18,7 +18,7 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Use
 	}
 
 	@Override
-	public List<User> getRandomUsersExceptMeAndFollowings(Long userId) {
+	public List<User> getRandomUsersExcludingMeAndFollowings(Long userId) {
 		return from(user)
 			.leftJoin(follow).on(follow.following.userId.eq(user.userId).and(follow.follower.userId.eq(userId)))
 			.where(follow.followId.isNull(), user.userId.ne(userId))

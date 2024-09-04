@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.codeblock.model.response.CodeblockDetailResponse;
+import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -25,7 +26,7 @@ public record RecordDetailResponse(
 	List<String> tags,
 
 	@Schema(description = "문제 플랫폼", example = "백준")
-	String platform,
+	Platform platform,
 
 	@Schema(description = "문제 URL", example = "PROBLEM_URL")
 	String problemUrl,
@@ -50,7 +51,7 @@ public record RecordDetailResponse(
 			.title(record.getTitle())
 			.level(record.getLevel())
 			.tags(record.getCategories())
-			.platform(record.getPlatform().getName())
+			.platform(record.getPlatform())
 			.problemUrl(record.getProblemUrl())
 			.codeblocks(record.getCodeblocks().stream().map(CodeblockDetailResponse::of).toList())
 			.createdAt(DateUtils.formatCreatedAtByYMDHM(record.getCreatedAt()))

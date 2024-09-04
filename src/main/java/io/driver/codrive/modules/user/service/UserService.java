@@ -77,28 +77,30 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserListResponse getFollowings() {
+	public FollowListResponse getFollowings() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
-		return UserListResponse.of(followings, user);
+		return FollowListResponse.ofFollowings(followings);
 	}
 
 	@Transactional
-	public UserListResponse getFollowers() {
+	public FollowListResponse getFollowers() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followers = user.getFollowers().stream().map(Follow::getFollower).toList();
-		return UserListResponse.of(followers, user);
+		return FollowListResponse.ofFollowers(followers, user);
 	}
 
 	@Transactional
-	public List<User> getRandomUsersExceptMeAndFollowings(User user){
-		return userRepository.getRandomUsersExceptMeAndFollowings(user.getUserId());
+	public List<User> getRandomUsersExcludingMeAndFollowings(User user){
+		return userRepository.getRandomUsersExcludingMeAndFollowings(user.getUserId());
 	}
 
 	@Transactional
 	public void updateSuccessRate(User user) {
-		int weeklyCount = getThisWeekRecordsCount(user);
-		int successRate = CalculateUtils.calculateSuccessRate(weeklyCount);
+		LocalDate pivotDate = LocalDate.now();
+		int solvedDayCountByWeek = recordRepository.getSolvedDaysByWeek(user.getUserId(), pivotDate);
+		System.out.println("solvedDayCountByWeek: " + solvedDayCountByWeek);
+		int successRate = CalculateUtils.calculateSuccessRate(solvedDayCountByWeek);
 		user.changeSuccessRate(successRate);
 	}
 

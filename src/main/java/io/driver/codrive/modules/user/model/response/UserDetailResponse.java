@@ -30,6 +30,7 @@ public record UserDetailResponse(
 			.name(user.getName())
 			.nickname(user.getNickname())
 			.profileImg(user.getProfileImg())
+			.comment(user.getComment())
 			.githubUrl(user.getGithubUrl())
 			.language(user.getLanguage().getName())
 			.build();

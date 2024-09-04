@@ -30,7 +30,10 @@ public record RoomDetailResponse(
 	String introduce,
 
 	@Schema(description = "진행 방식", example = "진행 방식")
-	String information
+	String information,
+
+	@Schema(description = "공개 그룹인지 여부", example = "true")
+	boolean isPublicRoom
 ) {
 	public static List<RoomDetailResponse> of(List<Room> rooms) {
 		return rooms.stream()
@@ -48,6 +51,7 @@ public record RoomDetailResponse(
 				.tags(room.getLanguages())
 				.introduce(room.getIntroduce())
 				.information(room.getInformation())
+				.isPublicRoom(room.isPublicRoom())
 				.build();
 	}
 }

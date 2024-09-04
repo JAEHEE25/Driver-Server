@@ -4,8 +4,8 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CalculateUtils {
-	public static Integer calculateSuccessRate(Integer weeklyCount) {
-		return switch (weeklyCount) {
+	public static Integer calculateSuccessRate(Integer solvedDayCountByWeek) {
+		return switch (solvedDayCountByWeek) {
 			case 0 -> 0;
 			case 1 -> 15;
 			case 2 -> 30;

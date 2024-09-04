@@ -53,7 +53,7 @@ public class RoomUserMappingService {
 	}
 
 	public Page<Room> getJoinedRoomsByPage(Long userId, RoomStatus roomStatus, SortType sortType, Pageable pageable) {
-		return roomUserMappingRepository.getRoomsByUserAndRoomStatusByPage(userId, roomStatus, sortType, pageable);
+		return roomUserMappingRepository.getRoomsByUserAndRoomStatusExcludingOwnByPage(userId, roomStatus, sortType, pageable);
 	}
 
 	public List<LanguageMemberCountDto> getLanguageMemberCountResponse(Room room) {

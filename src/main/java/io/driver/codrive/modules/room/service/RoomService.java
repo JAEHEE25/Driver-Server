@@ -144,15 +144,15 @@ public class RoomService {
 			Page<Room> rooms = roomUserMappingService.getJoinedRoomsByPage(user.getUserId(), roomStatus, sortType, pageable);
 			return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 		}
-		return JoinedRoomListResponse.of(getJoinedRoomsByStatusAndSort(roomStatus, user, sortType));
+		return JoinedRoomListResponse.of(getJoinedRoomsByStatusAndSortExcludingOwn(roomStatus, user, sortType));
 	}
 
-	private List<Room> getJoinedRoomsByStatusAndSort(RoomStatus roomStatus, User user, SortType sortType) {
+	private List<Room> getJoinedRoomsByStatusAndSortExcludingOwn(RoomStatus roomStatus, User user, SortType sortType) {
 		List<Room> rooms;
 		if (roomStatus == null) {
-			rooms = user.getJoinedRooms();
+			rooms = user.getJoinedRooms().stream().filter(room -> !room.getOwner().equals(user)).toList();
 		} else {
-			rooms = user.getJoinedRooms().stream().filter(room -> room.getRoomStatus() == roomStatus).toList();
+			rooms = user.getJoinedRooms().stream().filter(room -> (room.getRoomStatus() == roomStatus) && !room.getOwner().equals(user)).toList();
 		}
 		return rooms.stream().sorted(SortType.getJoinedRoomComparator(sortType)).collect(Collectors.toList());
 	}
@@ -204,7 +204,7 @@ public class RoomService {
 	@Transactional
 	public RecentRoomResponse getRecentRooms() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<Room> rooms = roomRepository.findAll();
+		List<Room> rooms = user.getJoinedRooms();
 		if (!rooms.isEmpty()) {
 			rooms = rooms.stream().sorted(getRecentRoomComparator()).collect(Collectors.toList());
 		}

@@ -30,11 +30,11 @@ public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport imp
 	}
 
 	@Override
-	public Page<Room> getRoomsByUserAndRoomStatusByPage(Long userId, RoomStatus roomStatus, SortType sortType, Pageable pageable) {
+	public Page<Room> getRoomsByUserAndRoomStatusExcludingOwnByPage(Long userId, RoomStatus roomStatus, SortType sortType, Pageable pageable) {
 		JPQLQuery<Room> query = from(roomUserMapping)
 			.select(roomUserMapping.room)
 			.join(roomUserMapping.room, room)
-			.where(roomUserMapping.user.userId.eq(userId))
+			.where(roomUserMapping.user.userId.eq(userId), room.owner.userId.ne(userId))
 			.orderBy(createRoomOrderSpecifier(sortType));
 		if (roomStatus != null) {
 			query.where(room.roomStatus.eq(roomStatus));
