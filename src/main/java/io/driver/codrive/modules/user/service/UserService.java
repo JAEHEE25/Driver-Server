@@ -1,9 +1,8 @@
 package io.driver.codrive.modules.user.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +11,7 @@ import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
+import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
@@ -70,7 +70,20 @@ public class UserService {
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
+		updateJoinedRoomsMemberCount(user);
+		updateRequestedRoomsRequestedCount(user);
 		userRepository.delete(user);
+	}
+
+	private void updateJoinedRoomsMemberCount(User user) {
+		user.getJoinedRooms().forEach(room -> room.changeMemberCount(room.getMemberCount() - 1));
+	}
+
+	private void updateRequestedRoomsRequestedCount(User user) {
+		user.getRoomRequests().forEach(roomRequest -> {
+			Room room = roomRequest.getRoom();
+			room.changeRequestedCount(room.getRequestedCount() - 1);
+		});
 	}
 
 	@Transactional
@@ -99,4 +112,10 @@ public class UserService {
 		Boolean isFollowing = currentUser.isFollowing(user);
 		return UserProfileResponse.of(user, isFollowing);
 	}
+
+	@Scheduled(cron = "0 0 0 * * MON") //매주 월요일 00:00:00에 실행
+    @Transactional
+    public void resetSuccessRate() {
+        userRepository.resetSuccessRate();
+    }
 }

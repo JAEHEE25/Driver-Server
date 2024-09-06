@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 public class ImageService {
-	private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "gif");
+	private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "gif", "webp", "bmp");
 	private static final String DIR_PATH = "images/";
 	private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 	private final AmazonS3 amazonS3Client;

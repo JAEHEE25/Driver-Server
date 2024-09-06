@@ -35,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoomService {
+	private static final String BASE_ROOM_IMAGE_URL = "https://avatars.githubusercontent.com/u/79736971?v=4";
 	private static final int ROOMS_SIZE = 9;
 	private final UserService userService;
 	private final ImageService imageService;
@@ -45,7 +46,10 @@ public class RoomService {
 	@Transactional
 	public RoomCreateResponse createRoom(RoomCreateRequest request, MultipartFile imageFile) throws IOException {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		String imageSrc = imageService.uploadImage(imageFile);
+		String imageSrc = BASE_ROOM_IMAGE_URL;
+		if (imageFile != null) {
+			imageSrc = imageService.uploadImage(imageFile);
+		}
 		Room savedRoom = roomRepository.save(request.toRoom(user, imageSrc));
 
 		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);

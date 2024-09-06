@@ -1,6 +1,8 @@
 package io.driver.codrive.modules.room.service;
 
 
+import java.util.List;
+
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +38,10 @@ public class RoomMemberService {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}
 
-		Sort sort = SortType.getMemberSort(sortType);
-		Pageable pageable = PageRequest.of(page, ROOM_MEMBERS_SIZE, sort);
-		PageUtils.validatePageable(pageable);
-		Page<User> members = roomUserMappingService.getRoomMembers(room, pageable);
-		return RoomMembersResponse.of(members.getTotalPages(), members.getContent());
+		List<User> members = roomUserMappingService.getRoomMembers(room, sortType);
+		Pageable pageable = PageRequest.of(page, ROOM_MEMBERS_SIZE);
+		Page<User> membersByPage = PageUtils.getPage(members, pageable, members.size());
+		return RoomMembersResponse.of(membersByPage.getTotalPages(), membersByPage.getContent());
 	}
 
 	@Transactional

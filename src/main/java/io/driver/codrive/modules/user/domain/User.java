@@ -11,6 +11,7 @@ import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -70,6 +71,12 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Record> records;
 
+	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<Room> createdRooms;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<RoomRequest> roomRequests;
+
 	public void addRecord(Record record) {
 		this.records.add(record);
 	}
@@ -94,8 +101,8 @@ public class User extends BaseEntity {
 		this.followers.remove(follow);
 	}
 
-	public void changeName(String name) {
-		this.name = name;
+	public void changeUserName(String username) {
+		this.username = username;
 	}
 
 	public void changeNickname(String nickname) {
@@ -130,12 +137,17 @@ public class User extends BaseEntity {
 		this.roomUserMappings.remove(mapping);
 	}
 
+	public Record getRecentProblem() {
+		List<Record> savedRecords = records.stream().filter(Record::isSaved).toList();
+		if (savedRecords.isEmpty()) return null;
+		int lastIndex = savedRecords.size() - 1;
+		return savedRecords.get(lastIndex);
+	}
+
 	public String getRecentProblemTitle() {
-		if (records.isEmpty()) {
-			return null;
-		}
-		int lastIndex = records.size() - 1;
-		return records.get(lastIndex).getTitle();
+		Record recentProblem = getRecentProblem();
+		if (recentProblem == null) return null;
+		return recentProblem.getTitle();
 	}
 
 	public List<Room> getJoinedRooms() {

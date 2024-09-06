@@ -1,6 +1,7 @@
 package io.driver.codrive.modules.follow.service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import io.driver.codrive.modules.follow.model.response.FollowingSummaryListRespo
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
 import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
 import io.driver.codrive.modules.follow.model.response.WeeklyFollowingResponse;
+import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.service.RecordService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.service.RoomService;
@@ -107,14 +109,27 @@ public class FollowService {
 		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
 		List<User> todaySolvedFollowings = followings.stream()
 			.filter(following -> recordService.getTodayRecordCount(following) > 0)
+			.sorted(getSolvedFollowingsComparator().reversed())
 			.toList();
 		return TodaySolvedFollowingResponse.of(todaySolvedFollowings);
+	}
+
+	private Comparator<User> getSolvedFollowingsComparator() {
+		return Comparator.comparing(user -> {
+			List<Record> records = user.getRecords();
+			Record recentRecord = records.get(records.size() - 1);
+			return recentRecord.getCreatedAt();
+		});
 	}
 
 	@Transactional
 	public WeeklyFollowingResponse getWeeklyFollowings() {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).limit(WEEKLY_FOLLOWINGS).toList();
+		List<User> followings = user.getFollowings()
+			.stream()
+			.map(Follow::getFollowing)
+			.limit(WEEKLY_FOLLOWINGS)
+			.toList();
 		return WeeklyFollowingResponse.of(followings);
 	}
 

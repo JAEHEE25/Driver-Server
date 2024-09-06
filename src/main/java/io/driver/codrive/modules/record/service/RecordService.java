@@ -43,16 +43,26 @@ public class RecordService {
 	@Transactional
 	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
+		Record createdRecord = saveRecord(recordRequest, user);
 		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
-		user.addRecord(createdRecord);
 		createCodeblocks(recordRequest.codeblocks(), createdRecord);
 		updateSuccessRate(user);
-		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
+		updateJoinedRoomsLastUpdatedAt(createdRecord, user);
 		return RecordCreateResponse.of(createdRecord);
 	}
 
-	private void updateSuccessRate(User user) {
+	private Record saveRecord(RecordSaveRequest recordRequest, User user) {
+		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
+		user.addRecord(createdRecord);
+		return createdRecord;
+	}
+
+	private void updateJoinedRoomsLastUpdatedAt(Record createdRecord, User user) {
+		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
+	}
+
+	@Transactional
+	protected void updateSuccessRate(User user) {
 		int solvedDayCountByWeek = recordRepository.getSolvedDaysByWeek(user.getUserId(), LocalDate.now());
 		int successRate = CalculateUtils.calculateSuccessRate(solvedDayCountByWeek);
 		user.changeSuccessRate(successRate);
@@ -67,7 +77,7 @@ public class RecordService {
 	public int getTodayRecordCount(User user) {
 		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); //오늘 00:00:00
 		LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59); //오늘 23:59:59
-		return recordRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay).size();
+		return recordRepository.findAllByUserAndRecordStatusAndCreatedAtBetween(user, RecordStatus.SAVED, startOfDay, endOfDay).size();
 	}
 
 	@Transactional
@@ -146,6 +156,7 @@ public class RecordService {
 		Record record = getRecordById(recordId);
 		AuthUtils.checkOwnedEntity(record);
 		recordRepository.delete(record);
+		updateSuccessRate(record.getUser());
 	}
 
 	@Transactional

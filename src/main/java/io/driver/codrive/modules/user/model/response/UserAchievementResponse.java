@@ -11,14 +11,17 @@ public record UserAchievementResponse(
 	int todayCount,
 	@Schema(description = "성과율", example = "30")
 	int successRate,
+	@Schema(description = "이번 주 문제 풀이 개수", example = "1")
+	int weeklyCount,
 	@Schema(description = "이번 주 기준 지난 주와의 문제 풀이 개수 차이 (이번 주 문제 풀이 개수 - 지난 주 문제 풀이 개수)", example = "1")
 	int weeklyCountDifference
 ) {
-	public static UserAchievementResponse of(int goal, int todayCount, int successRate, int weeklyCountDifference) {
+	public static UserAchievementResponse of(int goal, int todayCount, int successRate, int weeklyCount, int weeklyCountDifference) {
 		return UserAchievementResponse.builder()
 			.goal(goal)
 			.todayCount(todayCount)
 			.successRate(successRate)
+			.weeklyCount(weeklyCount)
 			.weeklyCountDifference(weeklyCountDifference)
 			.build();
 	}

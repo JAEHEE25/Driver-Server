@@ -18,6 +18,9 @@ public record UserProfileResponse(
 	@Schema(description = "닉네임", example = "닉네임")
 	String nickname,
 
+	@Schema(description = "GitHub Username", example = "username")
+	String username,
+
 	@Schema(description = "GitHub URL", example = "GITHUB_URL")
 	String githubUrl,
 
@@ -33,6 +36,7 @@ public record UserProfileResponse(
 			.successRate(user.getSuccessRate())
 			.profileImg(user.getProfileImg())
 			.nickname(user.getNickname())
+			.username(user.getUsername())
 			.githubUrl(user.getGithubUrl())
 			.comment(user.getComment())
 			.isFollowing(isFollowing)

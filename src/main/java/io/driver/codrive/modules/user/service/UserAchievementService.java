@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserAchievementFacade {
+public class UserAchievementService {
 	private final UserService userService;
 	private final RecordService recordService;
 
@@ -23,15 +23,14 @@ public class UserAchievementFacade {
 		int goal = user.getGoal();
 		int todayCount = recordService.getTodayRecordCount(user);
 		int successRate = user.getSuccessRate();
-		int weeklyCountDifference = getWeeklyCountDifference(user);
-		return UserAchievementResponse.of(goal, todayCount, successRate, weeklyCountDifference);
+		int weeklyCount = recordService.getRecordsCountByWeek(user, LocalDate.now());
+		int weeklyCountDifference = weeklyCount - getLastWeeklyCount(user);
+		return UserAchievementResponse.of(goal, todayCount, successRate, weeklyCount, weeklyCountDifference);
 	}
 
 	@Transactional
-	protected int getWeeklyCountDifference(User user) {
-		int weeklyCount = recordService.getRecordsCountByWeek(user, LocalDate.now());
+	protected int getLastWeeklyCount(User user) {
 		LocalDate lastWeekDate = LocalDate.now().minusWeeks(1);
-		int lastWeeklyCount = recordService.getRecordsCountByWeek(user, lastWeekDate);
-		return weeklyCount - lastWeeklyCount;
+		return recordService.getRecordsCountByWeek(user, lastWeekDate);
 	}
 }

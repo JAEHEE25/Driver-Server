@@ -16,10 +16,13 @@ public record GithubUserProfile(
 	String profileImg
 ) {
 	public User toUser(Language language) {
+		String githubName = name;
+		if (githubName == null) githubName = username;
+
 		return User.builder()
-			.name(name)
+			.name(githubName)
 			.username(username)
-			.nickname(name)
+			.nickname(username)
 			.profileImg(profileImg)
 			.githubUrl(null)
 			.language(language)
