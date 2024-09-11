@@ -71,6 +71,10 @@ public class Record extends BaseEntity {
 		this.problemUrl = problemUrl;
 	}
 
+	public void changeRecordStatus(RecordStatus recordStatus) {
+		this.recordStatus = recordStatus;
+	}
+
 	public void changeCodeblocks(List<Codeblock> codeblocks) {
 		this.codeblocks.clear();
 		this.codeblocks.addAll(codeblocks);

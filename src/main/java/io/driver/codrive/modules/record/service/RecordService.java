@@ -10,11 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.util.CalculateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockModifyRequest;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
@@ -24,8 +22,6 @@ import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.domain.RecordStatus;
 import io.driver.codrive.modules.record.model.request.RecordModifyRequest;
-import io.driver.codrive.modules.record.model.request.RecordSaveRequest;
-import io.driver.codrive.modules.record.model.request.RecordTempRequest;
 import io.driver.codrive.modules.record.model.response.*;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
@@ -34,32 +30,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
-	private static final int TEMP_RECORD_LIMIT = 3;
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
 	private final RecordRepository recordRepository;
-
-	@Transactional
-	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Record createdRecord = saveRecord(recordRequest, user);
-		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
-		createCodeblocks(recordRequest.codeblocks(), createdRecord);
-		updateSuccessRate(user);
-		updateJoinedRoomsLastUpdatedAt(createdRecord, user);
-		return RecordCreateResponse.of(createdRecord);
-	}
-
-	private Record saveRecord(RecordSaveRequest recordRequest, User user) {
-		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
-		user.addRecord(createdRecord);
-		return createdRecord;
-	}
-
-	private void updateJoinedRoomsLastUpdatedAt(Record createdRecord, User user) {
-		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
-	}
 
 	@Transactional
 	protected void updateSuccessRate(User user) {
@@ -81,12 +55,6 @@ public class RecordService {
 	}
 
 	@Transactional
-	public void createCodeblocks(List<CodeblockCreateRequest> codeblockRequests, Record record) {
-		List<Codeblock> codeblocks = CodeblockCreateRequest.of(codeblockRequests, record);
-		codeblockService.createCodeblock(codeblocks, record);
-	}
-
-	@Transactional
 	public Record getRecordById(Long recordId) {
 		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplcationException("문제 풀이 데이터"));
 	}
@@ -99,28 +67,6 @@ public class RecordService {
 			recordRepository.delete(record);
 		}
 		return response;
-	}
-
-	@Transactional
-	public RecordCreateResponse createTempRecord(RecordTempRequest recordRequest) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		checkTempRecordLimit(user);
-
-		Record createdRecord = recordRepository.save(recordRequest.toTempRecord(user));
-		if (recordRequest.codeblocks() != null) {
-			createCodeblocks(recordRequest.codeblocks(), createdRecord);
-		}
-		if (recordRequest.tags() != null) {
-			recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
-		}
-		return RecordCreateResponse.of(createdRecord);
-	}
-
-	private void checkTempRecordLimit(User user) {
-		List<Record> tempRecords = recordRepository.findAllByUserAndRecordStatus(user, RecordStatus.TEMP);
-		if (tempRecords.size() >= TEMP_RECORD_LIMIT) {
-			throw new IllegalArgumentApplicationException("임시 저장 최대 개수를 초과했습니다.");
-		}
 	}
 
 	@Transactional
