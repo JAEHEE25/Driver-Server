@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.driver.codrive.global.discord.DiscordEventMessage;
+import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
@@ -41,6 +43,7 @@ public class RoomService {
 	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
 	private final RoomUserMappingService roomUserMappingService;
+	private final DiscordService discordService;
 	private final RoomRepository roomRepository;
 
 	@Transactional
@@ -51,9 +54,9 @@ public class RoomService {
 			imageSrc = imageService.uploadImage(imageFile);
 		}
 		Room savedRoom = roomRepository.save(request.toRoom(user, imageSrc));
-
 		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
+		discordService.sendMessage(DiscordEventMessage.GROUP_CREATE, user.getNickname(), savedRoom.getTitle());
 		return RoomCreateResponse.of(savedRoom);
 	}
 
