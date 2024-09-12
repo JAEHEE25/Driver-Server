@@ -90,7 +90,7 @@ public class AuthService {
 			throw new UnauthorizedApplicationException("유효하지 않은 토큰입니다.");
 		}
 
-		log.info("Github Profile: {}", profile.name());
+		log.info("Github Profile: {}", profile.username());
 		return profile;
 	}
 
@@ -99,7 +99,7 @@ public class AuthService {
 		User user = userRepository.findByUsername(userProfile.username())
 			.orElseGet(
 				() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("NOT_SELECTED"))));
-		user.changeName(userProfile.name());
+		user.changeUserName(userProfile.username());
 		user.changeProfileImg(userProfile.profileImg());
 		return user;
 	}

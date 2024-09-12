@@ -30,6 +30,7 @@ public class SecurityConfig {
     private static final String[] WHITELIST = new String[] {
             APIConstants.API_PREFIX + "/auth/**",
             APIConstants.API_PREFIX + "/test/**",
+			APIConstants.API_PREFIX + "/records/{recordId}",
             "/favicon.ico",
             "/error",
             "/swagger-ui.html",
@@ -73,7 +74,8 @@ public class SecurityConfig {
    	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:63342", "http://localhost:3000", "https://driver-client.pages.dev", "https://api.codrive.co.kr"));
+		configuration.setAllowedOrigins(List.of("http://localhost:63342", "http://localhost:3000",
+			"https://driver-client.pages.dev", "https://api.codrive.co.kr", "https://www.codrive.co.kr"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(
 			List.of("Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method",

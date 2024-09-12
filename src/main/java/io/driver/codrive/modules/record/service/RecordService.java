@@ -1,5 +1,7 @@
 package io.driver.codrive.modules.record.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -8,10 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.util.CalculateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
-import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockModifyRequest;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
@@ -21,8 +22,6 @@ import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.domain.RecordStatus;
 import io.driver.codrive.modules.record.model.request.RecordModifyRequest;
-import io.driver.codrive.modules.record.model.request.RecordSaveRequest;
-import io.driver.codrive.modules.record.model.request.RecordTempRequest;
 import io.driver.codrive.modules.record.model.response.*;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
@@ -31,28 +30,28 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RecordService {
-	private static final int TEMP_RECORD_LIMIT = 3;
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
 	private final RecordRepository recordRepository;
 
 	@Transactional
-	public RecordCreateResponse createSavedRecord(RecordSaveRequest recordRequest) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Record createdRecord = recordRepository.save(recordRequest.toSavedRecord(user));
-		recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
-		user.addRecord(createdRecord);
-		createCodeblocks(recordRequest.codeblocks(), createdRecord);
-		userService.updateSuccessRate(user);
-		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
-		return RecordCreateResponse.of(createdRecord);
+	protected void updateSuccessRate(User user) {
+		int solvedDayCountByWeek = recordRepository.getSolvedDaysByWeek(user.getUserId(), LocalDate.now());
+		int successRate = CalculateUtils.calculateSuccessRate(solvedDayCountByWeek);
+		user.changeSuccessRate(successRate);
 	}
 
 	@Transactional
-	public void createCodeblocks(List<CodeblockCreateRequest> codeblockRequests, Record record) {
-		List<Codeblock> codeblocks = CodeblockCreateRequest.of(codeblockRequests, record);
-		codeblockService.createCodeblock(codeblocks, record);
+	public int getRecordsCountByWeek(User user, LocalDate pivotDate) {
+		return recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
+	}
+
+	@Transactional
+	public int getTodayRecordCount(User user) {
+		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); //오늘 00:00:00
+		LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59); //오늘 23:59:59
+		return recordRepository.findAllByUserAndRecordStatusAndCreatedAtBetween(user, RecordStatus.SAVED, startOfDay, endOfDay).size();
 	}
 
 	@Transactional
@@ -68,28 +67,6 @@ public class RecordService {
 			recordRepository.delete(record);
 		}
 		return response;
-	}
-
-	@Transactional
-	public RecordCreateResponse createTempRecord(RecordTempRequest recordRequest) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		checkTempRecordLimit(user);
-
-		Record createdRecord = recordRepository.save(recordRequest.toTempRecord(user));
-		if (recordRequest.codeblocks() != null) {
-			createCodeblocks(recordRequest.codeblocks(), createdRecord);
-		}
-		if (recordRequest.tags() != null) {
-			recordCategoryMappingService.createRecordCategoryMapping(recordRequest.tags(), createdRecord);
-		}
-		return RecordCreateResponse.of(createdRecord);
-	}
-
-	private void checkTempRecordLimit(User user) {
-		List<Record> tempRecords = recordRepository.findAllByUserAndRecordStatus(user, RecordStatus.TEMP);
-		if (tempRecords.size() >= TEMP_RECORD_LIMIT) {
-			throw new IllegalArgumentApplicationException("임시 저장 최대 개수를 초과했습니다.");
-		}
 	}
 
 	@Transactional
@@ -125,6 +102,7 @@ public class RecordService {
 		Record record = getRecordById(recordId);
 		AuthUtils.checkOwnedEntity(record);
 		recordRepository.delete(record);
+		updateSuccessRate(record.getUser());
 	}
 
 	@Transactional

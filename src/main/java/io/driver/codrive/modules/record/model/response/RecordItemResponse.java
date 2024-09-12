@@ -47,7 +47,7 @@ public record RecordItemResponse(
 			.title(record.getTitle())
 			.level(record.getLevel())
 			.tags(record.getCategories())
-			.platform(record.getPlatform().getName())
+			.platform(record.getPlatformName())
 			.problemUrl(record.getProblemUrl())
 			.createdAt(DateUtils.formatCreatedAtByMD(record.getCreatedAt()))
 			.build();

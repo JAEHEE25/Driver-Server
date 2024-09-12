@@ -9,6 +9,7 @@ import io.driver.codrive.modules.user.model.response.*;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
+import io.driver.codrive.modules.user.service.UserAchievementService;
 import io.driver.codrive.modules.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
+	private final UserAchievementService userAchievementService;
 
 	@Operation(
 		summary = "사용자 정보 조회",
@@ -102,6 +104,8 @@ public class UserController {
 		),
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "400",
+				content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"잘못된 요청입니다. (error field 제공)\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
@@ -161,7 +165,7 @@ public class UserController {
 	)
 	@GetMapping("/achieve")
 	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement() {
-		UserAchievementResponse response = userService.getAchievement();
+		UserAchievementResponse response = userAchievementService.getAchievement();
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

@@ -44,8 +44,7 @@ public class RoomController {
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<BaseResponse<RoomCreateResponse>> createRoom(
 		@Valid @RequestPart(value = "request") RoomCreateRequest request,
-		@RequestPart(value = "imageFile") MultipartFile imageFile) throws
-		IOException {
+		@RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 		RoomCreateResponse response = roomService.createRoom(request, imageFile);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -184,7 +183,7 @@ public class RoomController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomModifyResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 언어입니다."
-				+ "|| 잘못된 요청입니다. (error field 제공) || \"모집 인원은 현재 인원보다 적을 수 없습니다.\"}"))),
+				+ "|| 잘못된 요청입니다. (error field 제공) || 모집 인원은 현재 인원보다 적을 수 없습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
 		}
 	)

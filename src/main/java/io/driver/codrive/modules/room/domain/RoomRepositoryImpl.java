@@ -27,7 +27,7 @@ public class RoomRepositoryImpl extends QuerydslRepositorySupport implements Roo
 			.join(room.roomLanguageMappings, roomLanguageMapping)
 			.join(roomLanguageMapping.language, language)
 			.where(
-				language.languageId.eq(languageId)
+				language.languageId.eq(languageId).and(room.roomStatus.eq(RoomStatus.ACTIVE))
 					.and(room.roomId.notIn(
 						JPAExpressions
 							.select(roomUserMapping.room.roomId)

@@ -15,6 +15,9 @@ public record LoginResponse(
 	@Schema(description = "프로필 이미지", example = "PROFILE_IMG")
 	String profileImg,
 
+	@Schema(description = "주 언어", example = "Java")
+	String langauge,
+
 	@Schema(description = "사용자 존재 여부", example = "true")
 	boolean isExistUser,
 
@@ -29,6 +32,7 @@ public record LoginResponse(
 			.userId(user.getUserId())
 			.nickname(user.getNickname())
 			.profileImg(user.getProfileImg())
+			.langauge(user.getLanguage().getName())
 			.isExistUser(isExistUser)
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)

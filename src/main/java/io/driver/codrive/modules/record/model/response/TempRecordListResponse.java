@@ -14,18 +14,7 @@ public record TempRecordListResponse(
 	@Schema(description = "임시 저장 글 목록 총 페이지 개수", examples = "3")
 	int totalPage,
 
-	@Schema(description = "임시 저장 글 목록", examples = {
-		"""
-			[
-				{
-			   		"recordId": 1,
-			        "title": "제목",
-			        "level": 2,
-			        "createdAt": "2024.02.05 12시 00분"
-				}
-			]
-		"""
-	}, implementation = TempRecordResponse.class)
+	@Schema(description = "임시 저장 글 목록")
 	List<TempRecordResponse> records
 ) {
 	public static TempRecordListResponse of(int totalPage, Page<Record> records) {

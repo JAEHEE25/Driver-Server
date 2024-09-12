@@ -1,19 +1,17 @@
 package io.driver.codrive.modules.user.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
-import io.driver.codrive.global.util.CalculateUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
-import io.driver.codrive.modules.record.domain.RecordRepository;
+import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
@@ -27,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final LanguageService languageService;
 	private final UserRepository userRepository;
-	private final RecordRepository recordRepository;
 
 	public User getUserById(Long userId) {
 		return userRepository.findById(userId)
@@ -73,7 +70,20 @@ public class UserService {
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
+		updateJoinedRoomsMemberCount(user);
+		updateRequestedRoomsRequestedCount(user);
 		userRepository.delete(user);
+	}
+
+	private void updateJoinedRoomsMemberCount(User user) {
+		user.getJoinedRooms().forEach(room -> room.changeMemberCount(room.getMemberCount() - 1));
+	}
+
+	private void updateRequestedRoomsRequestedCount(User user) {
+		user.getRoomRequests().forEach(roomRequest -> {
+			Room room = roomRequest.getRoom();
+			room.changeRequestedCount(room.getRequestedCount() - 1);
+		});
 	}
 
 	@Transactional
@@ -96,50 +106,16 @@ public class UserService {
 	}
 
 	@Transactional
-	public void updateSuccessRate(User user) {
-		LocalDate pivotDate = LocalDate.now();
-		int solvedDayCountByWeek = recordRepository.getSolvedDaysByWeek(user.getUserId(), pivotDate);
-		System.out.println("solvedDayCountByWeek: " + solvedDayCountByWeek);
-		int successRate = CalculateUtils.calculateSuccessRate(solvedDayCountByWeek);
-		user.changeSuccessRate(successRate);
-	}
-
-	@Transactional
-	public int getThisWeekRecordsCount(User user) {
-		LocalDate pivotDate = LocalDate.now();
-		return recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
-	}
-
-	@Transactional
-	public int getTodayRecordCount(User user) {
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); //오늘 00:00:00
-        LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59); //오늘 23:59:59
-		return recordRepository.findAllByUserAndCreatedAtBetween(user, startOfDay, endOfDay).size();
-	}
-
-	@Transactional
-	public UserAchievementResponse getAchievement() {
-		User user = getUserById(AuthUtils.getCurrentUserId());
-		int goal = user.getGoal();
-		int todayCount = getTodayRecordCount(user);
-		int successRate = user.getSuccessRate();
-		int weeklyCountDifference = getWeeklyCountDifference(user);
-		return UserAchievementResponse.of(goal, todayCount, successRate, weeklyCountDifference);
-	}
-
-	@Transactional
-	protected int getWeeklyCountDifference(User user) {
-		int weeklyCount = getThisWeekRecordsCount(user);
-		LocalDate pivotDate = LocalDate.now().minusWeeks(1);
-		int lastWeeklyCount = recordRepository.getRecordCountByWeek(user.getUserId(), pivotDate);
-		return weeklyCount - lastWeeklyCount;
-	}
-
-	@Transactional
 	public UserProfileResponse getProfile(Long userId) {
 		User user = getUserById(userId);
 		User currentUser = getUserById(AuthUtils.getCurrentUserId());
 		Boolean isFollowing = currentUser.isFollowing(user);
 		return UserProfileResponse.of(user, isFollowing);
 	}
+
+	@Scheduled(cron = "0 0 0 * * MON") //매주 월요일 00:00:00에 실행
+    @Transactional
+    public void resetSuccessRate() {
+        userRepository.resetSuccessRate();
+    }
 }

@@ -28,6 +28,7 @@ public class Record extends BaseEntity {
 	@Column(nullable = false)
 	private Integer level;
 
+	@Enumerated(EnumType.STRING)
 	private Platform platform;
 
 	private String problemUrl;
@@ -70,6 +71,10 @@ public class Record extends BaseEntity {
 		this.problemUrl = problemUrl;
 	}
 
+	public void changeRecordStatus(RecordStatus recordStatus) {
+		this.recordStatus = recordStatus;
+	}
+
 	public void changeCodeblocks(List<Codeblock> codeblocks) {
 		this.codeblocks.clear();
 		this.codeblocks.addAll(codeblocks);
@@ -90,6 +95,15 @@ public class Record extends BaseEntity {
 
 	public List<String> getCategories() {
 		return recordCategoryMappings.stream().map(RecordCategoryMapping::getCategoryName).toList();
+	}
+
+	public String getPlatformName() {
+		if (platform == null) return null;
+		return platform.getName();
+	}
+
+	public boolean isSaved() {
+		return recordStatus == RecordStatus.SAVED;
 	}
 
 	@Override

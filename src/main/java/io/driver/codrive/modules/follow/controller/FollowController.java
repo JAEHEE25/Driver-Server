@@ -123,7 +123,7 @@ public class FollowController {
 		parameters = {
 			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
 			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-			@Parameter(name = "groupId", in = ParameterIn.QUERY, description = "그룹 ID"),
+			@Parameter(name = "roomId", in = ParameterIn.QUERY, description = "그룹 ID"),
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserSummaryResponse.class))),

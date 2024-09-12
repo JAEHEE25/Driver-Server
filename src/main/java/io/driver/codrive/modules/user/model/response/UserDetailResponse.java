@@ -22,7 +22,10 @@ public record UserDetailResponse(
 	String githubUrl,
 
 	@Schema(description = "주 언어", example = "Java")
-	String language
+	String language,
+
+	@Schema(description = "목표 개수", example = "1")
+	int goal
 
 ) {
 	public static UserDetailResponse of(User user) {
@@ -33,6 +36,7 @@ public record UserDetailResponse(
 			.comment(user.getComment())
 			.githubUrl(user.getGithubUrl())
 			.language(user.getLanguage().getName())
+			.goal(user.getGoal())
 			.build();
 	}
 }

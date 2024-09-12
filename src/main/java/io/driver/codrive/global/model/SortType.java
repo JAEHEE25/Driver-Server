@@ -21,16 +21,6 @@ public enum SortType {
 		}
 	}
 
-	public static Sort getMemberSort(SortType sortType) {
-		if (sortType == NEW) {
-			return Sort.by(Sort.Direction.DESC, "createdAt");
-		} else if (sortType == DICT) {
-			return Sort.by(Sort.Direction.ASC, "user.nickname");
-		} else {
-			throw new IllegalArgumentApplicationException("지원하지 않는 정렬 방식입니다.");
-		}
-	}
-
 	public static Comparator<Room> getJoinedRoomComparator(SortType sortType) {
 		if (sortType == SortType.NEW) {
 			return Comparator.comparing(Room::getCreatedAt).reversed();
