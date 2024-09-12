@@ -6,6 +6,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.discord.DiscordEventMessage;
+import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 	private final LanguageService languageService;
+	private final DiscordService discordService;
 	private final UserRepository userRepository;
 
 	public User getUserById(Long userId) {
@@ -72,6 +75,7 @@ public class UserService {
 		AuthUtils.checkOwnedEntity(user);
 		updateJoinedRoomsMemberCount(user);
 		updateRequestedRoomsRequestedCount(user);
+		discordService.sendMessage(DiscordEventMessage.LEAVE, user.getNickname());
 		userRepository.delete(user);
 	}
 

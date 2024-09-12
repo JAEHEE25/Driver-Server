@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import io.driver.codrive.global.discord.DiscordEventMessage;
+import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.modules.auth.model.dto.GithubCodeDto;
 import io.driver.codrive.modules.auth.model.request.GithubLoginRequest;
 import io.driver.codrive.modules.auth.model.dto.GithubUserProfile;
@@ -30,6 +32,7 @@ public class AuthService {
 	private final LanguageService languageService;
 	private final UserRepository userRepository;
 	private final TokenService tokenService;
+	private final DiscordService discordService;
 	private final WebClient webClient = WebClient.create();
 
 	@Value("${github.client_id}")
@@ -44,6 +47,11 @@ public class AuthService {
 		GithubUserProfile userProfile = getUserProfile(githubAccessToken);
 		boolean isExistUser = userRepository.existsByUsername(userProfile.username());
 		User user = updateUserInfo(userProfile);
+
+		if (!isExistUser) {
+			discordService.sendMessage(DiscordEventMessage.JOIN, userProfile.username());
+		}
+
 		String accessToken = tokenService.generateAccessToken(user.getUserId());
 		String refreshToken = tokenService.generateRefreshToken();
 		tokenService.saveRefreshToken(accessToken, refreshToken, user.getUserId());
