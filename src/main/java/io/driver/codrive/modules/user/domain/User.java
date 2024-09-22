@@ -36,12 +36,13 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String username;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 10)
 	private String nickname;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String profileImg;
 
+	@Column(length = 30)
 	private String comment;
 
 	private String githubUrl;
