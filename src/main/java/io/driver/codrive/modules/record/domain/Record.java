@@ -31,6 +31,7 @@ public class Record extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Platform platform;
 
+	@Column(columnDefinition = "TEXT")
 	private String problemUrl;
 
 	@Column(nullable = false)
@@ -69,10 +70,6 @@ public class Record extends BaseEntity {
 
 	public void changeProblemUrl(String problemUrl) {
 		this.problemUrl = problemUrl;
-	}
-
-	public void changeRecordStatus(RecordStatus recordStatus) {
-		this.recordStatus = recordStatus;
 	}
 
 	public void changeCodeblocks(List<Codeblock> codeblocks) {

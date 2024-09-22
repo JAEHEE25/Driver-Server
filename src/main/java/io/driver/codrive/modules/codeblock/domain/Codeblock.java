@@ -18,8 +18,10 @@ public class Codeblock extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codeblockId;
 
+	@Column(columnDefinition = "TEXT")
 	private String code;
 
+	@Column(columnDefinition = "TEXT")
 	private String memo;
 
 	@ManyToOne

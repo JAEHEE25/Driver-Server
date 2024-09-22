@@ -25,12 +25,13 @@ public class Room extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long roomId;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 20)
 	private String title;
 
+	@Column(length = 20)
 	private String password;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String imageSrc;
 
 	@Column(nullable = false)
@@ -42,10 +43,10 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	private Integer memberCount;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 60)
 	private String introduce;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String information;
 
 	@Column(nullable = false)
@@ -153,10 +154,6 @@ public class Room extends BaseEntity {
 
 	public List<String> getLanguages() {
 		return roomLanguageMappings.stream().map(RoomLanguageMapping::getLanguageName).toList();
-	}
-
-	public List<User> getMembers() {
-		return roomUserMappings.stream().map(RoomUserMapping::getUser).toList();
 	}
 
 	public void deleteMember(RoomUserMapping mapping) {
