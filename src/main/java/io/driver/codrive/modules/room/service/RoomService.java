@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoomService {
-	private static final String BASE_ROOM_IMAGE_URL = "https://avatars.githubusercontent.com/u/79736971?v=4";
+	private static final String BASE_ROOM_IMAGE_URL = "https://codrive-image.s3.ap-northeast-2.amazonaws.com/images/default/codrive-room-default-image.jpg";
 	private static final int ROOMS_SIZE = 9;
 	private final UserService userService;
 	private final ImageService imageService;
@@ -220,7 +220,7 @@ public class RoomService {
 
 	private RoomFilterDto getRoomFilterDto(RoomFilterRequest request) {
 		List<Long> tagIds;
-		if (request.tags() == null) {
+		if (request.tags() == null || request.tags().isEmpty()) {
 			tagIds = List.of();
 		} else {
 			tagIds = request.tags().stream().map(tag -> {
