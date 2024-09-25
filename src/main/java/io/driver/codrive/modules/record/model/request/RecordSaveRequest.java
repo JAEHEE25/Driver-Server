@@ -40,7 +40,7 @@ public class RecordSaveRequest extends RecordCreateRequest {
 	private String platform;
 
 	@Schema(description = "문제 URL", example = "https://codrive.co.kr")
-	@Pattern(regexp = "^(https?)://[\\w.-]+(:[0-9]+)?(/([\\w/_.]*)?)?$",
+	@Pattern(regexp = "^(http|https)://[^\\s/$.?#].\\S*$",
 		message = "URL 형식이 올바르지 않습니다.")
 	@NotBlank(message = "문제 URL을 입력해주세요.")
 	private String problemUrl;
