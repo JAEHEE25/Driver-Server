@@ -17,14 +17,12 @@ import io.driver.codrive.modules.user.service.UserService;
 @Service
 public class RecordSaveService extends RecordCreateService<RecordSaveRequest> {
 	private final RecordRepository recordRepository;
-	private final RecordService recordService;
 
 	public RecordSaveService(UserService userService, RecordRepository recordRepository,
 		RecordCategoryMappingService recordCategoryMappingService, CodeblockService codeblockService,
 		RecordService recordService) {
-		super(userService, codeblockService, recordCategoryMappingService);
+		super(userService, recordService, codeblockService, recordCategoryMappingService);
 		this.recordRepository = recordRepository;
-		this.recordService = recordService;
 	}
 
 	@Override
@@ -32,6 +30,7 @@ public class RecordSaveService extends RecordCreateService<RecordSaveRequest> {
 	protected Record saveRecord(RecordSaveRequest recordRequest, User user) {
 		Record createdRecord = recordRepository.save(recordRequest.toRecord(user));
 		user.addRecord(createdRecord);
+		deleteTempRecord(recordRequest.getTempRecordId());
 		return createdRecord;
 	}
 

@@ -18,6 +18,9 @@ import lombok.Getter;
 
 @Getter
 public class RecordTempRequest extends RecordCreateRequest {
+	@Schema(description = "임시저장된 문제 풀이 ID (nullable)", example = "1")
+	private Long tempRecordId;
+
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
 	@NotBlank(message = "문제 풀이 제목을 입력해주세요.")
 	private String title;

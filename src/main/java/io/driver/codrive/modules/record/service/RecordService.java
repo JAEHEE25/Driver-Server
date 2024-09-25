@@ -62,11 +62,7 @@ public class RecordService {
 	@Transactional
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
-		RecordDetailResponse response = RecordDetailResponse.of(record);
-		if (record.compareRecordStatus(RecordStatus.TEMP)) {
-			recordRepository.delete(record);
-		}
-		return response;
+		return RecordDetailResponse.of(record);
 	}
 
 	@Transactional

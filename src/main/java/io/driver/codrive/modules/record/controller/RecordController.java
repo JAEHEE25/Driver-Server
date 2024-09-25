@@ -41,7 +41,8 @@ public class RecordController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다."
+					+ "|| 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 		}
 	)
