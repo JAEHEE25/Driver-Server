@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.global.model.SortType;
-import io.driver.codrive.modules.record.model.request.RecordSaveRequest;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomFilterRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
