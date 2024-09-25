@@ -8,6 +8,7 @@ import lombok.Getter;
 
 @Getter
 public abstract class RecordCreateRequest {
+	Long tempRecordId;
 	String title;
 	int level;
 	List<String> tags;

@@ -22,16 +22,21 @@ public class RecordTempService extends RecordCreateService<RecordTempRequest> {
 	private final RecordRepository recordRepository;
 
 	public RecordTempService(UserService userService, RecordRepository recordRepository,
-		RecordCategoryMappingService recordCategoryMappingService, CodeblockService codeblockService) {
-		super(userService, codeblockService, recordCategoryMappingService);
+		RecordCategoryMappingService recordCategoryMappingService, CodeblockService codeblockService,
+		RecordService recordService) {
+		super(userService, recordService, codeblockService, recordCategoryMappingService);
 		this.recordRepository = recordRepository;
 	}
 
 	@Override
 	@Transactional
 	protected Record saveRecord(RecordTempRequest recordRequest, User user) {
-		checkTempRecordLimit(user);
-		return recordRepository.save(recordRequest.toRecord(user));
+		if (recordRequest.getTempRecordId() == null) {
+			checkTempRecordLimit(user);
+		}
+		Record savedRecord = recordRepository.save(recordRequest.toRecord(user));
+		deleteTempRecord(recordRequest.getTempRecordId());
+		return savedRecord;
 	}
 
 	@Override

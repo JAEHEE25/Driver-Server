@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoomService {
-	private static final String BASE_ROOM_IMAGE_URL = "https://avatars.githubusercontent.com/u/79736971?v=4";
+	private static final String BASE_ROOM_IMAGE_URL = "https://codrive-image.s3.ap-northeast-2.amazonaws.com/images/default/codrive-room-default-image.jpg";
 	private static final int ROOMS_SIZE = 9;
 	private final UserService userService;
 	private final ImageService imageService;
@@ -83,7 +83,11 @@ public class RoomService {
 		if (!room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}
-		return JoinedRoomInfoResponse.of(room, roomUserMappingService.getLanguageMemberCountResponse(room));
+		String password = null;
+		if (room.getOwner().equals(user)) {
+			password = room.getPassword();
+		}
+		return JoinedRoomInfoResponse.of(room, password, roomUserMappingService.getLanguageMemberCountResponse(room));
 	}
 
 	@Transactional
@@ -93,13 +97,14 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws
-		IOException {
+	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
 		Room room = getRoomById(roomId);
 		AuthUtils.checkOwnedEntity(room);
-		String imageUrl = room.getImageSrc();
-		String newImageUrl = imageService.modifyImage(imageUrl, imageFile);
-		updateRoom(room, request, newImageUrl);
+		String imageSrc = room.getImageSrc();
+		if (imageFile != null) {
+			imageSrc = imageService.modifyImage(imageSrc, imageFile);
+		}
+		updateRoom(room, request, imageSrc);
 		return RoomModifyResponse.of(room);
 	}
 
@@ -220,7 +225,7 @@ public class RoomService {
 
 	private RoomFilterDto getRoomFilterDto(RoomFilterRequest request) {
 		List<Long> tagIds;
-		if (request.tags() == null) {
+		if (request.tags() == null || request.tags().isEmpty()) {
 			tagIds = List.of();
 		} else {
 			tagIds = request.tags().stream().map(tag -> {

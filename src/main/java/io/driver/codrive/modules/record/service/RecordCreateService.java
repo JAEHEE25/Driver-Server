@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class RecordCreateService<T extends RecordCreateRequest> {
 	private final UserService userService;
+	protected final RecordService recordService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
 
@@ -41,6 +42,13 @@ public abstract class RecordCreateService<T extends RecordCreateRequest> {
 	}
 
 	protected abstract Record saveRecord(T recordRequest, User user);
+
+	@Transactional
+	protected void deleteTempRecord(Long tempRecordId) {
+		if (tempRecordId != null) {
+			recordService.deleteRecord(tempRecordId);
+		}
+	}
 
 	protected abstract void createCodeblocks(List<CodeblockCreateRequest> codeblockRequests, Record record);
 

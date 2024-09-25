@@ -173,7 +173,7 @@ public class RoomController {
 	@PatchMapping(value = "/{roomId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<BaseResponse<RoomModifyResponse>> modifyRoom(@PathVariable(name = "roomId") Long roomId,
 		@Valid @RequestPart(value = "request") RoomModifyRequest request,
-		@RequestPart(value = "imageFile") MultipartFile imageFile) throws IOException {
+		@RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 		RoomModifyResponse response = roomService.modifyRoom(roomId, request, imageFile);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}

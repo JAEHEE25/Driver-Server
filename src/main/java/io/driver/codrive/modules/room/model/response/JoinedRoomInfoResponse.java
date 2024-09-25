@@ -21,6 +21,9 @@ public record JoinedRoomInfoResponse(
 	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
 
+	@Schema(description = "그룹 비밀번호 (그룹장이 아닐 경우 null)", example = "비밀번호")
+	String password,
+
 	@Schema(description = "현재 멤버 수", example = "15")
 	int memberCount,
 
@@ -43,12 +46,13 @@ public record JoinedRoomInfoResponse(
 	boolean isPublicRoom
 
 ) {
-	public static JoinedRoomInfoResponse of(Room room, List<LanguageMemberCountDto> languageMemberCount) {
+	public static JoinedRoomInfoResponse of(Room room, String password, List<LanguageMemberCountDto> languageMemberCount) {
 		return JoinedRoomInfoResponse.builder()
 			.roomId(room.getRoomId())
 			.imageSrc(room.getImageSrc())
 			.tags(room.getLanguages())
 			.title(room.getTitle())
+			.password(password)
 			.memberCount(room.getMemberCount())
 			.capacity(room.getCapacity())
 			.approvedCount(room.getMemberCount())

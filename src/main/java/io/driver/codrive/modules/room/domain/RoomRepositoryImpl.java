@@ -11,6 +11,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 
 import static io.driver.codrive.modules.mappings.roomLanguageMapping.domain.QRoomLanguageMapping.roomLanguageMapping;
 import static io.driver.codrive.modules.mappings.roomUserMapping.domain.QRoomUserMapping.*;
@@ -52,13 +53,16 @@ public class RoomRepositoryImpl extends QuerydslRepositorySupport implements Roo
 
 	@Override
 	public Page<Room> filterRooms(RoomFilterDto roomFilterDto, Pageable pageable, SortType sortType) {
-		List<Room> rooms = from(roomLanguageMapping)
+		JPQLQuery<Room> query = from(roomLanguageMapping)
 			.where(getRoomFilterRequest(roomFilterDto))
-			.groupBy(roomLanguageMapping.room)
-			.having(roomLanguageMapping.language.countDistinct().eq((long) roomFilterDto.tagIds().size()))
 			.orderBy(sortType.createRoomOrderSpecifier(sortType))
-			.select(roomLanguageMapping.room)
-			.fetch();
+			.select(roomLanguageMapping.room);
+
+		if (!roomFilterDto.tagIds().isEmpty()) {
+			query.groupBy(roomLanguageMapping.room)
+			.having(roomLanguageMapping.language.countDistinct().eq((long) roomFilterDto.tagIds().size()));
+		}
+		List<Room> rooms = query.fetch();
 		return PageUtils.getPage(rooms, pageable, rooms.size());
 	}
 
@@ -66,20 +70,19 @@ public class RoomRepositoryImpl extends QuerydslRepositorySupport implements Roo
 		List<Long> tagIds = roomFilterDto.tagIds();
 		Integer min = roomFilterDto.min();
 		Integer max = roomFilterDto.max();
-
 		BooleanBuilder booleanBuilder = new BooleanBuilder();
-		booleanBuilder.and(roomLanguageMapping.language.languageId.in(tagIds));
 
+		if (!tagIds.isEmpty()) {
+			booleanBuilder.and(roomLanguageMapping.language.languageId.in(tagIds));
+		}
 		if (min == null) {
 			min = DEFAULT_MIN_CAPACITY;
 		}
-
 		if (max == null) {
 			max = DEFAULT_MAX_CAPACITY;
 		}
 
 		booleanBuilder.and(room.capacity.between(min, max));
-
 		return booleanBuilder;
 	}
 
