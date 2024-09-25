@@ -2,9 +2,13 @@ package io.driver.codrive.modules.room.domain;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 
@@ -13,9 +17,15 @@ import static io.driver.codrive.modules.mappings.roomUserMapping.domain.QRoomUse
 import static io.driver.codrive.modules.room.domain.QRoom.room;
 import static io.driver.codrive.modules.language.domain.QLanguage.language;
 
+import io.driver.codrive.global.model.SortType;
+import io.driver.codrive.global.util.PageUtils;
+import io.driver.codrive.modules.room.model.dto.RoomFilterDto;
+
 @Repository
 public class RoomRepositoryImpl extends QuerydslRepositorySupport implements RoomRepositoryCustom {
 	private static final int RANDOM_ROOM_SIZE = 6;
+	private static final int DEFAULT_MIN_CAPACITY = 0;
+	private static final int DEFAULT_MAX_CAPACITY = 50;
 
 	public RoomRepositoryImpl() {
 		super(Room.class);
@@ -39,4 +49,38 @@ public class RoomRepositoryImpl extends QuerydslRepositorySupport implements Roo
 			.limit(RANDOM_ROOM_SIZE)
 			.fetch();
 	}
+
+	@Override
+	public Page<Room> filterRooms(RoomFilterDto roomFilterDto, Pageable pageable, SortType sortType) {
+		List<Room> rooms = from(roomLanguageMapping)
+			.where(getRoomFilterRequest(roomFilterDto))
+			.groupBy(roomLanguageMapping.room)
+			.having(roomLanguageMapping.language.countDistinct().eq((long) roomFilterDto.tagIds().size()))
+			.orderBy(sortType.createRoomOrderSpecifier(sortType))
+			.select(roomLanguageMapping.room)
+			.fetch();
+		return PageUtils.getPage(rooms, pageable, rooms.size());
+	}
+
+	private Predicate getRoomFilterRequest(RoomFilterDto roomFilterDto) {
+		List<Long> tagIds = roomFilterDto.tagIds();
+		Integer min = roomFilterDto.min();
+		Integer max = roomFilterDto.max();
+
+		BooleanBuilder booleanBuilder = new BooleanBuilder();
+		booleanBuilder.and(roomLanguageMapping.language.languageId.in(tagIds));
+
+		if (min == null) {
+			min = DEFAULT_MIN_CAPACITY;
+		}
+
+		if (max == null) {
+			max = DEFAULT_MAX_CAPACITY;
+		}
+
+		booleanBuilder.and(room.capacity.between(min, max));
+
+		return booleanBuilder;
+	}
+
 }

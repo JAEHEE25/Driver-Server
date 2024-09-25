@@ -19,13 +19,17 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.PageUtils;
+import io.driver.codrive.modules.language.domain.Language;
+import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.global.model.SortType;
+import io.driver.codrive.modules.room.model.dto.RoomFilterDto;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
+import io.driver.codrive.modules.room.model.request.RoomFilterRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
 import io.driver.codrive.modules.user.domain.User;
@@ -44,6 +48,7 @@ public class RoomService {
 	private final RoomLanguageMappingService roomLanguageMappingService;
 	private final RoomUserMappingService roomUserMappingService;
 	private final DiscordService discordService;
+	private final LanguageService languageService;
 	private final RoomRepository roomRepository;
 
 	@Transactional
@@ -88,7 +93,8 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
+	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws
+		IOException {
 		Room room = getRoomById(roomId);
 		AuthUtils.checkOwnedEntity(room);
 		String imageUrl = room.getImageSrc();
@@ -126,16 +132,6 @@ public class RoomService {
 	}
 
 	@Transactional
-	public RoomListResponse getRooms(SortType sortType, int page) {
-		Sort sort = SortType.getRoomSort(sortType);
-		Pageable pageable = PageRequest.of(page, ROOMS_SIZE, sort);
-		PageUtils.validatePageable(pageable);
-		Page<Room> rooms = roomRepository.findAll(pageable);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
-	}
-
-	@Transactional
 	public JoinedRoomTitleResponse getJoinedRoomTitle(Long userId) {
 		User user = userService.getUserById(userId);
 		List<Room> rooms = user.getJoinedRooms();
@@ -148,7 +144,8 @@ public class RoomService {
 		RoomStatus roomStatus = getRoomStatus(status);
 		if (page != null) {
 			Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
-			Page<Room> rooms = roomUserMappingService.getJoinedRoomsByPage(user.getUserId(), roomStatus, sortType, pageable);
+			Page<Room> rooms = roomUserMappingService.getJoinedRoomsByPage(user.getUserId(), roomStatus, sortType,
+				pageable);
 			return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
 		}
 		return JoinedRoomListResponse.of(getJoinedRoomsByStatusAndSortExcludingOwn(roomStatus, user, sortType));
@@ -159,7 +156,10 @@ public class RoomService {
 		if (roomStatus == null) {
 			rooms = user.getJoinedRooms().stream().filter(room -> !room.getOwner().equals(user)).toList();
 		} else {
-			rooms = user.getJoinedRooms().stream().filter(room -> (room.getRoomStatus() == roomStatus) && !room.getOwner().equals(user)).toList();
+			rooms = user.getJoinedRooms()
+				.stream()
+				.filter(room -> (room.getRoomStatus() == roomStatus) && !room.getOwner().equals(user))
+				.toList();
 		}
 		return rooms.stream().sorted(SortType.getJoinedRoomComparator(sortType)).collect(Collectors.toList());
 	}
@@ -195,17 +195,40 @@ public class RoomService {
 	public RoomRecommendResponse getRecommendRoomRandomList(Long userId) {
 		User user = userService.getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
-		List<Room> rooms = roomRepository.getRoomsByLanguageExcludingJoinedRoom(user.getLanguage().getLanguageId(), user.getUserId());
+		List<Room> rooms = roomRepository.getRoomsByLanguageExcludingJoinedRoom(user.getLanguage().getLanguageId(),
+			user.getUserId());
 		return RoomRecommendResponse.of(rooms);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public RoomListResponse searchRooms(String keyword, int page) {
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
 		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
+	}
+
+	@Transactional(readOnly = true)
+	public RoomListResponse filterRooms(SortType sortType, RoomFilterRequest request, int page) {
+		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
+		RoomFilterDto roomFilterDto = getRoomFilterDto(request);
+		Page<Room> rooms = roomRepository.filterRooms(roomFilterDto, pageable, sortType);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
+	}
+
+	private RoomFilterDto getRoomFilterDto(RoomFilterRequest request) {
+		List<Long> tagIds;
+		if (request.tags() == null) {
+			tagIds = List.of();
+		} else {
+			tagIds = request.tags().stream().map(tag -> {
+				Language language = languageService.getLanguageByName(tag);
+				return language.getLanguageId();
+			}).toList();
+		}
+		return RoomFilterDto.toRoomFilterDto(request, tagIds);
 	}
 
 	@Transactional

@@ -40,7 +40,7 @@ public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport imp
 			.select(roomUserMapping.room)
 			.join(roomUserMapping.room, room)
 			.where(roomUserMapping.user.userId.eq(userId), room.owner.userId.ne(userId))
-			.orderBy(createRoomOrderSpecifier(sortType));
+			.orderBy(sortType.createRoomUserOrderSpecifier(sortType));
 		if (roomStatus != null) {
 			query.where(room.roomStatus.eq(roomStatus));
 		}
@@ -59,16 +59,6 @@ public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport imp
 				user.count().as("count")))
 			.fetch();
 	}
-
-	private OrderSpecifier createRoomOrderSpecifier(SortType sortType) {
-		if (sortType == SortType.NEW) {
-			return new OrderSpecifier<>(Order.DESC, roomUserMapping.createdAt);
-		} else if (sortType == SortType.DICT) {
-			return new OrderSpecifier<>(Order.ASC, room.title);
-		} else {
-			throw new IllegalArgumentApplicationException("지원하지 않는 정렬 방식입니다.");
-		}
-    }
 
 	@Override
 	public List<User> getRoomMembers(Room room, SortType sortType) {

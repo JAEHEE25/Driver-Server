@@ -11,6 +11,7 @@ import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
+import io.driver.codrive.modules.room.model.request.RoomFilterRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
 import io.driver.codrive.modules.room.service.RoomService;
@@ -94,24 +95,6 @@ public class RoomController {
 	@GetMapping("/uuid/{uuid}")
 	public ResponseEntity<BaseResponse<RoomUuidResponse>> getRoomInfoByUuid(@PathVariable(name = "uuid") String uuid) {
 		RoomUuidResponse response = roomService.getRoomInfoByUuid(uuid);
-		return ResponseEntity.ok(BaseResponse.of(response));
-	}
-
-	@Operation(
-		summary = "전체 그룹 목록 조회",
-		parameters = {
-			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
-			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
-		},
-		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
-			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다. || 지원하지 않는 정렬 방식입니다.\"}"))),
-		}
-	)
-	@GetMapping("/sort/{sortType}")
-	public ResponseEntity<BaseResponse<RoomListResponse>> getRooms(@PathVariable(name = "sortType") SortType sortType,
-		@RequestParam(name = "page", defaultValue = "0") Integer page) {
-		RoomListResponse response = roomService.getRooms(sortType, page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -247,6 +230,26 @@ public class RoomController {
 	public ResponseEntity<BaseResponse<RoomListResponse>> searchRooms(@RequestParam(name = "keyword") String keyword,
 		@RequestParam(name = "page", defaultValue = "0") Integer page) {
 		RoomListResponse response = roomService.searchRooms(keyword, page);
+		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "전체 그룹 목록 필터링 조회",
+		description = "'ALL' 태그를 선택했을 경우 모든 언어를 리스트에 담아서 요청해야 합니다.",
+		parameters = {
+			@Parameter(name = "sortType", in = ParameterIn.PATH, description = "페이지 정렬 기준 (NEW, DICT)"),
+			@Parameter(name = "page", in = ParameterIn.QUERY, description = "페이지 번호"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomListResponse.class))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"페이지 정보가 올바르지 않습니다.\"}"))),
+		}
+	)
+	@GetMapping("/filter/{sortType}")
+	public ResponseEntity<BaseResponse<RoomListResponse>> filterRooms(@PathVariable(name = "sortType") SortType sortType,
+		@Parameter RoomFilterRequest request,
+		@RequestParam(name = "page", defaultValue = "0") Integer page) {
+		RoomListResponse response = roomService.filterRooms(sortType, request, page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
