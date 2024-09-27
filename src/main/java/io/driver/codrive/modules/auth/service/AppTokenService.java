@@ -5,9 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.UnauthorizedApplicationException;
 import io.driver.codrive.global.jwt.JwtProvider;
-import io.driver.codrive.global.token.AuthToken;
-import io.driver.codrive.global.token.AuthTokenRepository;
-import io.driver.codrive.global.token.TokenType;
+import io.driver.codrive.global.token.AppToken;
+import io.driver.codrive.global.token.AppTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AppTokenService {
 	private final JwtProvider jwtProvider;
-	private final AuthTokenRepository authTokenRepository;
+	private final AppTokenRepository appTokenRepository;
 
 	public String generateAccessToken(Long userId) {
 		return jwtProvider.generateAccessToken(userId);
@@ -27,35 +26,28 @@ public class AppTokenService {
 	}
 
 	@Transactional
-	public void saveAuthToken(String accessToken, String refreshToken, Long userId) {
-		AuthToken token = new AuthToken(userId, accessToken, refreshToken, TokenType.APP.name());
-		authTokenRepository.save(token);
+	public void saveAppToken(String accessToken, String refreshToken, Long userId) {
+		AppToken token = new AppToken(userId, accessToken, refreshToken);
+		appTokenRepository.save(token);
 	}
 
 	@Transactional
 	public String generateNewAccessToken(String requestAccessToken, String requestRefreshToken) {
-		AuthToken authToken = getAuthToken(requestAccessToken);
+		AppToken appToken = getAppTokenByAccessToken(requestAccessToken);
 
-		if (requestRefreshToken.equals(authToken.getRefreshToken())) {
-			return generateAccessToken(authToken.getUserId());
+		if (requestRefreshToken.equals(appToken.getRefreshToken())) {
+			return generateAccessToken(appToken.getUserId());
 		} else {
-			authTokenRepository.delete(authToken);
+			appTokenRepository.delete(appToken);
 			throw new UnauthorizedApplicationException("Refresh Token이 유효하지 않습니다.");
 		}
 	}
 
-	private AuthToken getAuthToken(String accessToken) {
-		log.info("accessToken: {}", accessToken);
+	private AppToken getAppTokenByAccessToken(String accessToken) {
 		String userId = jwtProvider.getClaims(accessToken).getSubject();
-
-		AuthToken authToken = authTokenRepository.findById(userId).orElseThrow(
+		log.info("userId : {}", userId);
+		return appTokenRepository.findById(userId).orElseThrow(
 			() -> new UnauthorizedApplicationException("Refresh Token이 만료되었습니다.")
 		);
-
-		if (authToken.getTokenType().equals(TokenType.APP.name())) {
-			return authToken;
-		} else {
-			throw new UnauthorizedApplicationException("Refresh Token이 유효하지 않습니다.");
-		}
 	}
 }

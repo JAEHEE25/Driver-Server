@@ -8,15 +8,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@RedisHash(value = "token", timeToLive = 1209600000)
-public class AuthToken {
+@RedisHash(value = "githubToken", timeToLive = 1209600000)
+public class GithubToken {
     @Id
     private Long userId;
 
     private String accessToken;
 
     private String refreshToken;
-
-    private String tokenType;
-
 }
