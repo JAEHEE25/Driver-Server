@@ -3,18 +3,13 @@ package io.driver.codrive.global.jwt;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.crypto.SecretKey;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
-import io.driver.codrive.global.config.JwtConfig;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -28,11 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends GenericFilterBean {
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String BEARER_PREFIX = "Bearer ";
-	private final SecretKey secretKey;
-
-	public JwtAuthenticationFilter(JwtConfig jwtConfig) {
-		this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtConfig.getSecretKey()));
-	}
+	private final JwtProvider jwtProvider;
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws
@@ -43,7 +34,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		String accessToken = resolveToken(httpServletRequest);
 
 		if (StringUtils.hasText(accessToken)) {
-			Claims claims = getClaims(accessToken);
+			Claims claims = jwtProvider.getClaims(accessToken);
 
 			if (claims != null && isValidToken(claims)) {
 				Long userId = Long.valueOf(claims.getSubject());
@@ -62,19 +53,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 			return bearerToken.substring(7);
 		}
 		return null;
-	}
-
-	private Claims getClaims(String accessToken) {
-		try {
-			return Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(accessToken)
-				.getPayload();
-		} catch (Exception e) {
-            log.error("Invalid JWT token", e);
-            return null;
-		}
 	}
 
 	private boolean isValidToken(Claims claims) {

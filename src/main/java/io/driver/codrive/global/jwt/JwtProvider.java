@@ -7,11 +7,14 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 import io.driver.codrive.global.config.JwtConfig;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class JwtProvider {
 	private final JwtConfig jwtConfig;
 	private final SecretKey secretKey;
@@ -38,5 +41,18 @@ public class JwtProvider {
 			.expiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpirationMills()))
 			.signWith(secretKey)
 			.compact();
+	}
+
+	public Claims getClaims(String accessToken) {
+		try {
+			return Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(accessToken)
+				.getPayload();
+		} catch (Exception e) {
+            log.error("Invalid JWT token", e);
+            return null;
+		}
 	}
 }

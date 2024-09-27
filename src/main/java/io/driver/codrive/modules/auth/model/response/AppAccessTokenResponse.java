@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
-public record AccessTokenResponse(
+public record AppAccessTokenResponse(
 	@Schema(description = "발급한 Access Token", example = "ACCESS_TOKEN")
 	String accessToken
 ) {
-	public static AccessTokenResponse of(String accessToken) {
-		return AccessTokenResponse.builder()
+	public static AppAccessTokenResponse of(String accessToken) {
+		return AppAccessTokenResponse.builder()
 			.accessToken(accessToken)
 			.build();
 	}
