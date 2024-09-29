@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
+import io.driver.codrive.modules.user.model.request.GithubRepositoryNameRequest;
 import io.driver.codrive.modules.user.model.response.*;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
@@ -66,6 +67,25 @@ public class UserController {
 		userService.checkNicknameDuplication(request);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
+
+	@Operation(
+		summary = "GitHub Repository 이름 검사",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				schema = @Schema(implementation = GithubRepositoryNameRequest.class)
+			)
+		),
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "400", content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"레포지토리가 존재하지 않습니다.\"}"))),
+		}
+	)
+	@PostMapping("/repository")
+	public ResponseEntity<BaseResponse<Void>> checkGithubRepositoryName(@RequestBody GithubRepositoryNameRequest request) {
+		userService.checkGithubRepositoryName(request);
+		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
 
 	@Operation(
 		summary = "프로필 변경",

@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.record.model.request.github;
+package io.driver.codrive.modules.record.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

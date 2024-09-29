@@ -1,5 +1,7 @@
 package io.driver.codrive.modules.record.controller;
 
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +49,8 @@ public class RecordController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@Valid @RequestBody RecordSaveRequest request) {
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@Valid @RequestBody RecordSaveRequest request) throws
+		IOException {
 		RecordCreateResponse response = recordSaveService.createRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -85,7 +88,8 @@ public class RecordController {
 		}
 	)
 	@PostMapping("/temp")
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(@Valid @RequestBody RecordTempRequest request) {
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(@Valid @RequestBody RecordTempRequest request) throws
+		IOException {
 		RecordCreateResponse response = recordTempService.createRecord(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}

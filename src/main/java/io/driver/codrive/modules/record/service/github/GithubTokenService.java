@@ -14,8 +14,8 @@ import io.driver.codrive.global.jwt.JwtProvider;
 import io.driver.codrive.global.token.GithubToken;
 import io.driver.codrive.global.token.GithubTokenRepository;
 import io.driver.codrive.modules.auth.model.dto.GithubCodeDto;
-import io.driver.codrive.modules.record.model.request.github.GithubAccessTokenDto;
-import io.driver.codrive.modules.record.model.request.github.GithubRefreshDto;
+import io.driver.codrive.modules.record.model.dto.GithubAccessTokenDto;
+import io.driver.codrive.modules.record.model.dto.GithubRefreshDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

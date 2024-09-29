@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.record.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -24,15 +25,17 @@ public abstract class RecordCreateService<T extends RecordCreateRequest> {
 	private final RecordCategoryMappingService recordCategoryMappingService;
 
 	@Transactional
-	public RecordCreateResponse createRecord(T recordRequest) {
+	public RecordCreateResponse createRecord(T recordRequest) throws IOException {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Record createdRecord = saveRecord(recordRequest, user);
 
 		createCodeblocks(recordRequest.getCodeblocks(), createdRecord);
 		createRecordCategoryMapping(recordRequest.getTags(), createdRecord);
 		if (isSaveRecordRequest()) { //등록일 경우
+			updateSolvedCount(user);
 			updateSuccessRate(user);
 			updateJoinedRoomsLastUpdatedAt(createdRecord, user);
+			commitToGithub(createdRecord, user);
 		}
 		return RecordCreateResponse.of(createdRecord);
 	}
@@ -65,6 +68,8 @@ public abstract class RecordCreateService<T extends RecordCreateRequest> {
 		recordCategoryMappingService.createRecordCategoryMapping(tags, record);
 	}
 
+	protected abstract void updateSolvedCount(User user);
 	protected abstract void updateSuccessRate(User user);
 	protected abstract void updateJoinedRoomsLastUpdatedAt(Record createdRecord, User user);
+	protected abstract void commitToGithub(Record createdRecord, User user) throws IOException;
 }

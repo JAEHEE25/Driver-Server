@@ -21,6 +21,9 @@ public record UserDetailResponse(
 	@Schema(description = "GitHub URL", example = "GITHUB_URL")
 	String githubUrl,
 
+	@Schema(description = "GitHub Repository 이름", example = "Algorithm")
+	String githubRepositoryName,
+
 	@Schema(description = "주 언어", example = "Java")
 	String language,
 
@@ -35,6 +38,7 @@ public record UserDetailResponse(
 			.profileImg(user.getProfileImg())
 			.comment(user.getComment())
 			.githubUrl(user.getGithubUrl())
+			.githubRepositoryName(user.getGithubRepositoryName())
 			.language(user.getLanguage().getName())
 			.goal(user.getGoal())
 			.build();

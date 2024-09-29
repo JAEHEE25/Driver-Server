@@ -56,10 +56,16 @@ public class RecordTempService extends RecordCreateService<RecordTempRequest> {
 	}
 
 	@Override
+	protected void updateSolvedCount(User user) {}
+
+	@Override
 	protected void updateSuccessRate(User user) {}
 
 	@Override
 	protected void updateJoinedRoomsLastUpdatedAt(Record createdRecord, User user) {}
+
+	@Override
+	protected void commitToGithub(Record createdRecord, User user){}
 
 	@Transactional
 	protected void checkTempRecordLimit(User user) {

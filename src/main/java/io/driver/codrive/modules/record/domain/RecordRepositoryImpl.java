@@ -23,7 +23,7 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.global.util.PageUtils;
-import io.driver.codrive.modules.record.model.RecordCountDto;
+import io.driver.codrive.modules.record.model.dto.RecordCountDto;
 
 @Repository
 public class RecordRepositoryImpl extends QuerydslRepositorySupport implements RecordRepositoryCustom {

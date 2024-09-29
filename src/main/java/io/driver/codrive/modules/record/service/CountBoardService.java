@@ -19,7 +19,7 @@ import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
-import io.driver.codrive.modules.record.model.RecordCountDto;
+import io.driver.codrive.modules.record.model.dto.RecordCountDto;
 import io.driver.codrive.modules.record.model.response.BoardResponse;
 import io.driver.codrive.modules.record.model.response.RecordMonthListResponse;
 import io.driver.codrive.modules.record.model.response.UnsolvedMonthResponse;
