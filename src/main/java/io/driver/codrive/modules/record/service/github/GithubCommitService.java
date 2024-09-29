@@ -36,6 +36,11 @@ public class GithubCommitService {
 	private static final String COMMIT_MESSAGE = "[%s] %s";
 	private static final String GITHUB_COMMIT_URL = "https://api.github.com/repos/%s/%s/contents/%s";
 	private static final String GITHUB_REPOSITORY_LIST_URL = "https://api.github.com/user/repos?type=owner";
+	private static final String AUTH_HEADER = "Authorization";
+	private static final String AUTH_HEADER_VALUE = "Bearer %s";
+	private static final String ACCEPT_HEADER = "Accept";
+	private static final String ACCEPT_HEADER_VALUE = "application/vnd.github+json";
+
 	private final WebClient webClient;
 	private final GithubTokenService githubTokenService;
 
@@ -50,8 +55,8 @@ public class GithubCommitService {
 			webClient.put()
 				.uri(String.format(GITHUB_COMMIT_URL, user.getUsername(), user.getGithubRepositoryName(), path))
 				.bodyValue(GithubCommitContentDto.of(message, content))
-				.header("Authorization", "Bearer " + accessToken)
-				.header("Accept", "application/vnd.github+json")
+				.header(AUTH_HEADER, String.format(AUTH_HEADER_VALUE, accessToken))
+				.header(ACCEPT_HEADER, ACCEPT_HEADER_VALUE)
 				.retrieve()
 				.toEntity(Void.class)
 				.block();
@@ -75,8 +80,8 @@ public class GithubCommitService {
 		try {
 			return webClient.get()
 				.uri(String.format(GITHUB_REPOSITORY_LIST_URL))
-				.header("Authorization", "Bearer " + accessToken)
-				.header("Accept", "application/vnd.github+json")
+				.header(AUTH_HEADER, String.format(AUTH_HEADER_VALUE, accessToken))
+				.header(ACCEPT_HEADER, ACCEPT_HEADER_VALUE)
                 .retrieve()
                 .bodyToFlux(GithubRepositoryNameDto.class)
 				.map(GithubRepositoryNameDto::getName);
@@ -124,7 +129,7 @@ public class GithubCommitService {
 	protected String getCodeblocks(Record record) {
 		List<Codeblock> codeblocks = record.getCodeblocks();
 		String startBox = String.format(CODE_BOX_START, record.getUser().getLanguage().getName());
-		StringBuilder stringBuilder = new StringBuilder(); // StringBuilder 사용
+		StringBuilder stringBuilder = new StringBuilder();
 
 		codeblocks.forEach(codeblock -> {
 			String code = startBox + codeblock.getCode() + CODE_BOX_END;
