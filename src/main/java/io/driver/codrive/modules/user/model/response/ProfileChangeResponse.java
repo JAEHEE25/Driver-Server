@@ -16,7 +16,11 @@ public record ProfileChangeResponse(
 	String comment,
 
 	@Schema(description = "GitHub URL", example = "GITHUB_URL")
-	String githubUrl
+	String githubUrl,
+
+	@Schema(description = "GitHub Repository 이름", example = "Algorithm")
+	String githubRepositoryName
+
 ) {
 	public static ProfileChangeResponse of(User user) {
 		return ProfileChangeResponse.builder()
@@ -24,6 +28,7 @@ public record ProfileChangeResponse(
 			.language(user.getLanguage().getName())
 			.comment(user.getComment())
 			.githubUrl(user.getGithubUrl())
+			.githubRepositoryName(user.getGithubRepositoryName())
 			.build();
 	}
 }

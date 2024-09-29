@@ -51,7 +51,7 @@ public class RecordSaveRequest extends RecordCreateRequest {
 	@Schema(description = "작성한 코드 블록", implementation = CodeblockCreateRequest.class,
 		example = "[{\"code\": \"CODE\", \"memo\": \"MEMO\"}]")
 	@NotNull(message = "코드 블록을 입력해주세요.")
-	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {min}개 이하로 입력해주세요.")
+	@Size(min = 1, max = 10, message = "코드 블록은 {min}개 이상 {max}개 이하로 입력해주세요.")
 	private List<CodeblockCreateRequest> codeblocks;
 
     public Record toRecord(User user) {

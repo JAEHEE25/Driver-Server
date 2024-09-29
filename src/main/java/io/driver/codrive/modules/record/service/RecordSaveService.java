@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.record.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -11,18 +12,23 @@ import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCa
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.model.request.RecordSaveRequest;
+import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RecordSaveService extends RecordCreateService<RecordSaveRequest> {
 	private final RecordRepository recordRepository;
+	private final GithubCommitService githubCommitService;
 
 	public RecordSaveService(UserService userService, RecordRepository recordRepository,
 		RecordCategoryMappingService recordCategoryMappingService, CodeblockService codeblockService,
-		RecordService recordService) {
+		RecordService recordService, GithubCommitService githubCommitService) {
 		super(userService, recordService, codeblockService, recordCategoryMappingService);
 		this.recordRepository = recordRepository;
+		this.githubCommitService = githubCommitService;
 	}
 
 	@Override
@@ -52,6 +58,11 @@ public class RecordSaveService extends RecordCreateService<RecordSaveRequest> {
 	}
 
 	@Override
+	protected void updateSolvedCount(User user) {
+		user.addSolvedCount();
+	}
+
+	@Override
 	@Transactional
 	protected void updateSuccessRate(User user) {
 		recordService.updateSuccessRate(user);
@@ -61,5 +72,10 @@ public class RecordSaveService extends RecordCreateService<RecordSaveRequest> {
 	@Transactional
 	protected void updateJoinedRoomsLastUpdatedAt(Record createdRecord, User user) {
 		user.getJoinedRooms().forEach(room -> room.changeLastUpdatedAt(createdRecord.getCreatedAt()));
+	}
+
+	@Override
+	protected void commitToGithub(Record createdRecord, User user) throws IOException {
+		githubCommitService.commitToGithub(createdRecord, createdRecord.getUser());
 	}
 }

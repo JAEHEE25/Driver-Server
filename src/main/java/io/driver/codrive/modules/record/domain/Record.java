@@ -2,6 +2,8 @@ package io.driver.codrive.modules.record.domain;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.domain.RecordCategoryMapping;
@@ -52,6 +54,7 @@ public class Record extends BaseEntity {
 		return this.recordStatus == recordStatus;
 	}
 
+	@Transactional(readOnly = true)
 	public boolean compareTags(List<String> tags) {
 		return getCategories().equals(tags);
 	}
@@ -90,6 +93,7 @@ public class Record extends BaseEntity {
 		this.recordCategoryMappings.removeAll(recordCategoryMapping);
 	}
 
+	@Transactional
 	public List<String> getCategories() {
 		return recordCategoryMappings.stream().map(RecordCategoryMapping::getCategoryName).toList();
 	}

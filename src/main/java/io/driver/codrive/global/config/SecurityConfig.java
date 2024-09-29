@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Configuration;
 
 import io.driver.codrive.global.constants.APIConstants;
+import io.driver.codrive.global.jwt.JwtProvider;
 import io.driver.codrive.global.util.JsonUtils;
 import io.driver.codrive.global.jwt.JwtAuthenticationFilter;
 import io.driver.codrive.global.model.ErrorResponse;
@@ -39,7 +40,7 @@ public class SecurityConfig {
     };
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtConfig jwtConfig) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtProvider jwtProvider) throws Exception {
         http
             .cors(Customizer.withDefaults())
             .httpBasic(AbstractHttpConfigurer::disable)
@@ -66,7 +67,7 @@ public class SecurityConfig {
                 });
             });
 
-        http.addFilterAfter(new JwtAuthenticationFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

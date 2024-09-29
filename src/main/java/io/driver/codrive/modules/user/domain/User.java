@@ -48,10 +48,16 @@ public class User extends BaseEntity {
 	private String githubUrl;
 
 	@Column(nullable = false)
+	private String githubRepositoryName;
+
+	@Column(nullable = false)
 	private Integer goal;
 
 	@Column(nullable = false)
 	private Integer successRate;
+
+	@Column(nullable = false)
+	private Long solvedCount;
 
 	@Column(nullable = false)
 	private Boolean withdraw;
@@ -94,6 +100,10 @@ public class User extends BaseEntity {
 		this.followers.add(follow);
 	}
 
+	public void addSolvedCount() {
+		this.solvedCount++;
+	}
+
 	public void deleteFollowing(Follow follow) {
 		this.followings.remove(follow);
 	}
@@ -120,6 +130,10 @@ public class User extends BaseEntity {
 
 	public void changeGithubUrl(String githubUrl) {
 		this.githubUrl = githubUrl;
+	}
+
+	public void changeGithubRepositoryName(String githubRepositoryName) {
+		this.githubRepositoryName = githubRepositoryName;
 	}
 
 	public void changeLanguage(Language language) {

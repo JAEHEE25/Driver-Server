@@ -1,4 +1,4 @@
-package io.driver.codrive.modules.auth.domain;
+package io.driver.codrive.global.token;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -8,11 +8,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@RedisHash(value = "accessToken", timeToLive = 1209600000)
-public class RefreshToken {
+@RedisHash(value = "githubToken", timeToLive = 1209600000)
+public class GithubToken {
     @Id
+    private Long userId;
+
     private String accessToken;
 
     private String refreshToken;
-    private Long userId;
 }

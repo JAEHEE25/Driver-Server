@@ -19,6 +19,9 @@ public record ProfileChangeRequest(
 	String comment,
 
 	@Schema(description = "GitHub URL", example = "GITHUB_URL")
-	String githubUrl
+	String githubUrl,
+
+	@Schema(description = "GitHub Repository 이름", example = "Algorithm")
+	String githubRepositoryName
 ) {
 }

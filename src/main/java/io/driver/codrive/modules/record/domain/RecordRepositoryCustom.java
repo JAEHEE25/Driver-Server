@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import io.driver.codrive.global.model.SortType;
-import io.driver.codrive.modules.record.model.RecordCountDto;
+import io.driver.codrive.modules.record.model.dto.RecordCountDto;
 
 @Repository
 public interface RecordRepositoryCustom {

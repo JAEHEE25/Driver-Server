@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.modules.auth.model.request.GithubLoginRequest;
 import io.driver.codrive.modules.auth.model.request.RefreshTokenRequest;
-import io.driver.codrive.modules.auth.model.response.AccessTokenResponse;
+import io.driver.codrive.modules.auth.model.response.AppAccessTokenResponse;
 import io.driver.codrive.modules.auth.model.response.LoginResponse;
 import io.driver.codrive.modules.auth.service.AuthService;
 import io.driver.codrive.global.constants.APIConstants;
@@ -52,13 +52,13 @@ public class AuthController {
 			)
 		),
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AccessTokenResponse.class))),
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AppAccessTokenResponse.class))),
 			@ApiResponse(responseCode = "401", content = @Content(examples = @ExampleObject(value = "{\"code\": 401, \"message\": \"Refresh Token이 유효하지 않습니다. Refresh Token이 만료되었습니다.\"}"))),
 		}
 	)
 	@PostMapping("/refresh")
-	public ResponseEntity<BaseResponse<AccessTokenResponse>> refresh(@RequestBody RefreshTokenRequest request) {
-		AccessTokenResponse response = authService.refresh(request);
+	public ResponseEntity<BaseResponse<AppAccessTokenResponse>> refresh(@RequestBody RefreshTokenRequest request) {
+		AppAccessTokenResponse response = authService.refresh(request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

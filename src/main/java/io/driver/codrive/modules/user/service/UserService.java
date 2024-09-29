@@ -13,9 +13,11 @@ import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
+import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
+import io.driver.codrive.modules.user.model.request.GithubRepositoryNameRequest;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
 import io.driver.codrive.modules.user.model.request.ProfileChangeRequest;
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final LanguageService languageService;
 	private final DiscordService discordService;
+	private final GithubCommitService githubCommitService;
 	private final UserRepository userRepository;
 
 	public User getUserById(Long userId) {
@@ -51,6 +54,14 @@ public class UserService {
 		}
 	}
 
+	public void checkGithubRepositoryName(GithubRepositoryNameRequest request) {
+		User user = getUserById(AuthUtils.getCurrentUserId());
+		boolean isExistRepository = githubCommitService.isExistRepository(user, request.githubRepositoryName());
+		if (!isExistRepository) {
+			throw new NotFoundApplcationException("레포지토리");
+		}
+	}
+
 	@Transactional
 	public ProfileChangeResponse updateCurrentUserProfile(Long userId, ProfileChangeRequest request) {
 		User user = getUserById(userId);
@@ -59,6 +70,7 @@ public class UserService {
 		user.changeLanguage(languageService.getLanguageByName(request.language()));
 		user.changeComment(request.comment());
 		user.changeGithubUrl(request.githubUrl());
+		user.changeGithubRepositoryName(request.githubRepositoryName());
 		return ProfileChangeResponse.of(user);
 	}
 
