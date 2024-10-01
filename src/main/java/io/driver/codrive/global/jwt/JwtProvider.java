@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import io.driver.codrive.global.config.JwtConfig;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -50,9 +51,9 @@ public class JwtProvider {
 				.build()
 				.parseSignedClaims(accessToken)
 				.getPayload();
-		} catch (Exception e) {
-            log.error("Invalid JWT token", e);
-            return null;
+		} catch (ExpiredJwtException e) {
+            log.error("Expired JWT token", e);
+            return e.getClaims();
 		}
 	}
 }

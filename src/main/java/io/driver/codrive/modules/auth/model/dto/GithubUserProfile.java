@@ -24,10 +24,13 @@ public record GithubUserProfile(
 			.username(username)
 			.nickname(username)
 			.profileImg(profileImg)
+			.comment(null)
 			.githubUrl(null)
+			.githubRepositoryName(null)
 			.language(language)
 			.goal(0)
 			.successRate(0)
+			.solvedCount(0L)
 			.withdraw(false)
 			.build();
 	}
