@@ -11,9 +11,9 @@ import lombok.Getter;
 @RedisHash(value = "appToken", timeToLive = 1209600000)
 public class AppToken {
     @Id
-    private Long userId;
-
     private String accessToken;
 
     private String refreshToken;
+
+    private Long userId;
 }

@@ -27,7 +27,7 @@ public class AppTokenService {
 
 	@Transactional
 	public void saveAppToken(String accessToken, String refreshToken, Long userId) {
-		AppToken token = new AppToken(userId, accessToken, refreshToken);
+		AppToken token = new AppToken(accessToken, refreshToken, userId);
 		appTokenRepository.save(token);
 	}
 
@@ -44,9 +44,7 @@ public class AppTokenService {
 	}
 
 	private AppToken getAppTokenByAccessToken(String accessToken) {
-		String userId = jwtProvider.getClaims(accessToken).getSubject();
-		log.info("userId : {}", userId);
-		return appTokenRepository.findById(userId).orElseThrow(
+		return appTokenRepository.findById(accessToken).orElseThrow(
 			() -> new UnauthorizedApplicationException("Refresh Token이 만료되었습니다.")
 		);
 	}
