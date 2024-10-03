@@ -44,4 +44,9 @@ public class DateUtils {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M.d");
 		return createdAt.format(formatter);
 	}
+
+	public static String formatCreatedAtByMMdd(LocalDateTime createdAt) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
+		return createdAt.format(formatter);
+	}
 }

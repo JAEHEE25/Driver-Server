@@ -33,7 +33,7 @@ public class GithubCommitService {
 	private static final String CODE_BOX_START = "```%s\n";
 	private static final String CODE_BOX_END = "\n```\n";
 	private static final String TEMPLATE_PATH = "templates/template.md";
-	private static final String COMMIT_MESSAGE = "[%s] %s";
+	private static final String COMMIT_MESSAGE = "%s [%s]";
 	private static final String GITHUB_COMMIT_URL = "https://api.github.com/repos/%s/%s/contents/%s";
 	private static final String GITHUB_REPOSITORY_LIST_URL = "https://api.github.com/user/repos?type=owner";
 	private static final String AUTH_HEADER = "Authorization";
@@ -47,7 +47,7 @@ public class GithubCommitService {
 	@Transactional
 	public void commitToGithub(Record record, User user) throws IOException {
 		String accessToken = githubTokenService.getGithubTokenByUserId(user.getUserId()).getAccessToken();
-		String message = String.format(COMMIT_MESSAGE, record.getTitle(), DateUtils.formatCreatedAtByMD(record.getCreatedAt()));
+		String message = String.format(COMMIT_MESSAGE, DateUtils.formatCreatedAtByMMdd(record.getCreatedAt()), record.getTitle());
 		String content = TemplateUtils.encodeBase64(getContent(record));
 		String path = getPath(record);
 
@@ -118,14 +118,14 @@ public class GithubCommitService {
 		return params;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	protected String getTags(List<String> categories) {
 		return categories.stream()
 			.map(category -> TAG_PREFIX + category)
 			.collect(Collectors.joining(TAG_DELIMITER));
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	protected String getCodeblocks(Record record) {
 		List<Codeblock> codeblocks = record.getCodeblocks();
 		String startBox = String.format(CODE_BOX_START, record.getUser().getLanguage().getName());
