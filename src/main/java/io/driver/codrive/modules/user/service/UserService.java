@@ -48,6 +48,14 @@ public class UserService {
 		return UserDetailResponse.of(user);
 	}
 
+	@Transactional
+	public UserProfileResponse getProfile(Long userId) {
+		User user = getUserById(userId);
+		User currentUser = getUserById(AuthUtils.getCurrentUserId());
+		Boolean isFollowing = currentUser.isFollowing(user);
+		return UserProfileResponse.of(user, isFollowing);
+	}
+
 	public void checkNicknameDuplication(NicknameRequest request) {
 		if (userRepository.existsByNickname(request.nickname())) {
 			throw new AlreadyExistsApplicationException("닉네임");
@@ -119,14 +127,6 @@ public class UserService {
 	@Transactional
 	public List<User> getRandomUsersExcludingMeAndFollowings(User user){
 		return userRepository.getRandomUsersExcludingMeAndFollowings(user.getUserId());
-	}
-
-	@Transactional
-	public UserProfileResponse getProfile(Long userId) {
-		User user = getUserById(userId);
-		User currentUser = getUserById(AuthUtils.getCurrentUserId());
-		Boolean isFollowing = currentUser.isFollowing(user);
-		return UserProfileResponse.of(user, isFollowing);
 	}
 
 	@Scheduled(cron = "0 0 0 * * MON") //매주 월요일 00:00:00에 실행
