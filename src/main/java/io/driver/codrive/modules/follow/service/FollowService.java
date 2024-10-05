@@ -22,6 +22,8 @@ import io.driver.codrive.modules.follow.model.response.FollowingSummaryListRespo
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
 import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
 import io.driver.codrive.modules.follow.model.response.WeeklyFollowingResponse;
+import io.driver.codrive.modules.notification.domain.NotificationType;
+import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.service.RecordService;
 import io.driver.codrive.modules.room.domain.Room;
@@ -39,6 +41,7 @@ public class FollowService {
 	private final UserService userService;
 	private final RoomService roomService;
 	private final RecordService recordService;
+	private final NotificationService notificationService;
 	private final FollowRepository followRepository;
 
 	@Transactional
@@ -58,6 +61,8 @@ public class FollowService {
 		currentUser.addFollowing(follow);
 		target.addFollower(follow);
 		followRepository.save(follow);
+
+		notificationService.sendNotification(target.getUserId(), NotificationType.FOLLOW, currentUser.getNickname());
 	}
 
 	@Transactional
