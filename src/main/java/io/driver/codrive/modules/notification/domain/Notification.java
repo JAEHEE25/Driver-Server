@@ -29,11 +29,12 @@ public class Notification extends BaseEntity {
 		return userId;
 	}
 
-	public static Notification create(Long userId, String content) {
+	public static Notification create(Long userId, NotificationType notificationType, String arg) {
 		return Notification.builder()
-			.content(content)
+			.content(notificationType.formatMessage(arg))
 			.userId(userId)
 			.isRead(false)
+			.notificationType(notificationType)
 			.build();
 	}
 }

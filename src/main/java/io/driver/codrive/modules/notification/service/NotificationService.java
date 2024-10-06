@@ -27,17 +27,17 @@ public class NotificationService {
 
 	public Flux<ServerSentEvent<Notification>> registerUser() {
 		Long userId = AuthUtils.getCurrentUserId();
-		Notification notification = Notification.create(userId, NotificationType.CONNECT_START.formatMessage(String.valueOf(userId)));
+		Notification notification = Notification.create(userId, NotificationType.CONNECT_START, String.valueOf(userId));
 		return userNotificationSinks.computeIfAbsent(userId, id -> Sinks.many().multicast().onBackpressureBuffer())
 			.asFlux()
 			.doOnSubscribe(subscription -> {
-				log.info("User [{}]의 알림 스트림을 시작합니다.", userId);
 				userNotificationSinks.get(userId).tryEmitNext(createServerSentEvent(notification));
+				log.info("User [{}]의 알림 스트림을 시작합니다.", userId);
 			});
 	}
 
 	private Notification createNotification(Long userId, NotificationType type, String arg) {
-		Notification notification = Notification.create(userId, type.formatMessage(arg));
+		Notification notification = Notification.create(userId, type, arg);
 		return notificationRepository.save(notification);
 	}
 
