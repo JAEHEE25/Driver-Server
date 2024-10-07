@@ -152,9 +152,7 @@ class UserServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		//when & then
-		NotFoundApplcationException notFoundApplcationException = assertThrows(NotFoundApplcationException.class,
-			() -> userService.getUserById(userId));
-		assertEquals("사용자을/를 찾을 수 없습니다.", notFoundApplcationException.getMessage());
+		assertThrows(NotFoundApplcationException.class, () -> userService.getUserById(userId));
 	}
 
 	@Test

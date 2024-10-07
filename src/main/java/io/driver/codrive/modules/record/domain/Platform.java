@@ -2,6 +2,7 @@ package io.driver.codrive.modules.record.domain;
 
 import java.util.Arrays;
 
+import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +20,6 @@ public enum Platform {
 
 	public static Platform getPlatformByName(String requestPlatform) {
 		return Arrays.stream(values()).filter(platform -> platform.name.equals(requestPlatform))
-			.findFirst().orElseThrow(() -> new IllegalArgumentException("지원하지 않는 플랫폼입니다."));
+			.findFirst().orElseThrow(() -> new IllegalArgumentApplicationException("지원하지 않는 플랫폼입니다."));
 	}
 }
