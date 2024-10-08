@@ -15,6 +15,6 @@ public interface RecordRepositoryCustom {
 	Page<Record> getMonthlyRecords(Long userId, LocalDate pivotDate, SortType sortType, Pageable pageable);
 	List<RecordCountDto> getYearlyRecordCountBoard(Long userId, LocalDate pivotDate);
 	List<RecordCountDto> getMonthlyRecordCountBoard(Long userId, LocalDate pivotDate);
-	Integer getRecordCountByWeek(Long userId, LocalDate pivotDate);
+	Integer getRecordsCountByWeek(Long userId, LocalDate pivotDate);
 	Integer getSolvedDaysByWeek(Long userId, LocalDate pivotDate);
 }

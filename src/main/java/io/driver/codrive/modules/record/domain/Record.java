@@ -50,10 +50,6 @@ public class Record extends BaseEntity {
 	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<RecordCategoryMapping> recordCategoryMappings;
 
-	public boolean compareRecordStatus(RecordStatus recordStatus) {
-		return this.recordStatus == recordStatus;
-	}
-
 	@Transactional(readOnly = true)
 	public boolean compareTags(List<String> tags) {
 		return getCategories().equals(tags);

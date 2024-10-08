@@ -76,7 +76,7 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 	}
 
 	@Override
-	public Integer getRecordCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
+	public Integer getRecordsCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
 		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
 		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
 
