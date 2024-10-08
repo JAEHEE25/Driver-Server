@@ -51,13 +51,37 @@ public class CountBoardService {
 	}
 
 	private void updateCountBoard(User user, Period period, LocalDate pivotDate) {
-		updateCountBoardByDto(getRecordCountDtos(user, period, pivotDate));
+		List<RecordCountDto> recordCountDtos = getRecordCountDtos(user, period, pivotDate);
+		if (recordCountDtos != null) {
+			recordCountDtos.forEach(dto -> countBoard.put(dto.getDate(), dto.getCount()));
+		}
 	}
 
-	private List<BoardResponse.RecordSolvedResponse> getRecordSolvedBoard() {
-		return countBoard.entrySet().stream()
-			.map(entry -> BoardResponse.RecordSolvedResponse.of(entry.getKey(), entry.getValue()))
-			.toList();
+	private List<RecordCountDto> getRecordCountDtos(User user, Period period, LocalDate pivotDate) {
+		if (period == Period.YEARLY) {
+			createYearlyCountBoard();
+			return recordRepository.getYearlyRecordCountBoard(user.getUserId(), pivotDate);
+		} else if (period == Period.MONTHLY) {
+			createMonthlyCountBoard(pivotDate);
+			return recordRepository.getMonthlyRecordCountBoard(user.getUserId(), pivotDate);
+		} else {
+			return null;
+		}
+	}
+
+	private void createYearlyCountBoard() {
+		countBoard.clear();
+		for (int month = 1; month <= 12; month++) {
+			countBoard.put(String.valueOf(month), 0L);
+		}
+	}
+
+	private void createMonthlyCountBoard(LocalDate pivotDate) {
+		countBoard.clear();
+		int lastDay = YearMonth.from(pivotDate).lengthOfMonth();
+		for (int day = 1; day <= lastDay; day++) {
+			countBoard.put(String.valueOf(day), 0L);
+		}
 	}
 
 	private int getTotalCount() {
@@ -83,6 +107,12 @@ public class CountBoardService {
 		return countBoard.values().stream().mapToInt(Long::intValue).max().orElse(0);
 	}
 
+	private List<BoardResponse.RecordSolvedResponse> getRecordSolvedBoard() {
+		return countBoard.entrySet().stream()
+			.map(entry -> BoardResponse.RecordSolvedResponse.of(entry.getKey(), entry.getValue()))
+			.toList();
+	}
+
 	@Transactional
 	public RecordMonthListResponse getRecordsByMonth(Long userId, SortType sortType, String requestPivotDate, Integer page, Integer size) {
 		Pageable pageable = PageRequest.of(page, size);
@@ -104,36 +134,4 @@ public class CountBoardService {
 			.collect(Collectors.toList());
 		return UnsolvedMonthResponse.of(unsolvedMonths);
 	}
-
-	private List<RecordCountDto> getRecordCountDtos(User user, Period period, LocalDate pivotDate) {
-		if (period == Period.YEARLY) {
-			createYearlyCountBoard();
-			return recordRepository.getYearlyRecordCountBoard(user.getUserId(), pivotDate);
-		} else if (period == Period.MONTHLY) {
-			createMonthlyCountBoard(pivotDate);
-			return recordRepository.getMonthlyRecordCountBoard(user.getUserId(), pivotDate);
-		} else {
-			return null;
-		}
-	}
-
-	private void updateCountBoardByDto(List<RecordCountDto> recordCountDtos) {
-		recordCountDtos.forEach(dto -> countBoard.put(dto.getDate(), dto.getCount()));
-	}
-
-	private void createYearlyCountBoard() {
-		countBoard.clear();
-		for (int month = 1; month <= 12; month++) {
-			countBoard.put(String.valueOf(month), 0L);
-		}
-	}
-
-	private void createMonthlyCountBoard(LocalDate pivotDate) {
-		countBoard.clear();
-		int lastDay = YearMonth.from(pivotDate).lengthOfMonth();
-		for (int day = 1; day <= lastDay; day++) {
-			countBoard.put(String.valueOf(day), 0L);
-		}
-	}
-
 }

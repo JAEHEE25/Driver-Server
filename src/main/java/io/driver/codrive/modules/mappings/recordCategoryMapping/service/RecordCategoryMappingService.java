@@ -32,7 +32,7 @@ public class RecordCategoryMappingService {
 		record.deleteCategories(mappings);
 	}
 
-	public List<RecordCategoryMapping> getRecordCategoryMappingsByTags(List<String> tags, Record record) {
+	private List<RecordCategoryMapping> getRecordCategoryMappingsByTags(List<String> tags, Record record) {
 		List<RecordCategoryMapping> recordCategoryMappings = new ArrayList<>();
 		tags.forEach(request -> {
 			Category category = categoryService.getCategoryByName(request);
