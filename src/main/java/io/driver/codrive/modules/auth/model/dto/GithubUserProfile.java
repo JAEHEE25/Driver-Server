@@ -25,7 +25,7 @@ public record GithubUserProfile(
 			.nickname(username)
 			.profileImg(profileImg)
 			.comment(null)
-			.githubUrl(null)
+			.githubUrl("https://github.com/" + username)
 			.githubRepositoryName(null)
 			.language(language)
 			.goal(0)

@@ -12,6 +12,9 @@ public record RoomItemResponse(
 	@Schema(description = "그룹 ID", example = "1")
 	Long roomId,
 
+	@Schema(description = "그룹 UUID", example = "12345678")
+	String uuid,
+
 	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
 
@@ -42,6 +45,7 @@ public record RoomItemResponse(
 	public static RoomItemResponse of(Room room, boolean isMember) {
 		return RoomItemResponse.builder()
 			.roomId(room.getRoomId())
+			.uuid(room.getUuid())
 			.title(room.getTitle())
 			.owner(OwnerDetailResponse.of(room.getOwner()))
 			.imageSrc(room.getImageSrc())

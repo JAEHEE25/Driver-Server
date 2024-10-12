@@ -7,15 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class GithubCommitContentDto {
+public class GithubDeleteDto {
 	private String message;
-	private String content;
 	private String sha;
 
-	public static GithubCommitContentDto of(String message, String content, String sha) {
-		return GithubCommitContentDto.builder()
+	public static GithubDeleteDto of(String message, String sha) {
+		return GithubDeleteDto.builder()
 			.message(message)
-			.content(content)
 			.sha(sha)
 			.build();
 	}

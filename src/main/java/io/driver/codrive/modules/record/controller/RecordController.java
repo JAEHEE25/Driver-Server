@@ -134,7 +134,8 @@ public class RecordController {
 	)
 	@PatchMapping("/{recordId}")
 	public ResponseEntity<BaseResponse<RecordModifyResponse>> modifyRecord(
-		@PathVariable(name = "recordId") Long recordId, @Valid @RequestBody RecordModifyRequest request) {
+		@PathVariable(name = "recordId") Long recordId, @Valid @RequestBody RecordModifyRequest request) throws
+		IOException {
 		RecordModifyResponse response = recordService.modifyRecord(recordId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
