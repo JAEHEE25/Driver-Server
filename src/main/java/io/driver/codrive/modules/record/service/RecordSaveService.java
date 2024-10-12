@@ -75,7 +75,10 @@ public class RecordSaveService extends RecordCreateService<RecordSaveRequest> {
 	}
 
 	@Override
+	@Transactional
 	protected void commitToGithub(Record createdRecord, User user) throws IOException {
-		githubCommitService.commitToGithub(createdRecord, createdRecord.getUser());
+		String path = githubCommitService.getPath(createdRecord, user.getSolvedCount());
+		createdRecord.changeRecordNum(user.getSolvedCount());
+		githubCommitService.commitToGithub(createdRecord, createdRecord.getUser(), path, null);
 	}
 }

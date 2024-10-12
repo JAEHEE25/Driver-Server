@@ -24,6 +24,9 @@ public class Record extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long recordId;
 
+	@Column(nullable = false, columnDefinition = "default 0")
+	private Long recordNum;
+
 	@Column(nullable = false)
 	private String title;
 
@@ -74,6 +77,10 @@ public class Record extends BaseEntity {
 	public void changeCodeblocks(List<Codeblock> codeblocks) {
 		this.codeblocks.clear();
 		this.codeblocks.addAll(codeblocks);
+	}
+
+	public void changeRecordNum(Long recordNum) {
+		this.recordNum = recordNum;
 	}
 
 	public void deleteCodeblocks(List<Codeblock> codeblocks) {

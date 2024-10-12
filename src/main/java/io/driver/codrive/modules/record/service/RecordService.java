@@ -1,5 +1,6 @@
 package io.driver.codrive.modules.record.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,16 +24,20 @@ import io.driver.codrive.modules.record.domain.RecordRepository;
 import io.driver.codrive.modules.record.domain.RecordStatus;
 import io.driver.codrive.modules.record.model.request.RecordModifyRequest;
 import io.driver.codrive.modules.record.model.response.*;
+import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecordService {
 	private final UserService userService;
 	private final CodeblockService codeblockService;
 	private final RecordCategoryMappingService recordCategoryMappingService;
+	private final GithubCommitService githubCommitService;
 	private final RecordRepository recordRepository;
 
 	@Transactional(readOnly = true)
@@ -56,10 +61,19 @@ public class RecordService {
 	}
 
 	@Transactional
-	public RecordModifyResponse modifyRecord(Long recordId, RecordModifyRequest request) {
+	public RecordModifyResponse modifyRecord(Long recordId, RecordModifyRequest request) throws IOException {
 		Record record = getRecordById(recordId);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		String path = githubCommitService.getPath(record, record.getRecordNum());
+		String sha = githubCommitService.getGithubContentSha(user, path);
+		githubCommitService.deleteGithubContent(record, user, path, sha);
+
 		AuthUtils.checkOwnedEntity(record);
 		updateRecord(record, request);
+
+		String newPath = githubCommitService.getPath(record, record.getRecordNum());
+		githubCommitService.commitToGithub(record, user, newPath, sha);
+
 		return RecordModifyResponse.of(record);
 	}
 

@@ -57,6 +57,7 @@ public class RecordSaveRequest extends RecordCreateRequest {
     public Record toRecord(User user) {
 		return Record.builder()
 			.user(user)
+			.recordNum(0L)
 			.title(title)
 			.level(level)
 			.recordCategoryMappings(new ArrayList<>())
