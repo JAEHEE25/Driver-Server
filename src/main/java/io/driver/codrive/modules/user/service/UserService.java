@@ -48,6 +48,14 @@ public class UserService {
 		return UserDetailResponse.of(user);
 	}
 
+	@Transactional(readOnly = true)
+	public UserProfileResponse getProfile(Long userId) {
+		User user = getUserById(userId);
+		User currentUser = getUserById(AuthUtils.getCurrentUserId());
+		Boolean isFollowing = currentUser.isFollowing(user);
+		return UserProfileResponse.of(user, isFollowing);
+	}
+
 	public void checkNicknameDuplication(NicknameRequest request) {
 		if (userRepository.existsByNickname(request.nickname())) {
 			throw new AlreadyExistsApplicationException("닉네임");
@@ -91,42 +99,36 @@ public class UserService {
 		userRepository.delete(user);
 	}
 
-	private void updateJoinedRoomsMemberCount(User user) {
+	@Transactional
+	protected void updateJoinedRoomsMemberCount(User user) {
 		user.getJoinedRooms().forEach(room -> room.changeMemberCount(room.getMemberCount() - 1));
 	}
 
-	private void updateRequestedRoomsRequestedCount(User user) {
+	@Transactional
+	protected void updateRequestedRoomsRequestedCount(User user) {
 		user.getRoomRequests().forEach(roomRequest -> {
 			Room room = roomRequest.getRoom();
 			room.changeRequestedCount(room.getRequestedCount() - 1);
 		});
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public FollowListResponse getFollowings() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
 		return FollowListResponse.ofFollowings(followings);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public FollowListResponse getFollowers() {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		List<User> followers = user.getFollowers().stream().map(Follow::getFollower).toList();
 		return FollowListResponse.ofFollowers(followers, user);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<User> getRandomUsersExcludingMeAndFollowings(User user){
 		return userRepository.getRandomUsersExcludingMeAndFollowings(user.getUserId());
-	}
-
-	@Transactional
-	public UserProfileResponse getProfile(Long userId) {
-		User user = getUserById(userId);
-		User currentUser = getUserById(AuthUtils.getCurrentUserId());
-		Boolean isFollowing = currentUser.isFollowing(user);
-		return UserProfileResponse.of(user, isFollowing);
 	}
 
 	@Scheduled(cron = "0 0 0 * * MON") //매주 월요일 00:00:00에 실행

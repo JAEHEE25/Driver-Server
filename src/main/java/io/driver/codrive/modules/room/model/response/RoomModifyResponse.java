@@ -8,6 +8,9 @@ import lombok.Builder;
 
 @Builder
 public record RoomModifyResponse(
+	@Schema(description = "그룹 UUID", example = "12345678")
+	String uuid,
+
 	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
 
@@ -31,6 +34,7 @@ public record RoomModifyResponse(
 ) {
 	public static RoomModifyResponse of(Room room) {
 		return RoomModifyResponse.builder()
+			.uuid(room.getUuid())
 			.title(room.getTitle())
 			.password(room.getPassword())
 			.imageSrc(room.getImageSrc())

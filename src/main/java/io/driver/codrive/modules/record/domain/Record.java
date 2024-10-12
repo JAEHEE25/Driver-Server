@@ -24,6 +24,9 @@ public class Record extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long recordId;
 
+	@Column(nullable = false, columnDefinition = "default 0")
+	private Long recordNum;
+
 	@Column(nullable = false)
 	private String title;
 
@@ -50,10 +53,6 @@ public class Record extends BaseEntity {
 	@OneToMany(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<RecordCategoryMapping> recordCategoryMappings;
 
-	public boolean compareRecordStatus(RecordStatus recordStatus) {
-		return this.recordStatus == recordStatus;
-	}
-
 	@Transactional(readOnly = true)
 	public boolean compareTags(List<String> tags) {
 		return getCategories().equals(tags);
@@ -78,6 +77,10 @@ public class Record extends BaseEntity {
 	public void changeCodeblocks(List<Codeblock> codeblocks) {
 		this.codeblocks.clear();
 		this.codeblocks.addAll(codeblocks);
+	}
+
+	public void changeRecordNum(Long recordNum) {
+		this.recordNum = recordNum;
 	}
 
 	public void deleteCodeblocks(List<Codeblock> codeblocks) {

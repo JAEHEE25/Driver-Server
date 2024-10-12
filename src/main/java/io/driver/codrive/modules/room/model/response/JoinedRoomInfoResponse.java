@@ -12,6 +12,9 @@ public record JoinedRoomInfoResponse(
 	@Schema(description = "그룹 ID", example = "1")
 	Long roomId,
 
+	@Schema(description = "그룹 UUID", example = "12345678")
+	String uuid,
+
 	@Schema(description = "그룹 대표 이미지 URL", example = "IMAGE_URL")
 	String imageSrc,
 
@@ -49,6 +52,7 @@ public record JoinedRoomInfoResponse(
 	public static JoinedRoomInfoResponse of(Room room, String password, List<LanguageMemberCountDto> languageMemberCount) {
 		return JoinedRoomInfoResponse.builder()
 			.roomId(room.getRoomId())
+			.uuid(room.getUuid())
 			.imageSrc(room.getImageSrc())
 			.tags(room.getLanguages())
 			.title(room.getTitle())

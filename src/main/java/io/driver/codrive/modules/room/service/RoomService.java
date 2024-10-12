@@ -172,8 +172,8 @@ public class RoomService {
 	@Transactional
 	public CreatedRoomListResponse getCreatedRoomList(Long userId, SortType sortType, int page, String status) {
 		Sort sort = SortType.getRoomSort(sortType);
+		PageUtils.validatePageable(page, ROOMS_SIZE);
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE, sort);
-		PageUtils.validatePageable(pageable);
 		User user = userService.getUserById(userId);
 		Page<Room> rooms = getCreatedRoomsByRoomStatus(user, status, pageable);
 		return CreatedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
@@ -207,8 +207,8 @@ public class RoomService {
 
 	@Transactional(readOnly = true)
 	public RoomListResponse searchRooms(String keyword, int page) {
+		PageUtils.validatePageable(page, ROOMS_SIZE);
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
-		PageUtils.validatePageable(pageable);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);

@@ -44,7 +44,7 @@ public class RecordController {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
 				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다."
-					+ "|| 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+					+ "|| 지원하지 않는 문제 풀이 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 		}
 	)
@@ -83,7 +83,7 @@ public class RecordController {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordCreateResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
 				@ExampleObject(value = "{\"code\": 400, \"message\": \"임시 저장 최대 개수를 초과했습니다. || "
-					+ "지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+					+ "지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 풀이 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
 		}
 	)
@@ -126,14 +126,16 @@ public class RecordController {
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecordModifyResponse.class))),
 			@ApiResponse(responseCode = "400", content = @Content(examples = {
-				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
+				@ExampleObject(value = "{\"code\": 400, \"message\": \"지원하지 않는 플랫폼입니다. || 지원하지 않는 문제 풀이 유형입니다. || 잘못된 요청입니다. (error field 제공)\"}"),
 			})),
+			@ApiResponse(responseCode = "403", content = @Content(examples = @ExampleObject(value = "{\"code\": 403, \"message\": \"해당 리소스에 대한 권한이 없습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"문제 풀이 데이터를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@PatchMapping("/{recordId}")
 	public ResponseEntity<BaseResponse<RecordModifyResponse>> modifyRecord(
-		@PathVariable(name = "recordId") Long recordId, @Valid @RequestBody RecordModifyRequest request) {
+		@PathVariable(name = "recordId") Long recordId, @Valid @RequestBody RecordModifyRequest request) throws
+		IOException {
 		RecordModifyResponse response = recordService.modifyRecord(recordId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -145,6 +147,7 @@ public class RecordController {
 		},
 		responses = {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "403", content = @Content(examples = @ExampleObject(value = "{\"code\": 403, \"message\": \"해당 리소스에 대한 권한이 없습니다.\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"문제 풀이 데이터를 찾을 수 없습니다.\"}"))),
 		}
 	)

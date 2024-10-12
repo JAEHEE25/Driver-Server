@@ -31,7 +31,7 @@ public record BoardResponse(
 
 	@Builder
 	public record RecordSolvedResponse(
-		@Schema(description = "날짜", example = "30")
+		@Schema(description = "날짜", example = "3")
 		String date,
 
 		@Schema(description = "문제 풀이 여부", example = "true")

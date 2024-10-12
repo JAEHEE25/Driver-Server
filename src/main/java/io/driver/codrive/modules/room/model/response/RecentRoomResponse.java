@@ -23,6 +23,9 @@ public record RecentRoomResponse(
 		@Schema(description = "그룹 ID", example = "1")
 		Long roomId,
 
+		@Schema(description = "그룹 UUID", example = "12345678")
+		String uuid,
+
 		@Schema(description = "그룹장 사용자 ID", example = "1")
 		Long ownerId,
 
@@ -51,6 +54,7 @@ public record RecentRoomResponse(
 		public static RecentRoomItemResponse of(Room room, boolean isMember) {
 			return RecentRoomItemResponse.builder()
 				.roomId(room.getRoomId())
+				.uuid(room.getUuid())
 				.ownerId(room.getOwner().getUserId())
 				.tags(room.getLanguages())
 				.title(room.getTitle())

@@ -8,8 +8,14 @@ import lombok.Builder;
 
 @Builder
 public record RoomDetailResponse(
+	@Schema(description = "그룹 UUID", example = "12345678")
+	String uuid,
+
 	@Schema(description = "그룹 제목", example = "그룹 제목")
 	String title,
+
+	@Schema(description = "비밀번호", example = "비밀번호")
+	String password,
 
 	@Schema(description = "그룹장", implementation = OwnerDetailResponse.class)
 	OwnerDetailResponse owner,
@@ -43,8 +49,10 @@ public record RoomDetailResponse(
 
 	public static RoomDetailResponse of(Room room) {
 		return RoomDetailResponse.builder()
+				.uuid(room.getUuid())
 				.title(room.getTitle())
-				.owner(OwnerDetailResponse.of(room.getOwner()))
+				.password(room.getPassword())
+				.owner(io.driver.codrive.modules.room.model.response.OwnerDetailResponse.of(room.getOwner()))
 				.imageSrc(room.getImageSrc())
 				.requestedCount(room.getRequestedCount())
 				.capacity(room.getCapacity())

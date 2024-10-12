@@ -11,14 +11,13 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PageUtils {
-	public static void validatePageable(Pageable pageable) {
-		if (pageable.getPageNumber() < 0 || pageable.getPageSize() < 0) {
+	public static void validatePageable(int page, int size) {
+		if (page < 0 || size < 0) {
 			throw new IllegalArgumentApplicationException("페이지 정보가 올바르지 않습니다.");
 		}
 	}
 
 	public static <T> Page<T> getPage(List<T> content, Pageable pageable, int totalElements) {
-		validatePageable(pageable);
         int start = (int) pageable.getOffset();
 
 		if (start >= totalElements) {
