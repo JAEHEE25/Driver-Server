@@ -53,6 +53,7 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("비밀번호가 일치하지 않습니다.");
 		}
 		roomUserMappingService.createRoomUserMapping(room, user);
+		notificationService.sendNotification(room.getOwnerId(), NotificationType.PRIVATE_GROUP_JOIN, room.getTitle());
 	}
 
 	@Transactional
@@ -76,7 +77,7 @@ public class RoomRequestService {
 		}
 		saveRoomRequest(roomRequest, room);
 
-		notificationService.sendNotification(room.getOwnerId(), NotificationType.GROUP_REQUEST, room.getTitle());
+		notificationService.sendNotification(room.getOwnerId(), NotificationType.PUBLIC_GROUP_REQUEST, room.getTitle());
 	}
 
 	private void checkRoomMember(Room room, User user) {
@@ -127,7 +128,7 @@ public class RoomRequestService {
 		room.changeRequestedCount(room.getRequestedCount() - 1);
 
 		notificationService.sendNotification(roomRequest.getUser().getUserId(),
-			NotificationType.GROUP_APPROVE, room.getTitle());
+			NotificationType.PUBLIC_GROUP_APPROVE, room.getTitle());
 	}
 
 	public void changeWaitingRoomRequestToRequested(Room room) {

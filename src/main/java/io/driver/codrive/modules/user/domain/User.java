@@ -37,7 +37,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String username;
 
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false)
 	private String nickname;
 
 	@Column(nullable = false, columnDefinition = "TEXT")
