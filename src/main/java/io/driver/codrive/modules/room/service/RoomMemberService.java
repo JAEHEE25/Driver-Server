@@ -15,12 +15,15 @@ import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
 import io.driver.codrive.modules.room.model.response.RoomParticipantListResponse;
+import io.driver.codrive.modules.room.model.response.RoomRankResponse;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
 import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoomMemberService {
@@ -69,6 +72,12 @@ public class RoomMemberService {
 		User user = userService.getUserById(userId);
 		roomUserMappingService.deleteRoomUserMapping(room, user);
 		roomRequestService.deleteRoomRequest(room, user);
+	}
+
+	public RoomRankResponse getRoomRank(Long roomId) {
+		Room room = roomService.getRoomById(roomId);
+		List<User> users = roomUserMappingService.getRoomRank(room);
+		return RoomRankResponse.of(users);
 	}
 
 }

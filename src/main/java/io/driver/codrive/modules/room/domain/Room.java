@@ -96,6 +96,10 @@ public class Room extends BaseEntity {
 		return roomUserMappings.stream().anyMatch(mapping -> mapping.getUser().equals(user));
 	}
 
+	public List<User> getMembers() {
+		return roomUserMappings.stream().map(RoomUserMapping::getUser).toList();
+	}
+
 	public void changeTitle(String title) {
 		this.title = title;
 	}

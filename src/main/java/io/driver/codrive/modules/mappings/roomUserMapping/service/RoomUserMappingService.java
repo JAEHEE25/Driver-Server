@@ -1,6 +1,7 @@
 package io.driver.codrive.modules.mappings.roomUserMapping.service;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -58,5 +59,9 @@ public class RoomUserMappingService {
 
 	public List<LanguageMemberCountDto> getLanguageMemberCountResponse(Room room) {
 		return roomUserMappingRepository.getLanguageMemberCount(room);
+	}
+
+	public List<User> getRoomRank(Room room) {
+		return roomUserMappingRepository.getRoomRank(room, LocalDate.now());
 	}
 }
