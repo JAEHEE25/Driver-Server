@@ -73,7 +73,8 @@ public class RoomService {
 	@Transactional
 	public RoomDetailResponse getRoomDetail(Long roomId) {
 		Room room = getRoomById(roomId);
-		return RoomDetailResponse.of(room);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		return RoomDetailResponse.of(room, room.hasMember(user));
 	}
 
 	@Transactional

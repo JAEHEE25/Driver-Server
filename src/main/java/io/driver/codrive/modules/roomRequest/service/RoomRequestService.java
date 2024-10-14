@@ -11,6 +11,8 @@ import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
+import io.driver.codrive.modules.notification.domain.NotificationType;
+import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
@@ -29,6 +31,7 @@ public class RoomRequestService {
 	private final UserService userService;
 	private final RoomService roomService;
 	private final RoomUserMappingService roomUserMappingService;
+	private final NotificationService notificationService;
 	private final RoomRequestRepository roomRequestRepository;
 
 	@Transactional
@@ -50,6 +53,7 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("비밀번호가 일치하지 않습니다.");
 		}
 		roomUserMappingService.createRoomUserMapping(room, user);
+		notificationService.sendNotification(room.getOwnerId(), NotificationType.PRIVATE_GROUP_JOIN, room.getTitle());
 	}
 
 	@Transactional
@@ -72,6 +76,8 @@ public class RoomRequestService {
 			roomRequest.changeRoomRequestStatus(UserRequestStatus.WAITING);
 		}
 		saveRoomRequest(roomRequest, room);
+
+		notificationService.sendNotification(room.getOwnerId(), NotificationType.PUBLIC_GROUP_REQUEST, room.getTitle());
 	}
 
 	private void checkRoomMember(Room room, User user) {
@@ -120,6 +126,9 @@ public class RoomRequestService {
 		roomRequest.changeRoomRequestStatus(UserRequestStatus.JOINED);
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 		room.changeRequestedCount(room.getRequestedCount() - 1);
+
+		notificationService.sendNotification(roomRequest.getUser().getUserId(),
+			NotificationType.PUBLIC_GROUP_APPROVE, room.getTitle());
 	}
 
 	public void changeWaitingRoomRequestToRequested(Room room) {

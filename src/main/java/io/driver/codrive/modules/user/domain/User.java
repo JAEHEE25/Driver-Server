@@ -9,6 +9,7 @@ import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
+import io.driver.codrive.modules.notification.domain.Notification;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
@@ -36,7 +37,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String username;
 
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false)
 	private String nickname;
 
 	@Column(nullable = false, columnDefinition = "TEXT")

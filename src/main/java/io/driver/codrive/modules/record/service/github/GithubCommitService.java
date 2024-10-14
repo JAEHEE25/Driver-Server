@@ -64,7 +64,6 @@ public class GithubCommitService {
 				.retrieve()
 				.toEntity(Void.class)
 				.block();
-			log.info("sha : {}", sha);
 			log.info("GitHub Commit 성공");
 		} catch (Exception e) {
 			log.info("GitHub Commit 실패: {}", e.getMessage());

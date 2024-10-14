@@ -52,6 +52,7 @@ class RecordSaveServiceTest {
 		.successRate(0)
 		.records(new ArrayList<>())
 		.roomUserMappings(new ArrayList<>())
+		.solvedCount(1L)
 		.build();
 
 	@BeforeEach
@@ -116,9 +117,10 @@ class RecordSaveServiceTest {
 	@DisplayName("Github에 문제 풀이 등록 메서드 성공")
 	void commitToGithub_success() throws IOException {
 		// given
-		doNothing().when(githubCommitService).commitToGithub(mockRecord, mockUser);
+		when(githubCommitService.getPath(mockRecord, mockRecord.getRecordId())).thenReturn("path");
+		doNothing().when(githubCommitService).commitToGithub(mockRecord, mockUser, "path", null);
 
-		// when
+		// when & then
 		assertDoesNotThrow(() -> recordSaveService.commitToGithub(mockRecord, mockUser));
 	}
 
@@ -126,7 +128,8 @@ class RecordSaveServiceTest {
 	@DisplayName("Github에 문제 풀이 등록 메서드 실패")
     void commitToGithub_fail_ioException() throws IOException {
 		// given
-        doThrow(new IOException("GitHub commit failed")).when(githubCommitService).commitToGithub(mockRecord, mockUser);
+		when(githubCommitService.getPath(mockRecord, mockRecord.getRecordId())).thenReturn("path");
+        doThrow(new IOException("GitHub commit failed")).when(githubCommitService).commitToGithub(mockRecord, mockUser, "path", null);
 
 		// when & then
         assertThrows(IOException.class, () -> recordSaveService.commitToGithub(mockRecord, mockUser));

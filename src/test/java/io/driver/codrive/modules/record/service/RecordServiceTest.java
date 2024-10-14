@@ -3,6 +3,7 @@ package io.driver.codrive.modules.record.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.DateUtils;
+import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.record.domain.Platform;
 import io.driver.codrive.modules.record.domain.Record;
@@ -37,6 +39,7 @@ import io.driver.codrive.modules.record.model.response.RecordDetailResponse;
 import io.driver.codrive.modules.record.model.response.RecordModifyResponse;
 import io.driver.codrive.modules.record.model.response.RecordRecentListResponse;
 import io.driver.codrive.modules.record.model.response.TempRecordListResponse;
+import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 
@@ -50,6 +53,12 @@ class RecordServiceTest {
 
 	@Mock
 	private UserService userService;
+
+	@Mock
+	private GithubCommitService githubCommitService;
+
+	@Mock
+	private CodeblockService codeblockService;
 
 	private Record mockRecord;
 
@@ -182,7 +191,7 @@ class RecordServiceTest {
 
 	@Test
 	@DisplayName("문제 풀이 수정 성공")
-	void modifyRecord_success() {
+	void modifyRecord_success() throws IOException {
 		// given
 		setSecurityContext();
 		Long recordId = 1L;
