@@ -118,7 +118,7 @@ class RecordSaveServiceTest {
 	void commitToGithub_success() throws IOException {
 		// given
 		when(githubCommitService.getPath(mockRecord, mockRecord.getRecordId())).thenReturn("path");
-		doNothing().when(githubCommitService).commitToGithub(mockRecord, mockUser, "path", null);
+		doNothing().when(githubCommitService).commitToGithub(mockRecord, mockUser, "path");
 
 		// when & then
 		assertDoesNotThrow(() -> recordSaveService.commitToGithub(mockRecord, mockUser));
@@ -129,7 +129,7 @@ class RecordSaveServiceTest {
     void commitToGithub_fail_ioException() throws IOException {
 		// given
 		when(githubCommitService.getPath(mockRecord, mockRecord.getRecordId())).thenReturn("path");
-        doThrow(new IOException("GitHub commit failed")).when(githubCommitService).commitToGithub(mockRecord, mockUser, "path", null);
+        doThrow(new IOException("GitHub commit failed")).when(githubCommitService).commitToGithub(mockRecord, mockUser, "path");
 
 		// when & then
         assertThrows(IOException.class, () -> recordSaveService.commitToGithub(mockRecord, mockUser));
