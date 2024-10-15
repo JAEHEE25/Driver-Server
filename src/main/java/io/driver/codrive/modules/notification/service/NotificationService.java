@@ -39,14 +39,14 @@ public class NotificationService {
 			});
 	}
 
-	private Notification createNotification(Long userId, NotificationType type, String arg) {
-		Notification notification = Notification.create(userId, type, arg);
+	private Notification createNotification(Long userId, NotificationType type, String... args) {
+		Notification notification = Notification.create(userId, type, args);
 		return notificationRepository.save(notification);
 	}
 
 	@Async
-	public void sendNotification(Long userId, NotificationType type, String arg) {
-		Notification notification = createNotification(userId, type, arg);
+	public void sendNotification(Long userId, NotificationType type, String... args) {
+		Notification notification = createNotification(userId, type, args);
 		if (userNotificationSinks.containsKey(userId)) {
 			userNotificationSinks.get(userId).tryEmitNext(createServerSentEvent(notification));
 		} else {

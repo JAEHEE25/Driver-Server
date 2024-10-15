@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum RoomStatus {
-	CLOSED, ACTIVE, INACTIVE;
+	CLOSED, ACTIVE, INACTIVE; //모집 마감, 모집 중, 활동 종료
 
 	public static RoomStatus getRoomStatusByName(String requestStatus) {
 		return Arrays.stream(values()).filter(status -> status.name().equals(requestStatus))
