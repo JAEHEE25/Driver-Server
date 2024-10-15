@@ -25,7 +25,9 @@ import io.driver.codrive.modules.record.model.response.UnsolvedMonthResponse;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CountBoardService {
@@ -41,7 +43,8 @@ public class CountBoardService {
 
 	@Transactional(readOnly = true)
 	protected BoardResponse getBoardResponse(User user, LocalDate pivotDate) {
-		Map<String, Long> countBoard = updateCountBoard(user, Period.MONTHLY, pivotDate, createMonthlyCountBoard(pivotDate));
+		Map<String, Long> countBoard = updateCountBoard(user, Period.MONTHLY, pivotDate,
+			createMonthlyCountBoard(pivotDate));
 		int totalCount = getTotalCount(countBoard);
 		int longestPeriod = getLongestPeriod(countBoard);
 		int maxCount = getMaxCount(countBoard);
@@ -50,7 +53,8 @@ public class CountBoardService {
 	}
 
 	@Transactional(readOnly = true)
-	protected Map<String, Long> updateCountBoard(User user, Period period, LocalDate pivotDate, Map<String, Long> countBoard) {
+	protected Map<String, Long> updateCountBoard(User user, Period period, LocalDate pivotDate,
+		Map<String, Long> countBoard) {
 		List<RecordCountDto> recordCountDtos = getRecordCountDtos(user, period, pivotDate);
 		if (recordCountDtos != null) {
 			recordCountDtos.forEach(dto -> countBoard.put(dto.getDate(), dto.getCount()));
@@ -63,7 +67,6 @@ public class CountBoardService {
 		if (period == Period.YEARLY) {
 			return recordRepository.getYearlyRecordCountBoard(user.getUserId(), pivotDate);
 		} else if (period == Period.MONTHLY) {
-			createMonthlyCountBoard(pivotDate);
 			return recordRepository.getMonthlyRecordCountBoard(user.getUserId(), pivotDate);
 		} else {
 			return null;
@@ -95,7 +98,14 @@ public class CountBoardService {
 		int longestPeriod = 0;
 		int currentPeriod = 0;
 
-		for (Long count : countBoard.values()) {
+		List<Integer> sortedKeys = countBoard.keySet().stream()
+			.map(Integer::parseInt)
+			.sorted()
+			.toList();
+		log.info("sortedKeys: {}", sortedKeys);
+
+		for (Integer key : sortedKeys) {
+			Long count = countBoard.get(key.toString());
 			if (count > 0) {
 				currentPeriod++;
 			} else {
@@ -112,13 +122,14 @@ public class CountBoardService {
 
 	private List<BoardResponse.RecordSolvedResponse> getRecordSolvedBoard(Map<String, Long> countBoard) {
 		return countBoard.entrySet().stream()
-			.sorted(Map.Entry.comparingByKey())
+			.sorted(Comparator.comparingInt(entry -> Integer.parseInt(entry.getKey())))
 			.map(entry -> BoardResponse.RecordSolvedResponse.of(entry.getKey(), entry.getValue()))
 			.toList();
 	}
 
 	@Transactional(readOnly = true)
-	public RecordMonthListResponse getRecordsByMonth(Long userId, SortType sortType, String requestPivotDate, Integer page, Integer size) {
+	public RecordMonthListResponse getRecordsByMonth(Long userId, SortType sortType, String requestPivotDate,
+		Integer page, Integer size) {
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(userId);
 		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());

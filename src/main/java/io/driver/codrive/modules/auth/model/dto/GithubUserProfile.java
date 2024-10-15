@@ -15,7 +15,7 @@ public record GithubUserProfile(
 	@JsonProperty("avatar_url")
 	String profileImg
 ) {
-	public User toUser(Language language) {
+	public User toUser(Language language, String githubUrl) {
 		String githubName = name;
 		if (githubName == null) githubName = username;
 
@@ -25,7 +25,7 @@ public record GithubUserProfile(
 			.nickname(username)
 			.profileImg(profileImg)
 			.comment(null)
-			.githubUrl("https://github.com/" + username)
+			.githubUrl(githubUrl)
 			.githubRepositoryName(null)
 			.language(language)
 			.goal(0)

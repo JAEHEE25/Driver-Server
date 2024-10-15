@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthService {
 	private static final String GITHUB_USER_PROFILE_URL = "https://api.github.com/user";
+	private static final String GITHUB_HOME_URL = "https://github.com/";
 	private final LanguageService languageService;
 	private final UserRepository userRepository;
 	private final AppTokenService appTokenService;
@@ -72,11 +73,13 @@ public class AuthService {
 
 	@Transactional
 	protected User updateUserInfo(GithubUserProfile userProfile) {
+		String githubUrl = GITHUB_HOME_URL + userProfile.username();
 		User user = userRepository.findByUsername(userProfile.username())
 			.orElseGet(
-				() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("사용언어"))));
+				() -> userRepository.save(userProfile.toUser(languageService.getLanguageByName("사용언어"), githubUrl)));
 		user.changeUserName(userProfile.username());
 		user.changeProfileImg(userProfile.profileImg());
+		user.changeGithubUrl(githubUrl);
 		return user;
 	}
 
