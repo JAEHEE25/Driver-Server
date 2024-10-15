@@ -7,11 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.notification.domain.Notification;
 import io.driver.codrive.modules.notification.domain.NotificationRepository;
 import io.driver.codrive.modules.notification.domain.NotificationType;
+import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
 import io.driver.codrive.modules.notification.model.response.NotificationListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,5 +74,14 @@ public class NotificationService {
 		Long userId = AuthUtils.getCurrentUserId();
 		List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
 		return NotificationListResponse.of(notifications);
+	}
+
+	@Transactional
+	public void readNotification(NotificationReadRequest request) {
+		List<Long> notificationIds = request.notificationIds();
+		notificationIds.forEach(id ->
+			notificationRepository.findById(id)
+			.orElseThrow(() -> new NotFoundApplcationException("알림이 존재하지 않습니다."))
+			.changeIsRead(true));
 	}
 }

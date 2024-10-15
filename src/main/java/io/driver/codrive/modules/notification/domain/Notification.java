@@ -6,7 +6,6 @@ import lombok.*;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,6 +26,10 @@ public class Notification extends BaseEntity {
 	@Override
 	public Long getOwnerId() {
 		return userId;
+	}
+
+	public void changeIsRead(boolean isRead) {
+		this.isRead = isRead;
 	}
 
 	public static Notification create(Long userId, NotificationType notificationType, String arg) {

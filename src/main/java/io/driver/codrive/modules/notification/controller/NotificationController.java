@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.notification.domain.Notification;
+import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
 import io.driver.codrive.modules.notification.model.response.NotificationListResponse;
 import io.driver.codrive.modules.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class NotificationController {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
 		}
 	)
-	@GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<ServerSentEvent<Notification>> registerUser() {
 		return notificationService.registerUser();
 	}
@@ -53,9 +55,26 @@ public class NotificationController {
 			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\", \"data\": {\"notifications\": [{\"notificationId\": 1, \"content\": \"알림 내용\"}]}}"))),
 		}
 	)
-	@GetMapping
+	@GetMapping("/list")
 	public ResponseEntity<BaseResponse<NotificationListResponse>> getNotifications() {
 		NotificationListResponse response = notificationService.getNotifications();
 		return ResponseEntity.ok(BaseResponse.of(response));
+	}
+
+	@Operation(
+		summary = "알림 읽음 처리",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				schema = @Schema(implementation = NotificationReadRequest.class)
+			)
+		),
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+		}
+	)
+	@PostMapping("/read")
+	public ResponseEntity<BaseResponse<Void>> readNotification(@RequestBody NotificationReadRequest request) {
+		notificationService.readNotification(request);
+		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 }
