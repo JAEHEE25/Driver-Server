@@ -83,10 +83,11 @@ public class UserService {
 	}
 
 	@Transactional
-	public void updateCurrentUserGoal(Long userId, GoalChangeRequest request) {
+	public UserGoalResponse updateCurrentUserGoal(Long userId, GoalChangeRequest request) {
 		User user = getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
 		user.changeGoal(request.goal());
+		return UserGoalResponse.of(user.getGoal());
 	}
 
 	@Transactional
