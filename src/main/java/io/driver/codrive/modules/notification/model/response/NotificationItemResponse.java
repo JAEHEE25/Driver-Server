@@ -13,8 +13,9 @@ public record NotificationItemResponse(
 	@Schema(description = "알림 내용", example = "알림 내용")
 	String content,
 
-	@Schema(description = "알림 타입",
-		allowableValues = {"CONNECT_START", "GROUP_REQUEST", "GROUP_APPROVE", "FOLLOW"},example = "FOLLOW")
+	@Schema(description = "알림 타입", allowableValues = {"CONNECT_START", "CREATED_PUBLIC_ROOM_REQUEST",
+		"CREATED_PRIVATE_ROOM_JOIN", "PUBLIC_ROOM_REQUEST", "PUBLIC_ROOM_APPROVE", "ROOM_STATUS_INACTIVE", "FOLLOW"},
+		example = "FOLLOW")
 	String type,
 
 	@Schema(description = "알림 생성 일시", example = "2/5 12:00")

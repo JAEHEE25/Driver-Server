@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.notification.domain.NotificationType;
 import io.driver.codrive.modules.notification.service.NotificationService;
@@ -53,8 +54,9 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("비밀번호가 일치하지 않습니다.");
 		}
 		roomUserMappingService.createRoomUserMapping(room, user);
-		notificationService.sendNotification(room.getOwnerId(), NotificationType.PRIVATE_ROOM_JOIN,
-			room.getTitle(), user.getNickname());
+		notificationService.sendNotification(room.getOwnerId(), room, NotificationType.CREATED_PRIVATE_ROOM_JOIN,
+			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()),
+			MessageUtils.changeNameFormat(user.getNickname(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()));
 	}
 
 	@Transactional
@@ -78,8 +80,10 @@ public class RoomRequestService {
 		}
 		saveRoomRequest(roomRequest, room);
 
-		notificationService.sendNotification(room.getOwnerId(), NotificationType.CREATED_ROOM_REQUEST, room.getTitle());
-		notificationService.sendNotification(user.getUserId(), NotificationType.PUBLIC_ROOM_REQUEST, room.getTitle());
+		notificationService.sendNotification(room.getOwnerId(), room, NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
+			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST.getLength()));
+		notificationService.sendNotification(user.getUserId(), room, NotificationType.PUBLIC_ROOM_REQUEST,
+			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_REQUEST.getLength()));
 	}
 
 	private void checkRoomMember(Room room, User user) {
@@ -129,8 +133,9 @@ public class RoomRequestService {
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 		room.changeRequestedCount(room.getRequestedCount() - 1);
 
-		notificationService.sendNotification(roomRequest.getUser().getUserId(),
-			NotificationType.PUBLIC_ROOM_APPROVE, room.getTitle());
+		notificationService.sendNotification(roomRequest.getUser().getUserId(), room,
+			NotificationType.PUBLIC_ROOM_APPROVE,
+			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
 	}
 
 	public void changeWaitingRoomRequestToRequested(Room room) {

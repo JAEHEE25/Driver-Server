@@ -32,12 +32,12 @@ public class Notification extends BaseEntity {
 		this.isRead = isRead;
 	}
 
-	public static Notification create(Long userId, NotificationType notificationType, String... args) {
+	public static Notification create(Long userId, NotificationType type, String... args) {
 		return Notification.builder()
-			.content(notificationType.formatMessage(args))
+			.content(type.formatMessage(args))
 			.userId(userId)
 			.isRead(false)
-			.notificationType(notificationType)
+			.notificationType(type)
 			.build();
 	}
 }

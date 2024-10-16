@@ -54,7 +54,7 @@ public class RoomRepositoryImpl extends QuerydslRepositorySupport implements Roo
 	@Override
 	public Page<Room> filterRooms(RoomFilterDto roomFilterDto, Pageable pageable, SortType sortType) {
 		JPQLQuery<Room> query = from(roomLanguageMapping)
-			.where(getRoomFilterRequest(roomFilterDto))
+			.where(room.roomStatus.eq(RoomStatus.ACTIVE), getRoomFilterRequest(roomFilterDto))
 			.orderBy(sortType.createRoomOrderSpecifier(sortType))
 			.select(roomLanguageMapping.room);
 

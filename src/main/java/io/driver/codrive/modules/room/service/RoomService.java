@@ -18,6 +18,7 @@ import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.language.service.LanguageService;
@@ -140,8 +141,9 @@ public class RoomService {
 		room.changeRoomStatus(roomStatus);
 
 		if (roomStatus == RoomStatus.INACTIVE) {
-			room.getMembers().forEach(member -> notificationService.sendNotification(member.getUserId(),
-				NotificationType.ROOM_STATUS_INACTIVE, room.getTitle()));
+			room.getMembers().forEach(member -> notificationService.sendNotification(member.getUserId(), room,
+				NotificationType.ROOM_STATUS_INACTIVE, MessageUtils.changeNameFormat(room.getTitle(),
+					NotificationType.ROOM_STATUS_INACTIVE.getLength())));
 		}
 	}
 
