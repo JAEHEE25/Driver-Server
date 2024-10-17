@@ -17,6 +17,7 @@ import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
 import io.driver.codrive.modules.room.model.response.RoomParticipantListResponse;
 import io.driver.codrive.modules.room.model.response.RoomRankResponse;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
+import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.service.UserService;
@@ -51,8 +52,10 @@ public class RoomMemberService {
 	public RoomParticipantListResponse getRoomParticipants(Long roomId, SortType sortType, int page) {
 		Room room = roomService.getRoomById(roomId);
 		AuthUtils.checkOwnedEntity(room);
-		if (!room.isFull()) {
-			roomRequestService.changeWaitingRoomRequestToRequested(room);
+		if (room.isFull()) {
+			roomRequestService.changeWaitingRoomRequestStatus(room, UserRequestStatus.REQUESTED, UserRequestStatus.WAITING);
+		} else {
+			roomRequestService.changeWaitingRoomRequestStatus(room, UserRequestStatus.WAITING, UserRequestStatus.REQUESTED);
 		}
 		Sort sort = SortType.getRoomRequestSort(sortType);
 		Pageable pageable = PageRequest.of(page, ROOM_MEMBERS_SIZE, sort);

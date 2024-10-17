@@ -53,6 +53,9 @@ public class RoomRequestService {
 		if (!room.isCorrectPassword(request.password())) {
 			throw new IllegalArgumentApplicationException("비밀번호가 일치하지 않습니다.");
 		}
+
+		RoomRequest roomRequest = RoomRequest.toPrivateRoomRequest(room, user);
+		saveRoomRequest(roomRequest, room);
 		roomUserMappingService.createRoomUserMapping(room, user);
 		notificationService.sendNotification(room.getOwnerId(), room, NotificationType.CREATED_PRIVATE_ROOM_JOIN,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()),
@@ -74,11 +77,12 @@ public class RoomRequestService {
 			throw new IllegalArgumentApplicationException("이미 참여 요청한 그룹입니다.");
 		}
 
-		RoomRequest roomRequest = RoomRequest.toRoomRequest(room, user);
+		RoomRequest roomRequest = RoomRequest.toPublicRoomRequest(room, user);
 		if (room.isFull()) {
 			roomRequest.changeRoomRequestStatus(UserRequestStatus.WAITING);
 		}
 		saveRoomRequest(roomRequest, room);
+		room.changeRequestedCount(room.getRequestedCount() + 1);
 
 		notificationService.sendNotification(room.getOwnerId(), room, NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST.getLength()));
@@ -98,10 +102,10 @@ public class RoomRequestService {
 		}
 	}
 
-	private void saveRoomRequest(RoomRequest roomRequest, Room room) {
+	@Transactional
+	protected void saveRoomRequest(RoomRequest roomRequest, Room room) {
 		roomRequestRepository.save(roomRequest);
 		room.addRoomRequests(roomRequest);
-		room.changeRequestedCount(room.getRequestedCount() + 1);
 	}
 
 	@Transactional
@@ -129,6 +133,11 @@ public class RoomRequestService {
 		if (!roomRequest.compareStatus(UserRequestStatus.REQUESTED)) {
 			throw new IllegalArgumentApplicationException("승인할 수 없는 요청입니다.");
 		}
+
+		if (room.isFull()) {
+			throw new IllegalArgumentApplicationException("정원이 초과되었습니다.");
+		}
+
 		roomRequest.changeRoomRequestStatus(UserRequestStatus.JOINED);
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 		room.changeRequestedCount(room.getRequestedCount() - 1);
@@ -138,9 +147,9 @@ public class RoomRequestService {
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
 	}
 
-	public void changeWaitingRoomRequestToRequested(Room room) {
-		List<RoomRequest> roomRequests = roomRequestRepository.findAllByRoomAndUserRequestStatus(room, UserRequestStatus.WAITING);
-		roomRequests.forEach(roomRequest -> roomRequest.changeRoomRequestStatus(UserRequestStatus.REQUESTED));
+	public void changeWaitingRoomRequestStatus(Room room, UserRequestStatus originStatus, UserRequestStatus newStatus) {
+		List<RoomRequest> roomRequests = roomRequestRepository.findAllByRoomAndUserRequestStatus(room, originStatus);
+		roomRequests.forEach(roomRequest -> roomRequest.changeRoomRequestStatus(newStatus));
 	}
 
 	@Transactional
