@@ -8,6 +8,7 @@ import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.model.response.RoomMembersResponse;
 import io.driver.codrive.modules.room.model.response.RoomParticipantListResponse;
+import io.driver.codrive.modules.room.model.response.RoomRankResponse;
 import io.driver.codrive.modules.room.service.RoomMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -86,6 +87,23 @@ public class RoomMemberController {
 		@PathVariable(name = "userId") Long userId) {
 		roomMemberService.kickMember(roomId, userId);
 		return ResponseEntity.ok(BaseResponse.of(null));
+	}
+
+	@Operation(
+		summary = "그룹 랭킹 조회",
+		description = "이번 주 문제 풀이 개수 기준 상위 3명의 데이터를 조회합니다.",
+		parameters = {
+			@Parameter(name = "roomId", in = ParameterIn.PATH, required = true, description = "그룹 ID"),
+		},
+		responses = {
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RoomRankResponse.class))),
+			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"그룹을 찾을 수 없습니다.\"}"))),
+		}
+	)
+	@GetMapping("/{roomId}/rank")
+	public ResponseEntity<BaseResponse<RoomRankResponse>> getRoomRank(@PathVariable(name = "roomId") Long roomId) {
+		RoomRankResponse response = roomMemberService.getRoomRank(roomId);
+		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
 }

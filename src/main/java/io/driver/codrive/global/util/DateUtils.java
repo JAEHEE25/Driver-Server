@@ -1,5 +1,6 @@
 package io.driver.codrive.global.util;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,5 +54,17 @@ public class DateUtils {
 	public static String formatCreatedAtByMdHm(LocalDateTime createdAt) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d HH:mm");
 		return createdAt.format(formatter);
+	}
+
+	public LocalDateTime getMondayDateTime(LocalDate pivotDate) {
+		int pivotDay = pivotDate.getDayOfWeek().getValue();
+		int monday = DayOfWeek.MONDAY.getValue();
+		return pivotDate.minusDays(pivotDay - monday).atStartOfDay();
+	}
+
+	public LocalDateTime getSundayDateTime(LocalDate pivotDate) {
+		int pivotDay = pivotDate.getDayOfWeek().getValue();
+		int sunday = DayOfWeek.SUNDAY.getValue();
+		return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
 	}
 }

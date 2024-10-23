@@ -85,6 +85,9 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<RoomRequest> roomRequests;
 
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<Notification> notifications;
+
 	public void addRecord(Record record) {
 		this.records.add(record);
 	}

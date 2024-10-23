@@ -1,6 +1,7 @@
 package io.driver.codrive.modules.mappings.roomUserMapping.service;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
+import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMappingRepository;
@@ -42,6 +44,9 @@ public class RoomUserMappingService {
 	@Transactional
 	public void deleteRoomUserMapping(Room room, User user) {
 		RoomUserMapping mapping = getRoomUserMapping(room, user);
+		if (mapping == null) {
+			throw new NotFoundApplcationException("멤버");
+		}
 		room.deleteMember(mapping);
 		room.changeMemberCount(room.getMemberCount() - 1);
 		user.deleteJoinedRoom(mapping);
@@ -58,5 +63,9 @@ public class RoomUserMappingService {
 
 	public List<LanguageMemberCountDto> getLanguageMemberCountResponse(Room room) {
 		return roomUserMappingRepository.getLanguageMemberCount(room);
+	}
+
+	public List<User> getRoomRank(Room room) {
+		return roomUserMappingRepository.getRoomRank(room, LocalDate.now());
 	}
 }

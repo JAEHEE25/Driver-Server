@@ -62,7 +62,7 @@ public class FollowService {
 		target.addFollower(follow);
 		followRepository.save(follow);
 
-		notificationService.sendNotification(target.getUserId(), NotificationType.FOLLOW, currentUser.getNickname());
+		notificationService.sendNotification(target, currentUser.getUserId(), NotificationType.FOLLOW, currentUser.getNickname());
 	}
 
 	@Transactional

@@ -49,7 +49,7 @@ public class GithubCommitService {
 	private final GithubTokenService githubTokenService;
 
 	@Transactional
-	public void commitToGithub(Record record, User user, String path, String sha) throws IOException {
+	public void commitToGithub(Record record, User user, String path) throws IOException {
 		String accessToken = githubTokenService.getGithubTokenByUserId(user.getUserId()).getAccessToken();
 		String message = String.format(COMMIT_MESSAGE, record.getTitle(),
 			DateUtils.formatCreatedAtByMD(record.getCreatedAt()));
@@ -58,7 +58,7 @@ public class GithubCommitService {
 		try {
 			webClient.put()
 				.uri(String.format(GITHUB_CONTENT_URL, user.getUsername(), user.getGithubRepositoryName(), path))
-				.bodyValue(GithubCommitContentDto.of(message, content, sha))
+				.bodyValue(GithubCommitContentDto.of(message, content))
 				.header(AUTH_HEADER, String.format(AUTH_HEADER_VALUE, accessToken))
 				.header(ACCEPT_HEADER, ACCEPT_HEADER_VALUE)
 				.retrieve()

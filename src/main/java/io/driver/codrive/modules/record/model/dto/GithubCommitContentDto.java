@@ -10,13 +10,11 @@ import lombok.Setter;
 public class GithubCommitContentDto {
 	private String message;
 	private String content;
-	private String sha;
 
-	public static GithubCommitContentDto of(String message, String content, String sha) {
+	public static GithubCommitContentDto of(String message, String content) {
 		return GithubCommitContentDto.builder()
 			.message(message)
 			.content(content)
-			.sha(sha)
 			.build();
 	}
 }

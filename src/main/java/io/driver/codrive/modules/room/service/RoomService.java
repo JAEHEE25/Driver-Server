@@ -18,11 +18,14 @@ import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
+import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
+import io.driver.codrive.modules.notification.domain.NotificationType;
+import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
@@ -50,6 +53,7 @@ public class RoomService {
 	private final DiscordService discordService;
 	private final LanguageService languageService;
 	private final RoomRepository roomRepository;
+	private final NotificationService notificationService;
 
 	@Transactional
 	public RoomCreateResponse createRoom(RoomCreateRequest request, MultipartFile imageFile) throws IOException {
@@ -135,6 +139,12 @@ public class RoomService {
 		AuthUtils.checkOwnedEntity(room);
 		RoomStatus roomStatus = RoomStatus.getRoomStatusByName(status);
 		room.changeRoomStatus(roomStatus);
+
+		if (roomStatus == RoomStatus.INACTIVE) {
+			room.getMembers().forEach(member -> notificationService.sendNotification(member, roomId,
+				NotificationType.ROOM_STATUS_INACTIVE, MessageUtils.changeNameFormat(room.getTitle(),
+					NotificationType.ROOM_STATUS_INACTIVE.getLength())));
+		}
 	}
 
 	@Transactional

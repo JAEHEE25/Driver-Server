@@ -124,17 +124,17 @@ public class UserController {
 			)
 		),
 		responses = {
-			@ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = "{\"code\": 200, \"message\": \"SUCCESS\"}"))),
+			@ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserGoalResponse.class))),
 			@ApiResponse(responseCode = "400",
 				content = @Content(examples = @ExampleObject(value = "{\"code\": 400, \"message\": \"잘못된 요청입니다. (error field 제공)\"}"))),
 			@ApiResponse(responseCode = "404", content = @Content(examples = @ExampleObject(value = "{\"code\": 404, \"message\": \"사용자를 찾을 수 없습니다.\"}"))),
 		}
 	)
 	@PatchMapping("/{userId}/goal")
-	public ResponseEntity<BaseResponse<Void>> changeGoal(@PathVariable(name = "userId") Long userId,
+	public ResponseEntity<BaseResponse<UserGoalResponse>> changeGoal(@PathVariable(name = "userId") Long userId,
 		@Valid @RequestBody GoalChangeRequest request) {
-		userService.updateCurrentUserGoal(userId, request);
-		return ResponseEntity.ok(BaseResponse.of(null));
+		UserGoalResponse response = userService.updateCurrentUserGoal(userId, request);
+		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
 	@Operation(

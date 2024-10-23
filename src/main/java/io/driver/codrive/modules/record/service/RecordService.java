@@ -64,17 +64,23 @@ public class RecordService {
 	public RecordModifyResponse modifyRecord(Long recordId, RecordModifyRequest request) throws IOException {
 		Record record = getRecordById(recordId);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		AuthUtils.checkOwnedEntity(record);
+
+		// deleteGithubContent(record, user); //todo 수정 커밋 기능
+		updateRecord(record, request);
+		// commitNewGithubContent(record, user);
+		return RecordModifyResponse.of(record);
+	}
+
+	private void deleteGithubContent(Record record, User user) {
 		String path = githubCommitService.getPath(record, record.getRecordNum());
 		String sha = githubCommitService.getGithubContentSha(user, path);
 		githubCommitService.deleteGithubContent(record, user, path, sha);
+	}
 
-		AuthUtils.checkOwnedEntity(record);
-		updateRecord(record, request);
-
+	private void commitNewGithubContent(Record record, User user) throws IOException {
 		String newPath = githubCommitService.getPath(record, record.getRecordNum());
-		githubCommitService.commitToGithub(record, user, newPath, sha);
-
-		return RecordModifyResponse.of(record);
+		githubCommitService.commitToGithub(record, user, newPath);
 	}
 
 	@Transactional

@@ -10,6 +10,7 @@ import static io.driver.codrive.modules.record.domain.QRecord.*;
 import static io.driver.codrive.modules.room.domain.QRoom.room;
 import static io.driver.codrive.modules.user.domain.QUser.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import com.querydsl.jpa.JPQLQuery;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.model.SortType;
+import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.model.LanguageMemberCountDto;
 import io.driver.codrive.modules.record.domain.RecordStatus;
@@ -30,6 +32,8 @@ import io.driver.codrive.modules.user.domain.User;
 
 @Repository
 public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport implements RoomUserMappingRepositoryCustom {
+	private static final int ROOM_RANK_LIMIT = 3;
+
 	public RoomUserMappingRepositoryImpl() {
 		super(RoomUserMapping.class);
 	}
@@ -84,5 +88,21 @@ public class RoomUserMappingRepositoryImpl extends QuerydslRepositorySupport imp
 		}
 	}
 
+	@Override
+	public List<User> getRoomRank(Room room, LocalDate pivotDate) {
+		LocalDateTime mondayDateTime = DateUtils.getMondayDateTime(pivotDate);
+		LocalDateTime sundayDateTime = DateUtils.getSundayDateTime(pivotDate);
+
+		return from(roomUserMapping)
+			.leftJoin(record).on(roomUserMapping.user.userId.eq(record.user.userId))
+			.where(roomUserMapping.room.eq(room),
+				record.createdAt.between(mondayDateTime, sundayDateTime),
+				record.recordStatus.eq(RecordStatus.SAVED))
+			.groupBy(roomUserMapping.user)
+			.orderBy(record.count().desc())
+			.limit(ROOM_RANK_LIMIT)
+			.select(roomUserMapping.user)
+			.fetch();
+	}
 }
 

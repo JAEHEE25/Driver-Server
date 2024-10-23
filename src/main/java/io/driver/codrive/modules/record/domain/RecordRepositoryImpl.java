@@ -77,8 +77,8 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 	@Override
 	public Integer getRecordsCountByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
-		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
-		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
+		LocalDateTime mondayDateTime = DateUtils.getMondayDateTime(pivotDate);
+		LocalDateTime sundayDateTime = DateUtils.getSundayDateTime(pivotDate);
 
 		return Math.toIntExact(from(record)
 			.where(record.user.userId.eq(userId), record.createdAt.between(mondayDateTime, sundayDateTime),
@@ -88,8 +88,8 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 	@Override
 	public Integer getSolvedDaysByWeek(Long userId, LocalDate pivotDate) { //월요일 00:00:00부터 일요일 23:59:59까지
-		LocalDateTime mondayDateTime = getMondayDateTime(pivotDate);
-		LocalDateTime sundayDateTime = getSundayDateTime(pivotDate);
+		LocalDateTime mondayDateTime = DateUtils.getMondayDateTime(pivotDate);
+		LocalDateTime sundayDateTime = DateUtils.getSundayDateTime(pivotDate);
 		StringTemplate formattedDate = getFormattedDate("%Y-%m-%d");
 
 		return Math.toIntExact(from(record)
@@ -101,18 +101,6 @@ public class RecordRepositoryImpl extends QuerydslRepositorySupport implements R
 
 	public StringTemplate getFormattedDate(String format) {
 		return Expressions.stringTemplate("DATE_FORMAT({0}, {1})", record.createdAt, ConstantImpl.create(format));
-	}
-
-	public LocalDateTime getMondayDateTime(LocalDate pivotDate) {
-		int pivotDay = pivotDate.getDayOfWeek().getValue();
-		int monday = DayOfWeek.MONDAY.getValue();
-		return pivotDate.minusDays(pivotDay - monday).atStartOfDay();
-	}
-
-	public LocalDateTime getSundayDateTime(LocalDate pivotDate) {
-		int pivotDay = pivotDate.getDayOfWeek().getValue();
-		int sunday = DayOfWeek.SUNDAY.getValue();
-		return pivotDate.plusDays(sunday - pivotDay).atTime(23, 59, 59);
 	}
 
 	private OrderSpecifier createRecordOrderSpecifier(SortType sortType) {
