@@ -9,6 +9,7 @@ import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
+import io.driver.codrive.modules.notification.domain.Notification;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
@@ -83,6 +84,9 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<RoomRequest> roomRequests;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<Notification> notifications;
 
 	public void addRecord(Record record) {
 		this.records.add(record);

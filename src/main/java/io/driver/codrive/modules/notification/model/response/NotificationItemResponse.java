@@ -18,6 +18,9 @@ public record NotificationItemResponse(
 		example = "FOLLOW")
 	String type,
 
+	@Schema(description = "데이터 ID (그룹 관련 이벤트일 경우 roomId, 팔로우 관련 이벤트일 경우 followId)", example = "1")
+	Long dataId,
+
 	@Schema(description = "알림 생성 일시", example = "2/5 12:00")
 	String createdAt,
 
@@ -29,6 +32,7 @@ public record NotificationItemResponse(
 			.notificationId(notification.getNotificationId())
 			.content(notification.getContent())
 			.type(notification.getNotificationType().name())
+			.dataId(notification.getDataId())
 			.createdAt(DateUtils.formatCreatedAtByMdHm(notification.getCreatedAt()))
 			.isRead(notification.getIsRead())
 			.build();

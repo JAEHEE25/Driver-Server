@@ -6,21 +6,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.notification.domain.Notification;
-import io.driver.codrive.modules.notification.domain.NotificationCategory;
 import io.driver.codrive.modules.notification.domain.NotificationRepository;
 import io.driver.codrive.modules.notification.domain.NotificationType;
-import io.driver.codrive.modules.notification.model.dto.FollowEventDto;
 import io.driver.codrive.modules.notification.model.dto.NotificationEventDto;
-import io.driver.codrive.modules.notification.model.dto.RoomEventDto;
 import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
 import io.driver.codrive.modules.notification.model.response.NotificationListResponse;
-import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.user.domain.User;
+import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -30,71 +30,66 @@ import reactor.core.publisher.Sinks;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
+	private static final int READ_NOTIFICATIONS_CLEANUP_WEEKS = 4;
+	private static final int UNREAD_NOTIFICATIONS_CLEANUP_WEEKS = 8;
 	private final NotificationRepository notificationRepository;
+	private final UserService userService;
 	private final Map<Long, Sinks.Many<ServerSentEvent<NotificationEventDto>>> userNotificationSinks = new ConcurrentHashMap<>();
 
+	@Transactional
 	public Flux<ServerSentEvent<NotificationEventDto>> registerUser() {
 		Long userId = AuthUtils.getCurrentUserId();
-		Notification notification = Notification.create(userId, NotificationType.CONNECT_START, String.valueOf(userId));
+		User user = userService.getUserById(userId);
+		Notification notification = Notification.create(user, null, NotificationType.CONNECT_START,
+			String.valueOf(userId));
 		return userNotificationSinks.computeIfAbsent(userId, id -> Sinks.many().multicast().onBackpressureBuffer())
 			.asFlux()
 			.doOnSubscribe(subscription -> {
-				userNotificationSinks.get(userId).tryEmitNext(createServerSentEvent(notification, null));
+				userNotificationSinks.get(userId).tryEmitNext(createServerSentEvent(notification));
 				log.info("User [{}]의 알림 스트림을 시작합니다.", userId);
 			});
 	}
 
 	@Async
-	public void sendNotification(Long userId, Object data, NotificationType type, String... args) {
-		Notification notification = createNotification(userId, type, args);
+	@Transactional
+	public void sendNotification(User user, Long dataId, NotificationType type, String... args) {
+		Notification notification = createNotification(user, dataId, type, args);
+		Long userId = user.getUserId();
 		if (userNotificationSinks.containsKey(userId)) {
-			userNotificationSinks.get(userId).tryEmitNext(createServerSentEvent(notification, data));
+			userNotificationSinks.get(userId).tryEmitNext(createServerSentEvent(notification));
 		} else {
 			log.warn("User [{}]의 알림 스트림이 존재하지 않습니다.", userId);
 		}
 	}
 
-	private Notification createNotification(Long userId, NotificationType type, String... args) {
-		Notification notification = Notification.create(userId, type, args);
+	@Transactional
+	protected Notification createNotification(User user, Long dataId, NotificationType type, String... args) {
+		Notification notification = Notification.create(user, dataId, type, args);
 		return notificationRepository.save(notification);
 	}
 
-	private ServerSentEvent<NotificationEventDto> createServerSentEvent(Notification notification, Object data) {
-		NotificationCategory notificationCategory = notification.getNotificationType().getCategory();
-		if (notificationCategory == NotificationCategory.ROOM) { //그룹 관련 이벤트일 경우
-			return ServerSentEvent.<NotificationEventDto>builder()
-				.event("room")
-				.data(new RoomEventDto(notification, (Room) data))
-				.id(String.valueOf(notification.getNotificationId()))
-				.comment(notification.getContent())
-				.build();
-		} else if (notificationCategory == NotificationCategory.FOLLOW) { //팔로우 관련 이벤트일 경우
-			return ServerSentEvent.<NotificationEventDto>builder()
-				.event("follow")
-				.data(new FollowEventDto(notification, (Long) data))
-				.id(String.valueOf(notification.getNotificationId()))
-				.comment(notification.getContent())
-				.build();
-		} else {
-			return ServerSentEvent.<NotificationEventDto>builder()
-				.event("connect")
-				.data(new NotificationEventDto(notification))
-				.id(String.valueOf(notification.getNotificationId()))
-				.comment(notification.getContent())
-				.build();
-		}
+	private ServerSentEvent<NotificationEventDto> createServerSentEvent(Notification notification) {
+		return ServerSentEvent.<NotificationEventDto>builder()
+			.event("message")
+			.data(new NotificationEventDto(notification))
+			.id(String.valueOf(notification.getNotificationId()))
+			.comment(notification.getContent())
+			.build();
 	}
 
 	public void unregisterUser() {
 		Long userId = AuthUtils.getCurrentUserId();
-		userNotificationSinks.get(userId).tryEmitComplete();
-		userNotificationSinks.remove(userId);
-		log.info("User [{}]의 알림 스트림을 종료합니다.", userId);
+		if (userNotificationSinks.containsKey(userId)) {
+			userNotificationSinks.get(userId).tryEmitComplete();
+			userNotificationSinks.remove(userId);
+		} else {
+			throw new InternalServerErrorApplicationException("알림 스트림이 존재하지 않습니다.");
+		}
 	}
 
 	public NotificationListResponse getNotifications() {
-		Long userId = AuthUtils.getCurrentUserId();
-		List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		List<Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
 		return NotificationListResponse.of(notifications);
 	}
 
@@ -106,4 +101,12 @@ public class NotificationService {
 				.orElseThrow(() -> new NotFoundApplcationException("알림이 존재하지 않습니다."))
 				.changeIsRead(true));
 	}
+
+    @Scheduled(cron = "0 0 0 * * ?")  // 매일 00:00에 실행
+    @Transactional
+    public void cleanUpOldNotifications() {
+        notificationRepository.deleteReadNotificationsOlderThanWeeks(READ_NOTIFICATIONS_CLEANUP_WEEKS);
+        notificationRepository.deleteUnreadNotificationsOlderThanWeeks(UNREAD_NOTIFICATIONS_CLEANUP_WEEKS);
+		log.info("알림 데이터 정리가 완료되었습니다.");
+    }
 }

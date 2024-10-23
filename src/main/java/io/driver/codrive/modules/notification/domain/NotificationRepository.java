@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import io.driver.codrive.modules.user.domain.User;
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
-	List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId);
+public interface NotificationRepository extends JpaRepository<Notification, Long>, NotificationRepositoryCustom {
+	List<Notification> findByUserOrderByCreatedAtDesc(User user);
 
 }

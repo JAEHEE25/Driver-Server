@@ -66,7 +66,7 @@ public class RecordService {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		AuthUtils.checkOwnedEntity(record);
 
-		// deleteGithubContent(record, user);
+		// deleteGithubContent(record, user); //todo 수정 커밋 기능
 		updateRecord(record, request);
 		// commitNewGithubContent(record, user);
 		return RecordModifyResponse.of(record);

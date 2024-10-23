@@ -57,7 +57,7 @@ public class RoomRequestService {
 		RoomRequest roomRequest = RoomRequest.toPrivateRoomRequest(room, user);
 		saveRoomRequest(roomRequest, room);
 		roomUserMappingService.createRoomUserMapping(room, user);
-		notificationService.sendNotification(room.getOwnerId(), room, NotificationType.CREATED_PRIVATE_ROOM_JOIN,
+		notificationService.sendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PRIVATE_ROOM_JOIN,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()),
 			MessageUtils.changeNameFormat(user.getNickname(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()));
 	}
@@ -84,9 +84,9 @@ public class RoomRequestService {
 		saveRoomRequest(roomRequest, room);
 		room.changeRequestedCount(room.getRequestedCount() + 1);
 
-		notificationService.sendNotification(room.getOwnerId(), room, NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
+		notificationService.sendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST.getLength()));
-		notificationService.sendNotification(user.getUserId(), room, NotificationType.PUBLIC_ROOM_REQUEST,
+		notificationService.sendNotification(user, room.getRoomId(), NotificationType.PUBLIC_ROOM_REQUEST,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_REQUEST.getLength()));
 	}
 
@@ -142,9 +142,8 @@ public class RoomRequestService {
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 		room.changeRequestedCount(room.getRequestedCount() - 1);
 
-		notificationService.sendNotification(roomRequest.getUser().getUserId(), room,
-			NotificationType.PUBLIC_ROOM_APPROVE,
-			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
+		notificationService.sendNotification(roomRequest.getUser(), room.getRoomId(),
+			NotificationType.PUBLIC_ROOM_APPROVE, MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
 	}
 
 	public void changeWaitingRoomRequestStatus(Room room, UserRequestStatus originStatus, UserRequestStatus newStatus) {
