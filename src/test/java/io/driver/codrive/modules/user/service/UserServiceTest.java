@@ -28,6 +28,7 @@ import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.language.service.LanguageService;
+import io.driver.codrive.modules.notification.service.NotificationDeleteService;
 import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
@@ -53,6 +54,9 @@ class UserServiceTest {
 
 	@Mock
 	private GithubCommitService githubCommitService;
+
+	@Mock
+	private NotificationDeleteService notificationDeleteService;
 
 	private User mockUser;
 
