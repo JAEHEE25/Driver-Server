@@ -8,5 +8,6 @@ import io.driver.codrive.modules.user.domain.User;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>, NotificationRepositoryCustom {
 	List<Notification> findByUserOrderByCreatedAtDesc(User user);
-
+	List<Notification> findAllByDataId(Long dataId);
+	List<Notification> findAllByDataIdIn(List<Long> dataIds);
 }

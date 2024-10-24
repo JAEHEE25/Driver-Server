@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +29,6 @@ import reactor.core.publisher.Sinks;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
-	private static final int READ_NOTIFICATIONS_CLEANUP_WEEKS = 4;
-	private static final int UNREAD_NOTIFICATIONS_CLEANUP_WEEKS = 8;
 	private final NotificationRepository notificationRepository;
 	private final UserService userService;
 	private final Map<Long, Sinks.Many<ServerSentEvent<NotificationEventDto>>> userNotificationSinks = new ConcurrentHashMap<>();
@@ -101,12 +98,4 @@ public class NotificationService {
 				.orElseThrow(() -> new NotFoundApplcationException("알림이 존재하지 않습니다."))
 				.changeIsRead(true));
 	}
-
-    @Scheduled(cron = "0 0 0 * * ?")  // 매일 00:00에 실행
-    @Transactional
-    public void cleanUpOldNotifications() {
-        notificationRepository.deleteReadNotificationsOlderThanWeeks(READ_NOTIFICATIONS_CLEANUP_WEEKS);
-        notificationRepository.deleteUnreadNotificationsOlderThanWeeks(UNREAD_NOTIFICATIONS_CLEANUP_WEEKS);
-		log.info("알림 데이터 정리가 완료되었습니다.");
-    }
 }

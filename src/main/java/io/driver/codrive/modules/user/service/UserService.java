@@ -13,6 +13,7 @@ import io.driver.codrive.global.exception.NotFoundApplcationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
+import io.driver.codrive.modules.notification.service.NotificationDeleteService;
 import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
@@ -30,6 +31,7 @@ public class UserService {
 	private final LanguageService languageService;
 	private final DiscordService discordService;
 	private final GithubCommitService githubCommitService;
+	private final NotificationDeleteService notificationDeleteService;
 	private final UserRepository userRepository;
 
 	public User getUserById(Long userId) {
@@ -94,10 +96,13 @@ public class UserService {
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
 		AuthUtils.checkOwnedEntity(user);
+		userRepository.delete(user);
+
 		updateJoinedRoomsMemberCount(user);
 		updateRequestedRoomsRequestedCount(user);
+		notificationDeleteService.deleteFollowNotifications(user);
+		notificationDeleteService.deleteRoomNotifications(user);
 		discordService.sendMessage(DiscordEventMessage.LEAVE, user.getNickname());
-		userRepository.delete(user);
 	}
 
 	@Transactional
