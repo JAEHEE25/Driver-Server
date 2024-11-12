@@ -49,7 +49,7 @@ public record JoinedRoomInfoResponse(
 	boolean isPublicRoom
 
 ) {
-	public static JoinedRoomInfoResponse of(Room room, String password, List<LanguageMemberCountDto> languageMemberCount) {
+	public static JoinedRoomInfoResponse of(Room room, String password, int approvedCount, int requestedCount, List<LanguageMemberCountDto> languageMemberCount) {
 		return JoinedRoomInfoResponse.builder()
 			.roomId(room.getRoomId())
 			.uuid(room.getUuid())
@@ -59,8 +59,8 @@ public record JoinedRoomInfoResponse(
 			.password(password)
 			.memberCount(room.getMemberCount())
 			.capacity(room.getCapacity())
-			.approvedCount(room.getMemberCount())
-			.requestedCount(room.getRequestedCount())
+			.approvedCount(approvedCount)
+			.requestedCount(requestedCount)
 			.roomStatus(room.getRoomStatus().name())
 			.languageMemberCount(languageMemberCount)
 			.isPublicRoom(room.isPublicRoom())

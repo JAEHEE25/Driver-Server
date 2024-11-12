@@ -35,6 +35,8 @@ import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomFilterRequest;
 import io.driver.codrive.modules.room.model.request.RoomModifyRequest;
 import io.driver.codrive.modules.room.model.response.*;
+import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
+import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.room.model.response.CreatedRoomListResponse;
 import io.driver.codrive.modules.room.model.response.JoinedRoomListResponse;
@@ -54,6 +56,7 @@ public class RoomService {
 	private final LanguageService languageService;
 	private final RoomRepository roomRepository;
 	private final NotificationService notificationService;
+	private final RoomRequestService roomRequestService;
 
 	@Transactional
 	public RoomCreateResponse createRoom(RoomCreateRequest request, MultipartFile imageFile) throws IOException {
@@ -78,7 +81,8 @@ public class RoomService {
 	public RoomDetailResponse getRoomDetail(Long roomId) {
 		Room room = getRoomById(roomId);
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		return RoomDetailResponse.of(room, room.hasMember(user));
+		int requestedCount = roomRequestService.getRoomsRequestByRoom(room).size();
+		return RoomDetailResponse.of(room, requestedCount, room.hasMember(user));
 	}
 
 	@Transactional
@@ -92,7 +96,10 @@ public class RoomService {
 		if (room.getOwner().equals(user)) {
 			password = room.getPassword();
 		}
-		return JoinedRoomInfoResponse.of(room, password, roomUserMappingService.getLanguageMemberCountResponse(room));
+		int approvedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.JOINED);
+		int requestedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.REQUESTED) +
+			roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.WAITING);
+		return JoinedRoomInfoResponse.of(room, password, approvedCount, requestedCount, roomUserMappingService.getLanguageMemberCountResponse(room));
 	}
 
 	@Transactional

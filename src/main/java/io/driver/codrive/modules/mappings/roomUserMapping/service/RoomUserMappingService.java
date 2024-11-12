@@ -32,7 +32,6 @@ public class RoomUserMappingService {
 		}
 		RoomUserMapping mapping = roomUserMappingRepository.save(RoomUserMapping.toRoomUserMapping(room, user));
 		room.addRoomUserMappings(mapping);
-		room.changeMemberCount(room.getMemberCount() + 1);
 		user.addRoomUserMappings(mapping);
 	}
 
@@ -48,7 +47,6 @@ public class RoomUserMappingService {
 			throw new NotFoundApplcationException("멤버");
 		}
 		room.deleteMember(mapping);
-		room.changeMemberCount(room.getMemberCount() - 1);
 		user.deleteJoinedRoom(mapping);
 		roomUserMappingRepository.delete(mapping);
 	}

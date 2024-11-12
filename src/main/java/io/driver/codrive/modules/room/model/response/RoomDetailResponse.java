@@ -3,7 +3,6 @@ package io.driver.codrive.modules.room.model.response;
 import java.util.List;
 
 import io.driver.codrive.modules.room.domain.Room;
-import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -45,14 +44,14 @@ public record RoomDetailResponse(
 	@Schema(description = "공개 그룹인지 여부", example = "true")
 	boolean isPublicRoom
 ) {
-	public static RoomDetailResponse of(Room room, boolean isMember) {
+	public static RoomDetailResponse of(Room room, int requestedCount, boolean isMember) {
 		return RoomDetailResponse.builder()
 				.uuid(room.getUuid())
 				.title(room.getTitle())
 				.password(room.getPassword())
 				.owner(io.driver.codrive.modules.room.model.response.OwnerDetailResponse.of(room.getOwner()))
 				.imageSrc(room.getImageSrc())
-				.requestedCount(room.getRequestedCount())
+				.requestedCount(requestedCount)
 				.capacity(room.getCapacity())
 				.tags(room.getLanguages())
 				.introduce(room.getIntroduce())

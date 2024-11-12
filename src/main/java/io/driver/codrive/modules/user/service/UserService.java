@@ -15,7 +15,6 @@ import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.notification.service.NotificationDeleteService;
 import io.driver.codrive.modules.record.service.github.GithubCommitService;
-import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
 import io.driver.codrive.modules.user.model.request.GithubRepositoryNameRequest;
@@ -98,24 +97,9 @@ public class UserService {
 		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
 
-		updateJoinedRoomsMemberCount(user);
-		updateRequestedRoomsRequestedCount(user);
 		notificationDeleteService.deleteFollowNotifications(user);
 		notificationDeleteService.deleteRoomNotifications(user);
 		discordService.sendMessage(DiscordEventMessage.LEAVE, user.getNickname());
-	}
-
-	@Transactional
-	protected void updateJoinedRoomsMemberCount(User user) {
-		user.getJoinedRooms().forEach(room -> room.changeMemberCount(room.getMemberCount() - 1));
-	}
-
-	@Transactional
-	protected void updateRequestedRoomsRequestedCount(User user) {
-		user.getRoomRequests().forEach(roomRequest -> {
-			Room room = roomRequest.getRoom();
-			room.changeRequestedCount(room.getRequestedCount() - 1);
-		});
 	}
 
 	@Transactional(readOnly = true)

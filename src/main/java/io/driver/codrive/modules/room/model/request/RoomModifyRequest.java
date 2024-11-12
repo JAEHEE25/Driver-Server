@@ -49,8 +49,6 @@ public record RoomModifyRequest(
 			.password(password)
 			.imageSrc(imageSrc)
 			.capacity(capacity)
-			.requestedCount(0)
-			.memberCount(0)
 			.introduce(introduce)
 			.information(information)
 			.roomStatus(RoomStatus.ACTIVE)
