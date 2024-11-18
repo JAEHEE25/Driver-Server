@@ -79,6 +79,7 @@ public class NotificationService {
 		if (userNotificationSinks.containsKey(userId)) {
 			userNotificationSinks.get(userId).tryEmitComplete();
 			userNotificationSinks.remove(userId);
+			log.info("User [{}]의 알림 스트림이 종료되었습니다.", userId);
 		} else {
 			throw new InternalServerErrorApplicationException("알림 스트림이 존재하지 않습니다.");
 		}
