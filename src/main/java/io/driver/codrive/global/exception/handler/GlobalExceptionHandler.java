@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import io.driver.codrive.global.exception.ApplicationException;
 import io.driver.codrive.global.model.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
@@ -22,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(ApplicationException.class)
-	public ResponseEntity<ErrorResponse> handleApplicationException(ApplicationException e) {
-		log.error("ApplicationException: {}", e.getMessage());
+	public ResponseEntity<ErrorResponse> handleApplicationException(ApplicationException e, HttpServletRequest request) {
+		log.error("Request: {} {}, ApplicationException: {}", request.getMethod(), request.getRequestURI(), e.getMessage());
 		ErrorResponse response = ErrorResponse.of(e.getCode(), e.getMessage(), null);
 		return new ResponseEntity<>(response, HttpStatusCode.valueOf(e.getCode()));
 	}
@@ -36,8 +37,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("Exception: {}", e.getMessage(), e);
+    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
+        log.error("Request: {} {}, Exception: {}", request.getMethod(), request.getRequestURI(), e.getMessage(), e);
         return new ResponseEntity<>(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
