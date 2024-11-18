@@ -24,6 +24,7 @@ public class RecordSaveRequest extends RecordCreateRequest {
 
 	@Schema(description = "문제 풀이 제목", example = "문제 풀이 제목")
 	@NotBlank(message = "문제 풀이 제목을 입력해주세요.")
+	@Size(max = 250, message = "문제 풀이 제목은 {max}자 이하로 입력해주세요.")
 	private String title;
 
 	@Schema(description = "난이도", example = "1")

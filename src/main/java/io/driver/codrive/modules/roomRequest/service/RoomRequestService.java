@@ -15,11 +15,11 @@ import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappin
 import io.driver.codrive.modules.notification.domain.NotificationType;
 import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.room.domain.Room;
+import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
 import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
-import io.driver.codrive.modules.room.service.RoomService;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequestRepository;
 import io.driver.codrive.modules.roomRequest.model.response.RoomRequestListResponse;
 import io.driver.codrive.modules.user.domain.User;
@@ -30,15 +30,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoomRequestService {
 	private final UserService userService;
-	private final RoomService roomService;
 	private final RoomUserMappingService roomUserMappingService;
 	private final NotificationService notificationService;
+	private final RoomRepository roomRepository;
 	private final RoomRequestRepository roomRequestRepository;
 
 	@Transactional
 	public void joinPrivateRoom(Long roomId, PasswordRequest request) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Room room = roomService.getRoomById(roomId);
+		Room room = getRoomById(roomId);
 		checkRoomStatus(room);
 		checkRoomMember(room, user);
 
@@ -65,7 +65,7 @@ public class RoomRequestService {
 	@Transactional
 	public void joinPublicRoom(Long roomId) {
 		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		Room room = roomService.getRoomById(roomId);
+		Room room = getRoomById(roomId);
 		checkRoomStatus(room);
 		checkRoomMember(room, user);
 
@@ -82,7 +82,6 @@ public class RoomRequestService {
 			roomRequest.changeRoomRequestStatus(UserRequestStatus.WAITING);
 		}
 		saveRoomRequest(roomRequest, room);
-		room.changeRequestedCount(room.getRequestedCount() + 1);
 
 		notificationService.sendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST.getLength()));
@@ -116,8 +115,9 @@ public class RoomRequestService {
 
 	@Transactional
 	public RoomRequestListResponse getRoomRequests(Long roomId) {
-		Room room = roomService.getRoomById(roomId);
-		return RoomRequestListResponse.of(room.getMemberCount(), roomRequestRepository.findAllByRoom(room));
+		Room room = getRoomById(roomId);
+		int approvedCount = getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.JOINED);
+		return RoomRequestListResponse.of(approvedCount, getRoomsRequestByRoom(room));
 	}
 
 	public Page<RoomRequest> getRoomParticipants(Room room, Pageable pageable) {
@@ -126,7 +126,7 @@ public class RoomRequestService {
 
 	@Transactional
 	public void approveRequest(Long roomId, Long roomRequestId) {
-		Room room = roomService.getRoomById(roomId);
+		Room room = getRoomById(roomId);
 		AuthUtils.checkOwnedEntity(room);
 		RoomRequest roomRequest = getRoomRequestById(roomRequestId);
 
@@ -140,7 +140,6 @@ public class RoomRequestService {
 
 		roomRequest.changeRoomRequestStatus(UserRequestStatus.JOINED);
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
-		room.changeRequestedCount(room.getRequestedCount() - 1);
 
 		notificationService.sendNotification(roomRequest.getUser(), room.getRoomId(),
 			NotificationType.PUBLIC_ROOM_APPROVE, MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
@@ -155,5 +154,21 @@ public class RoomRequestService {
 	public void deleteRoomRequest(Room room, User user) {
 		RoomRequest roomRequest = roomRequestRepository.findByRoomAndUser(room, user).orElseThrow(() -> new NotFoundApplcationException("참여 요청 데이터"));
 		roomRequestRepository.delete(roomRequest);
+	}
+
+	@Transactional(readOnly = true)
+	public Room getRoomById(Long roomId) {
+		return roomRepository.findById(roomId)
+			.orElseThrow(() -> new NotFoundApplcationException("그룹"));
+	}
+
+	@Transactional(readOnly = true)
+	public int getRoomRequestCountByRoomAndRequestStatus(Room room, UserRequestStatus userRequestStatus) {
+		return roomRequestRepository.findAllByRoomAndUserRequestStatus(room, userRequestStatus).size();
+	}
+
+	@Transactional(readOnly = true)
+	public List<RoomRequest> getRoomsRequestByRoom(Room room) {
+		return roomRequestRepository.findAllByRoom(room);
 	}
 }

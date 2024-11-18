@@ -1,6 +1,7 @@
 package io.driver.codrive.modules.follow.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -122,6 +123,9 @@ public class FollowService {
 	private Comparator<User> getSolvedFollowingsComparator() {
 		return Comparator.comparing(user -> {
 			List<Record> records = user.getRecords();
+			if (records.isEmpty()) {
+				return LocalDateTime.MIN;
+			}
 			Record recentRecord = records.get(records.size() - 1);
 			return recentRecord.getCreatedAt();
 		});
@@ -133,6 +137,7 @@ public class FollowService {
 		List<User> followings = user.getFollowings()
 			.stream()
 			.map(Follow::getFollowing)
+			.sorted(getSolvedFollowingsComparator().reversed())
 			.limit(WEEKLY_FOLLOWINGS)
 			.toList();
 		return WeeklyFollowingResponse.of(followings);

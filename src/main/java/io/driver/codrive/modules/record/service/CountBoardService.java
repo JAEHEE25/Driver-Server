@@ -102,7 +102,6 @@ public class CountBoardService {
 			.map(Integer::parseInt)
 			.sorted()
 			.toList();
-		log.info("sortedKeys: {}", sortedKeys);
 
 		for (Integer key : sortedKeys) {
 			Long count = countBoard.get(key.toString());

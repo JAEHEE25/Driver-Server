@@ -19,6 +19,9 @@ public record TodaySolvedFollowingResponse(
 
 	@Builder
 	record TodaySolvedFollowingItemResponse(
+		@Schema(description = "사용자 ID", example = "1")
+		Long userId,
+
 		@Schema(description = "프로필 이미지 URL", example = "IMAGE_URL")
 		String profileImg,
 
@@ -31,6 +34,7 @@ public record TodaySolvedFollowingResponse(
 
 		public static TodaySolvedFollowingItemResponse of(User user) {
 			return TodaySolvedFollowingItemResponse.builder()
+				.userId(user.getUserId())
 				.profileImg(user.getProfileImg())
 				.nickname(user.getNickname())
 				.build();

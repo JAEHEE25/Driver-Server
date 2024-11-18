@@ -37,12 +37,6 @@ public class Room extends BaseEntity {
 	@Column(nullable = false)
 	private Integer capacity;
 
-	@Column(nullable = false)
-	private Integer requestedCount;
-
-	@Column(nullable = false)
-	private Integer memberCount;
-
 	@Column(nullable = false, length = 60)
 	private String introduce;
 
@@ -77,7 +71,7 @@ public class Room extends BaseEntity {
 	}
 
 	public boolean isFull() {
-		return memberCount >= capacity;
+		return getMemberCount() >= capacity;
 	}
 
 	public boolean isCorrectPassword(String requestPassword) {
@@ -100,6 +94,10 @@ public class Room extends BaseEntity {
 		return roomUserMappings.stream().map(RoomUserMapping::getUser).toList();
 	}
 
+	public int getMemberCount() {
+		return roomUserMappings.size();
+	}
+
 	public void changeTitle(String title) {
 		this.title = title;
 	}
@@ -112,16 +110,8 @@ public class Room extends BaseEntity {
 		this.imageSrc = imageSrc;
 	}
 
-	public void changeRequestedCount(Integer requestedCount) {
-		this.requestedCount = requestedCount;
-	}
-
-	public void changeMemberCount(Integer memberCount) {
-		this.memberCount = memberCount;
-	}
-
 	public void changeCapacity(Integer capacity) {
-		if (capacity < memberCount) {
+		if (capacity < getMemberCount()) {
 			throw new IllegalArgumentApplicationException("모집 인원은 현재 인원보다 적을 수 없습니다.");
 		}
 		this.capacity = capacity;
