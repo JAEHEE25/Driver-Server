@@ -35,7 +35,7 @@ public abstract class RecordCreateService<T extends RecordCreateRequest> {
 			updateSolvedCount(user);
 			updateSuccessRate(user);
 			updateJoinedRoomsLastUpdatedAt(createdRecord, user);
-			// commitToGithub(createdRecord, user); //todo 등록 커밋 기능
+			commitToGithub(createdRecord, user);
 		}
 		return RecordCreateResponse.of(createdRecord);
 	}

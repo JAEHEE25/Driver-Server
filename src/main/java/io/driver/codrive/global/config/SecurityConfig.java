@@ -29,6 +29,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
     private static final String[] WHITELIST = new String[] {
+			"/",
             APIConstants.API_PREFIX + "/auth/**",
             APIConstants.API_PREFIX + "/test/**",
 			APIConstants.API_PREFIX + "/records/{recordId}",
