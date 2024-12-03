@@ -26,7 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.modules.language.domain.Language;
@@ -125,7 +125,7 @@ class RecordServiceTest {
 		when(recordRepository.findById(recordId)).thenReturn(Optional.empty());
 
 		//when & then
-		assertThrows(NotFoundApplcationException.class, () -> recordService.getRecordById(recordId));
+		assertThrows(NotFoundApplicationException.class, () -> recordService.getRecordById(recordId));
 	}
 
 	@Test

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMapping;
 import io.driver.codrive.modules.mappings.roomUserMapping.domain.RoomUserMappingRepository;
@@ -44,7 +44,7 @@ public class RoomUserMappingService {
 	public void deleteRoomUserMapping(Room room, User user) {
 		RoomUserMapping mapping = getRoomUserMapping(room, user);
 		if (mapping == null) {
-			throw new NotFoundApplcationException("멤버");
+			throw new NotFoundApplicationException("멤버");
 		}
 		room.deleteMember(mapping);
 		user.deleteJoinedRoom(mapping);

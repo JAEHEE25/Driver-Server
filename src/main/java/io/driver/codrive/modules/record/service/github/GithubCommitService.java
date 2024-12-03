@@ -78,14 +78,12 @@ public class GithubCommitService {
 		return String.format(PATH, platformDirectoryName, levelDirectoryName, recordNum, title);
 	}
 
-	@Transactional
 	public String getContent(Record record) throws IOException {
 		String template = TemplateUtils.readTemplate(TEMPLATE_PATH);
 		Map<String, String> params = getContentMap(record);
 		return TemplateUtils.formatTemplate(template, params);
 	}
 
-	@Transactional
 	protected Map<String, String> getContentMap(Record record) {
 		Map<String, String> params = new HashMap<>();
 		params.put("title", record.getTitle());
@@ -97,14 +95,12 @@ public class GithubCommitService {
 		return params;
 	}
 
-	@Transactional
 	protected String getTags(List<String> categories) {
 		return categories.stream()
 			.map(category -> TAG_PREFIX + category)
 			.collect(Collectors.joining(TAG_DELIMITER));
 	}
 
-	@Transactional
 	protected String getCodeblocks(Record record) {
 		List<Codeblock> codeblocks = record.getCodeblocks();
 		String startBox = String.format(CODE_BOX_START, record.getUser().getLanguage().getName());

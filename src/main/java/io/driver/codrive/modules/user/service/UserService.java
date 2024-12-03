@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
@@ -35,12 +35,12 @@ public class UserService {
 
 	public User getUserById(Long userId) {
 		return userRepository.findById(userId)
-			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+			.orElseThrow(() -> new NotFoundApplicationException("사용자"));
 	}
 
 	public User getUserByNickname(String nickname) {
 		return userRepository.findByNickname(nickname)
-			.orElseThrow(() -> new NotFoundApplcationException("사용자"));
+			.orElseThrow(() -> new NotFoundApplicationException("사용자"));
 	}
 
 	public UserDetailResponse getUserInfo(Long userId) {
@@ -67,7 +67,7 @@ public class UserService {
 		User user = getUserById(AuthUtils.getCurrentUserId());
 		boolean isExistRepository = githubCommitService.isExistRepository(user, request.githubRepositoryName());
 		if (!isExistRepository) {
-			throw new NotFoundApplcationException("레포지토리");
+			throw new NotFoundApplicationException("레포지토리");
 		}
 	}
 

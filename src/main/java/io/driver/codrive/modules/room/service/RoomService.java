@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
@@ -74,7 +74,7 @@ public class RoomService {
 
 	@Transactional
 	public Room getRoomById(Long roomId) {
-		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplcationException("그룹"));
+		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 	}
 
 	@Transactional
@@ -107,7 +107,7 @@ public class RoomService {
 
 	@Transactional
 	public RoomUuidResponse getRoomInfoByUuid(String uuid) {
-		Room room = roomRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundApplcationException("그룹"));
+		Room room = roomRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 		return RoomUuidResponse.of(room);
 	}
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
@@ -110,7 +110,7 @@ public class RoomRequestService {
 	@Transactional
 	public RoomRequest getRoomRequestById(Long roomRequestId) {
 		return roomRequestRepository.findById(roomRequestId)
-			.orElseThrow(() -> new NotFoundApplcationException("참여 요청 데이터"));
+			.orElseThrow(() -> new NotFoundApplicationException("참여 요청 데이터"));
 	}
 
 	@Transactional
@@ -152,14 +152,14 @@ public class RoomRequestService {
 
 	@Transactional
 	public void deleteRoomRequest(Room room, User user) {
-		RoomRequest roomRequest = roomRequestRepository.findByRoomAndUser(room, user).orElseThrow(() -> new NotFoundApplcationException("참여 요청 데이터"));
+		RoomRequest roomRequest = roomRequestRepository.findByRoomAndUser(room, user).orElseThrow(() -> new NotFoundApplicationException("참여 요청 데이터"));
 		roomRequestRepository.delete(roomRequest);
 	}
 
 	@Transactional(readOnly = true)
 	public Room getRoomById(Long roomId) {
 		return roomRepository.findById(roomId)
-			.orElseThrow(() -> new NotFoundApplcationException("그룹"));
+			.orElseThrow(() -> new NotFoundApplicationException("그룹"));
 	}
 
 	@Transactional(readOnly = true)

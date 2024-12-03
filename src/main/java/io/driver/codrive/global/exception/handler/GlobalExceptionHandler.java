@@ -3,10 +3,14 @@ package io.driver.codrive.global.exception.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.StaleStateException;
+import org.hibernate.dialect.lock.OptimisticEntityLockException;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,5 +44,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
         log.error("Request: {} {}, Exception: {}", request.getMethod(), request.getRequestURI(), e.getMessage(), e);
         return new ResponseEntity<>(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ConcurrencyFailureException.class)
+    public ResponseEntity<ErrorResponse> handleStaleStateException(ConcurrencyFailureException e, HttpServletRequest request) {
+        log.error("Request: {} {}, ConcurrencyFailureException: {}", request.getMethod(), request.getRequestURI(), e.getMessage(), e);
+        return new ResponseEntity<>(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), "요청을 처리할 수 없습니다.", null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

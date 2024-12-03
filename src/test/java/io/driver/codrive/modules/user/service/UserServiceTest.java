@@ -24,7 +24,7 @@ import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.ForbiddenApplcationException;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.language.service.LanguageService;
@@ -156,7 +156,7 @@ class UserServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		//when & then
-		assertThrows(NotFoundApplcationException.class, () -> userService.getUserById(userId));
+		assertThrows(NotFoundApplicationException.class, () -> userService.getUserById(userId));
 	}
 
 	@Test
@@ -181,9 +181,9 @@ class UserServiceTest {
 		when(userRepository.findByNickname(nickname)).thenReturn(Optional.empty());
 
 		//when & then
-		NotFoundApplcationException notFoundApplcationException = assertThrows(NotFoundApplcationException.class,
+		NotFoundApplicationException notFoundApplicationException = assertThrows(NotFoundApplicationException.class,
 			() -> userService.getUserByNickname(nickname));
-		assertEquals("사용자을/를 찾을 수 없습니다.", notFoundApplcationException.getMessage());
+		assertEquals("사용자을/를 찾을 수 없습니다.", notFoundApplicationException.getMessage());
 	}
 
 	@Test
@@ -208,7 +208,7 @@ class UserServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		//when & then
-		assertThrows(NotFoundApplcationException.class, () -> userService.getUserInfo(userId));
+		assertThrows(NotFoundApplicationException.class, () -> userService.getUserInfo(userId));
 	}
 
 	@Test
@@ -225,7 +225,6 @@ class UserServiceTest {
 		Follow follow = Follow.builder() //현재 로그인한 유저(mockUser) -> 다른 유저(mockOtherUser) 팔로우
 			.following(mockOtherUser)
 			.follower(mockUser)
-			.canceled(false)
 			.build();
 		mockUser.addFollowing(follow);
 
@@ -348,7 +347,7 @@ class UserServiceTest {
 
 		//when & then
 		GithubRepositoryNameRequest request = new GithubRepositoryNameRequest("REPOSITORY_NAME");
-		assertThrows(NotFoundApplcationException.class, () -> userService.checkGithubRepositoryName(request));
+		assertThrows(NotFoundApplicationException.class, () -> userService.checkGithubRepositoryName(request));
 
 		tearDown();
 	}
@@ -441,7 +440,6 @@ class UserServiceTest {
 		Follow follow = Follow.builder() //현재 로그인한 유저(mockUser) -> 다른 유저(mockOtherUser) 팔로우
 			.following(mockOtherUser)
 			.follower(mockUser)
-			.canceled(false)
 			.build();
 		mockUser.addFollowing(follow);
 
@@ -477,7 +475,6 @@ class UserServiceTest {
 		Follow follow = Follow.builder() //다른 유저(mockOtherUser) -> 현재 로그인한 유저(mockUser) 팔로우
 			.following(mockUser)
 			.follower(mockOtherUser)
-			.canceled(false)
 			.build();
 		mockUser.addFollower(follow);
 

@@ -16,7 +16,7 @@ import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockModifyRequest;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
 import io.driver.codrive.modules.record.domain.Record;
@@ -42,7 +42,7 @@ public class RecordService {
 
 	@Transactional(readOnly = true)
 	public Record getRecordById(Long recordId) {
-		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplcationException("문제 풀이 데이터"));
+		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplicationException("문제 풀이 데이터"));
 	}
 
 	@Transactional(readOnly = true)

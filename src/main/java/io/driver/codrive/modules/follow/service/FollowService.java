@@ -5,19 +5,21 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.follow.domain.FollowRepository;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.model.response.FollowingSummaryListResponse;
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
@@ -54,16 +56,22 @@ public class FollowService {
 			throw new IllegalArgumentApplicationException("자기 자신을 팔로우할 수 없습니다.");
 		}
 
-		if (getFollowByUsers(target, currentUser) != null) {
+		if (followRepository.existsByFollowingAndFollower(target, currentUser)) {
 			throw new AlreadyExistsApplicationException("팔로우 데이터");
 		}
 
 		Follow follow = Follow.toFollow(target, currentUser);
-		currentUser.addFollowing(follow);
-		target.addFollower(follow);
-		followRepository.save(follow);
 
-		notificationService.sendNotification(target, currentUser.getUserId(), NotificationType.FOLLOW, currentUser.getNickname());
+		try {
+			followRepository.save(follow);
+			currentUser.addFollowing(follow);
+			target.addFollower(follow);
+		} catch (DataIntegrityViolationException e) {
+			throw new InternalServerErrorApplicationException("팔로우할 수 없습니다.");
+		}
+
+		notificationService.sendNotification(target, currentUser.getUserId(), NotificationType.FOLLOW,
+			currentUser.getNickname());
 	}
 
 	@Transactional
@@ -73,7 +81,7 @@ public class FollowService {
 
 		Follow follow = getFollowByUsers(target, currentUser);
 		if (follow == null) {
-			throw new NotFoundApplcationException("팔로우 데이터");
+			throw new NotFoundApplicationException("팔로우 데이터");
 		}
 		followRepository.delete(follow);
 		target.deleteFollower(follow);
