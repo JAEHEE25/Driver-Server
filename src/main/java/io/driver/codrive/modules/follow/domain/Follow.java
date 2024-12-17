@@ -1,8 +1,5 @@
 package io.driver.codrive.modules.follow.domain;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-
 import io.driver.codrive.global.entity.BaseEntity;
 import io.driver.codrive.modules.user.domain.User;
 import jakarta.persistence.*;
@@ -16,8 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@SQLRestriction("canceled = false")
-@SQLDelete(sql = "UPDATE follow SET canceled = true WHERE follow_id = ?")
 public class Follow extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,14 +26,10 @@ public class Follow extends BaseEntity {
 	@JoinColumn(name = "follower_id", nullable = false)
 	private User follower;
 
-	@Column(nullable = false)
-	private Boolean canceled;
-
 	public static Follow toFollow(User following, User follower) {
 		return Follow.builder()
 			.following(following)
 			.follower(follower)
-			.canceled(false)
 			.build();
 	}
 

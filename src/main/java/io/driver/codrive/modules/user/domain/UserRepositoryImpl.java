@@ -21,7 +21,7 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Use
 	public List<User> getRandomUsersExcludingMeAndFollowings(Long userId) {
 		return from(user)
 			.leftJoin(follow).on(follow.following.userId.eq(user.userId).and(follow.follower.userId.eq(userId)))
-			.where(follow.followId.isNull(), user.userId.ne(userId))
+			.where(follow.followId.isNull(), user.userId.ne(userId), user.language.languageId.ne(1L))
 			.orderBy(Expressions.numberTemplate(Double.class, "function('RAND')").asc())
 			.limit(RANDOM_USER_LIMIT)
 			.fetch();

@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
@@ -74,7 +74,7 @@ public class RoomService {
 
 	@Transactional
 	public Room getRoomById(Long roomId) {
-		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplcationException("그룹"));
+		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 	}
 
 	@Transactional
@@ -96,15 +96,18 @@ public class RoomService {
 		if (room.getOwner().equals(user)) {
 			password = room.getPassword();
 		}
-		int approvedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.JOINED);
-		int requestedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.REQUESTED) +
-			roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.WAITING);
-		return JoinedRoomInfoResponse.of(room, password, approvedCount, requestedCount, roomUserMappingService.getLanguageMemberCountResponse(room));
+		int approvedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room,
+			UserRequestStatus.JOINED);
+		int requestedCount =
+			roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.REQUESTED) +
+				roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.WAITING);
+		return JoinedRoomInfoResponse.of(room, password, approvedCount, requestedCount,
+			roomUserMappingService.getLanguageMemberCountResponse(room));
 	}
 
 	@Transactional
 	public RoomUuidResponse getRoomInfoByUuid(String uuid) {
-		Room room = roomRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundApplcationException("그룹"));
+		Room room = roomRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 		return RoomUuidResponse.of(room);
 	}
 
@@ -164,26 +167,23 @@ public class RoomService {
 	@Transactional
 	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, Integer page, String status) {
 		User user = userService.getUserById(userId);
+		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
 		RoomStatus roomStatus = getRoomStatus(status);
 		if (page != null) {
 			Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
 			Page<Room> rooms = roomUserMappingService.getJoinedRoomsByPage(user.getUserId(), roomStatus, sortType,
 				pageable);
-			return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent());
+			return JoinedRoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), currentUser);
 		}
-		return JoinedRoomListResponse.of(getJoinedRoomsByStatusAndSortExcludingOwn(roomStatus, user, sortType));
+		return JoinedRoomListResponse.of(getJoinedRoomsBySort(user, sortType), currentUser);
 	}
 
-	private List<Room> getJoinedRoomsByStatusAndSortExcludingOwn(RoomStatus roomStatus, User user, SortType sortType) {
+	private List<Room> getJoinedRoomsBySort(User user, SortType sortType) {
 		List<Room> rooms;
-		if (roomStatus == null) {
-			rooms = user.getJoinedRooms().stream().filter(room -> !room.getOwner().equals(user)).toList();
-		} else {
-			rooms = user.getJoinedRooms()
-				.stream()
-				.filter(room -> (room.getRoomStatus() == roomStatus) && !room.getOwner().equals(user))
-				.toList();
-		}
+		rooms = user.getJoinedRooms()
+			.stream()
+			.filter(room -> (room.getRoomStatus() == RoomStatus.ACTIVE))
+			.toList();
 		return rooms.stream().sorted(SortType.getJoinedRoomComparator(sortType)).collect(Collectors.toList());
 	}
 

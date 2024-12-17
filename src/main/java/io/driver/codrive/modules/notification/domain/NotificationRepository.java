@@ -10,4 +10,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	List<Notification> findByUserOrderByCreatedAtDesc(User user);
 	List<Notification> findAllByDataId(Long dataId);
 	List<Notification> findAllByDataIdIn(List<Long> dataIds);
+
+	boolean existsByUserAndDataIdAndNotificationType(User user, Long dataId, NotificationType notificationType);
 }

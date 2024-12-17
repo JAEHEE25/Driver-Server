@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
-import io.driver.codrive.global.exception.NotFoundApplcationException;
+import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.notification.domain.Notification;
 import io.driver.codrive.modules.notification.domain.NotificationRepository;
@@ -48,7 +48,6 @@ public class NotificationService {
 	}
 
 	@Async
-	@Transactional
 	public void sendNotification(User user, Long dataId, NotificationType type, String... args) {
 		Notification notification = createNotification(user, dataId, type, args);
 		Long userId = user.getUserId();
@@ -59,7 +58,13 @@ public class NotificationService {
 		}
 	}
 
-	@Transactional
+	public void sendFollowNotification(User user, Long dataId, NotificationType type, String... args) {
+		if (!notificationRepository.existsByUserAndDataIdAndNotificationType(user, dataId, type)) {
+			sendNotification(user, dataId, type, args);
+		}
+	}
+
+
 	protected Notification createNotification(User user, Long dataId, NotificationType type, String... args) {
 		Notification notification = Notification.create(user, dataId, type, args);
 		return notificationRepository.save(notification);
@@ -96,7 +101,7 @@ public class NotificationService {
 		List<Long> notificationIds = request.notificationIds();
 		notificationIds.forEach(id ->
 			notificationRepository.findById(id)
-				.orElseThrow(() -> new NotFoundApplcationException("알림이 존재하지 않습니다."))
+				.orElseThrow(() -> new NotFoundApplicationException("알림이 존재하지 않습니다."))
 				.changeIsRead(true));
 	}
 }

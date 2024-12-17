@@ -11,4 +11,6 @@ import io.driver.codrive.modules.user.domain.User;
 public interface FollowRepository extends JpaRepository<Follow, Long>, FollowRepositoryCustom {
 
 	Optional<Follow> findByFollowingAndFollower(User following, User follower);
+
+	boolean existsByFollowingAndFollower(User following, User follower);
 }
