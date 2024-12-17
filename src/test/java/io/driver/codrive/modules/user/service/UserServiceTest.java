@@ -510,14 +510,12 @@ class UserServiceTest {
 		Follow follow_other_to_current = Follow.builder() //다른 유저(mockOtherUser) -> 현재 로그인한 유저(mockUser) 팔로우
 			.following(mockUser)
 			.follower(mockOtherUser)
-			.canceled(false)
 			.build();
 		mockUser.addFollower(follow_other_to_current);
 
 		Follow follow_current_to_other = Follow.builder() //현재 로그인한 유저(mockUser) -> 다른 유저(mockOtherUser) 팔로우
 			.following(mockOtherUser)
 			.follower(mockUser)
-			.canceled(false)
 			.build();
 		mockUser.addFollowing(follow_current_to_other);
 

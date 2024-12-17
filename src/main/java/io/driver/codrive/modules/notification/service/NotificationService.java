@@ -58,6 +58,13 @@ public class NotificationService {
 		}
 	}
 
+	public void sendFollowNotification(User user, Long dataId, NotificationType type, String... args) {
+		if (!notificationRepository.existsByUserAndDataIdAndNotificationType(user, dataId, type)) {
+			sendNotification(user, dataId, type, args);
+		}
+	}
+
+
 	protected Notification createNotification(User user, Long dataId, NotificationType type, String... args) {
 		Notification notification = Notification.create(user, dataId, type, args);
 		return notificationRepository.save(notification);

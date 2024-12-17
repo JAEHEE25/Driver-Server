@@ -70,11 +70,8 @@ public class FollowService {
 			throw new InternalServerErrorApplicationException("팔로우할 수 없습니다.");
 		}
 
-		if (followRepository.getCanceledFollowCount(target.getUserId(), currentUser.getUserId()) == 0) {
-			notificationService.sendNotification(target, currentUser.getUserId(), NotificationType.FOLLOW,
+		notificationService.sendFollowNotification(target, currentUser.getUserId(), NotificationType.FOLLOW,
 				currentUser.getNickname());
-		}
-
 	}
 
 	@Transactional
