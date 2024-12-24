@@ -151,7 +151,7 @@ public class RoomService {
 		room.changeRoomStatus(roomStatus);
 
 		if (roomStatus == RoomStatus.INACTIVE) {
-			room.getMembers().forEach(member -> notificationService.sendNotification(member, roomId,
+			room.getMembers().forEach(member -> notificationService.saveAndSendNotification(member, roomId,
 				NotificationType.ROOM_STATUS_INACTIVE, MessageUtils.changeNameFormat(room.getTitle(),
 					NotificationType.ROOM_STATUS_INACTIVE.getLength())));
 		}

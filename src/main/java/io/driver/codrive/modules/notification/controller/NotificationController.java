@@ -2,12 +2,11 @@ package io.driver.codrive.modules.notification.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
-import io.driver.codrive.modules.notification.model.dto.NotificationEventDto;
 import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
 import io.driver.codrive.modules.notification.model.response.NotificationListResponse;
 import io.driver.codrive.modules.notification.service.NotificationService;
@@ -18,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Flux;
 
 @Tag(name = "Notification API", description = "알림 관련 API")
 @RestController
@@ -30,7 +28,7 @@ public class NotificationController {
 		summary = "알림 스트림 등록"
 	)
 	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<ServerSentEvent<NotificationEventDto>> registerUser() {
+	public SseEmitter registerUser() {
 		return notificationService.registerUser();
 	}
 
