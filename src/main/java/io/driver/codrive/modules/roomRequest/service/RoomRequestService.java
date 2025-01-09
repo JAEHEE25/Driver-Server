@@ -57,7 +57,7 @@ public class RoomRequestService {
 		RoomRequest roomRequest = RoomRequest.toPrivateRoomRequest(room, user);
 		saveRoomRequest(roomRequest, room);
 		roomUserMappingService.createRoomUserMapping(room, user);
-		notificationService.sendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PRIVATE_ROOM_JOIN,
+		notificationService.saveAndSendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PRIVATE_ROOM_JOIN,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()),
 			MessageUtils.changeNameFormat(user.getNickname(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()));
 	}
@@ -83,9 +83,9 @@ public class RoomRequestService {
 		}
 		saveRoomRequest(roomRequest, room);
 
-		notificationService.sendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
+		notificationService.saveAndSendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST.getLength()));
-		notificationService.sendNotification(user, room.getRoomId(), NotificationType.PUBLIC_ROOM_REQUEST,
+		notificationService.saveAndSendNotification(user, room.getRoomId(), NotificationType.PUBLIC_ROOM_REQUEST,
 			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_REQUEST.getLength()));
 	}
 
@@ -141,7 +141,7 @@ public class RoomRequestService {
 		roomRequest.changeRoomRequestStatus(UserRequestStatus.JOINED);
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
 
-		notificationService.sendNotification(roomRequest.getUser(), room.getRoomId(),
+		notificationService.saveAndSendNotification(roomRequest.getUser(), room.getRoomId(),
 			NotificationType.PUBLIC_ROOM_APPROVE, MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
 	}
 
