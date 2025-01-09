@@ -3,11 +3,13 @@ package io.driver.codrive.modules.roomRequest.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.global.auth.AuthenticatedUser;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
 import io.driver.codrive.modules.roomRequest.model.response.RoomRequestListResponse;
 import io.driver.codrive.modules.roomRequest.service.RoomRequestService;
+import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -46,8 +48,8 @@ public class RoomRequestController {
 	)
 	@PostMapping("/{roomId}/private")
 	public ResponseEntity<BaseResponse<Void>> joinPrivateRoom(@PathVariable(name = "roomId") Long roomId,
-		@Valid @RequestBody PasswordRequest request) {
-		roomRequestService.joinPrivateRoom(roomId, request);
+		@Valid @RequestBody PasswordRequest request, @AuthenticatedUser User currentUser) {
+		roomRequestService.joinPrivateRoom(roomId, request, currentUser.getUserId());
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 
@@ -65,8 +67,9 @@ public class RoomRequestController {
 		}
 	)
 	@PostMapping("/{roomId}/public")
-	public ResponseEntity<BaseResponse<Void>> joinPublicRoom(@PathVariable(name = "roomId") Long roomId) {
-		roomRequestService.joinPublicRoom(roomId);
+	public ResponseEntity<BaseResponse<Void>> joinPublicRoom(@PathVariable(name = "roomId") Long roomId,
+		@AuthenticatedUser User currentUser) {
+		roomRequestService.joinPublicRoom(roomId, currentUser.getUserId());
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 

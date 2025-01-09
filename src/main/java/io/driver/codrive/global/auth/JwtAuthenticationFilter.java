@@ -1,8 +1,7 @@
-package io.driver.codrive.global.jwt;
+package io.driver.codrive.global.auth;
 
 import java.io.IOException;
 import java.util.Date;
-
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -33,16 +33,22 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequest;
 		String accessToken = resolveToken(httpServletRequest);
 
-		if (StringUtils.hasText(accessToken)) {
-			Claims claims = jwtProvider.getClaims(accessToken);
+		try {
+			if (StringUtils.hasText(accessToken)) {
+				Claims claims = jwtProvider.getClaims(accessToken);
 
-			if (claims != null && isValidToken(claims)) {
-				Long userId = Long.valueOf(claims.getSubject());
-				Authentication authentication = AuthenticationToken.getAuthentication(userId, accessToken);
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+				if (claims != null && isValidToken(claims)) {
+					Long userId = Long.valueOf(claims.getSubject());
+					Authentication authentication = AuthenticationToken.getAuthentication(userId, accessToken);
+					SecurityContextHolder.getContext().setAuthentication(authentication);
 
-				log.info("{} 인증 정보 저장, requestURI: {}", authentication.getName(), httpServletRequest.getRequestURI());
+					log.info("{} 인증 정보 저장, requestURI: {}", authentication.getName(),
+						httpServletRequest.getRequestURI());
+				}
 			}
+		} catch (ExpiredJwtException e) {
+			log.warn("Invalid or missing JWT for requestURI: {}", httpServletRequest.getRequestURI());
+			servletRequest.setAttribute("exception", e);
 		}
 		filterChain.doFilter(servletRequest, servletResponse);
 	}

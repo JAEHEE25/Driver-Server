@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class RoomUserMappingService {
 	private final RoomUserMappingRepository roomUserMappingRepository;
 
-	@Transactional
 	public void createRoomUserMapping(Room room, User user) {
 		if (room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("이미 참여한 그룹입니다.");

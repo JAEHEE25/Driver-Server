@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockCreateRequest;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
@@ -25,8 +24,8 @@ public abstract class RecordCreateService<T extends RecordCreateRequest> {
 	private final RecordCategoryMappingService recordCategoryMappingService;
 
 	@Transactional
-	public RecordCreateResponse createRecord(T recordRequest) throws IOException {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	public RecordCreateResponse createRecord(Long userId, T recordRequest) throws IOException {
+		User user = userService.getUserById(userId);
 		Record createdRecord = saveRecord(recordRequest, user);
 
 		createCodeblocks(recordRequest.getCodeblocks(), createdRecord);

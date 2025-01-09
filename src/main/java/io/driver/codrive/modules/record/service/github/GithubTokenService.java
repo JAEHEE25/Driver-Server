@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.exception.UnauthorizedApplicationException;
-import io.driver.codrive.global.jwt.JwtProvider;
+import io.driver.codrive.global.auth.JwtProvider;
 import io.driver.codrive.global.token.GithubToken;
 import io.driver.codrive.global.token.GithubTokenRepository;
 import io.driver.codrive.modules.auth.model.dto.GithubCodeDto;
@@ -77,6 +77,10 @@ public class GithubTokenService {
 		return githubTokenRepository.findById(String.valueOf(userId)).orElseThrow(
 			() -> new NotFoundApplicationException("Github Token")
 		);
+	}
+
+	public String getGithubAccessToken(Long userId) {
+		return getGithubTokenByUserId(userId).getAccessToken();
 	}
 
 	private boolean validateGithubToken(String accessToken) {

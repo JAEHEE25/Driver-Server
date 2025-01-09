@@ -1,4 +1,4 @@
-package io.driver.codrive.global.jwt;
+package io.driver.codrive.global.auth;
 
 import java.util.Date;
 
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import io.driver.codrive.global.config.JwtConfig;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -45,15 +44,10 @@ public class JwtProvider {
 	}
 
 	public Claims getClaims(String accessToken) {
-		try {
-			return Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(accessToken)
-				.getPayload();
-		} catch (ExpiredJwtException e) {
-            log.error("Expired JWT token", e);
-            return e.getClaims();
-		}
+		return Jwts.parser()
+			.verifyWith(secretKey)
+			.build()
+			.parseSignedClaims(accessToken)
+			.getPayload();
 	}
 }

@@ -34,10 +34,10 @@ public class RoomMemberService {
 	private final RoomRequestService roomRequestService;
 	private final RoomUserMappingService roomUserMappingService;
 
-	@Transactional
-	public RoomMembersResponse getRoomMembers(Long roomId, SortType sortType, int page) {
+	@Transactional(readOnly = true)
+	public RoomMembersResponse getRoomMembers(Long userId, Long roomId, SortType sortType, int page) {
 		Room room = roomService.getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		User user = userService.getUserById(userId);
 		if (!room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}

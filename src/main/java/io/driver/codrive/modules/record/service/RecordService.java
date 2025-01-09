@@ -40,7 +40,6 @@ public class RecordService {
 	private final GithubCommitService githubCommitService;
 	private final RecordRepository recordRepository;
 
-	@Transactional(readOnly = true)
 	public Record getRecordById(Long recordId) {
 		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplicationException("문제 풀이 데이터"));
 	}
@@ -51,21 +50,18 @@ public class RecordService {
 		return RecordDetailResponse.of(record);
 	}
 
-	@Transactional(readOnly = true)
-	public TempRecordListResponse getTempRecordsByPage(int page, int size) {
+	public TempRecordListResponse getTempRecordsByPage(User user, int page, int size) {
 		PageUtils.validatePageable(page, size);
 		Pageable pageable = PageRequest.of(page, size);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		Page<Record> records = recordRepository.findAllByUserAndRecordStatusOrderByCreatedAtDesc(user, RecordStatus.TEMP, pageable);
 		return TempRecordListResponse.of(records.getTotalPages(), records);
 	}
 
 	@Transactional
-	public RecordModifyResponse modifyRecord(Long recordId, RecordModifyRequest request) throws IOException {
+	public RecordModifyResponse modifyRecord(Long userId, Long recordId, RecordModifyRequest request) throws IOException {
+		User user = userService.getUserById(userId);
 		Record record = getRecordById(recordId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		AuthUtils.checkOwnedEntity(record);
-
 		deleteGithubContent(record, user);
 		updateRecord(record, request);
 		commitNewGithubContent(record, user);
@@ -83,7 +79,6 @@ public class RecordService {
 		githubCommitService.commitToGithub(record, user, newPath);
 	}
 
-	@Transactional
 	protected void updateRecord(Record record, RecordModifyRequest request) {
 		Record newRecord = request.toSavedRecord();
 		record.changeTitle(newRecord.getTitle());
@@ -94,14 +89,12 @@ public class RecordService {
 		updateCategories(record, request.tags());
 	}
 
-	@Transactional
 	protected void updateCodeblocks(Record record, List<CodeblockModifyRequest> requests) {
 		List<Codeblock> codeblocks = CodeblockModifyRequest.of(requests, record);
 		codeblockService.deleteCodeblock(record.getCodeblocks(), record);
 		codeblockService.createCodeblock(codeblocks, record);
 	}
 
-	@Transactional
 	protected void updateCategories(Record record, List<String> tags) {
 		if (!record.compareTags(tags)) {
 			recordCategoryMappingService.deleteRecordCategoryMapping(record.getRecordCategoryMappings(), record);
@@ -131,12 +124,10 @@ public class RecordService {
 		return RecordRecentListResponse.of(records);
 	}
 
-	@Transactional(readOnly = true)
-	public int getRecordsCountByWeek(User user, LocalDate pivotDate) {
-		return recordRepository.getRecordsCountByWeek(user.getUserId(), pivotDate);
+	public int getRecordsCountByWeek(Long userId, LocalDate pivotDate) {
+		return recordRepository.getRecordsCountByWeek(userId, pivotDate);
 	}
 
-	@Transactional(readOnly = true)
 	public int getTodayRecordCount(User user) {
 		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); //오늘 00:00:00
 		LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59); //오늘 23:59:59

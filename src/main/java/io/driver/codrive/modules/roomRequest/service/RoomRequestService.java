@@ -36,8 +36,8 @@ public class RoomRequestService {
 	private final RoomRequestRepository roomRequestRepository;
 
 	@Transactional
-	public void joinPrivateRoom(Long roomId, PasswordRequest request) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	public void joinPrivateRoom(Long roomId, PasswordRequest request, Long userId) {
+		User user = userService.getUserById(userId);
 		Room room = getRoomById(roomId);
 		checkRoomStatus(room);
 		checkRoomMember(room, user);
@@ -63,8 +63,8 @@ public class RoomRequestService {
 	}
 
 	@Transactional
-	public void joinPublicRoom(Long roomId) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	public void joinPublicRoom(Long roomId, Long userId) {
+		User user = userService.getUserById(userId);
 		Room room = getRoomById(roomId);
 		checkRoomStatus(room);
 		checkRoomMember(room, user);
@@ -101,23 +101,20 @@ public class RoomRequestService {
 		}
 	}
 
-	@Transactional
 	protected void saveRoomRequest(RoomRequest roomRequest, Room room) {
 		roomRequestRepository.save(roomRequest);
 		room.addRoomRequests(roomRequest);
 	}
 
-	@Transactional
 	public RoomRequest getRoomRequestById(Long roomRequestId) {
 		return roomRequestRepository.findById(roomRequestId)
 			.orElseThrow(() -> new NotFoundApplicationException("참여 요청 데이터"));
 	}
 
-	@Transactional
 	public RoomRequestListResponse getRoomRequests(Long roomId) {
 		Room room = getRoomById(roomId);
 		int approvedCount = getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.JOINED);
-		return RoomRequestListResponse.of(approvedCount, getRoomsRequestByRoom(room));
+		return RoomRequestListResponse.of(approvedCount, getRoomRequestByRoom(room));
 	}
 
 	public Page<RoomRequest> getRoomParticipants(Room room, Pageable pageable) {
@@ -156,19 +153,16 @@ public class RoomRequestService {
 		roomRequestRepository.delete(roomRequest);
 	}
 
-	@Transactional(readOnly = true)
 	public Room getRoomById(Long roomId) {
 		return roomRepository.findById(roomId)
 			.orElseThrow(() -> new NotFoundApplicationException("그룹"));
 	}
 
-	@Transactional(readOnly = true)
 	public int getRoomRequestCountByRoomAndRequestStatus(Room room, UserRequestStatus userRequestStatus) {
 		return roomRequestRepository.findAllByRoomAndUserRequestStatus(room, userRequestStatus).size();
 	}
 
-	@Transactional(readOnly = true)
-	public List<RoomRequest> getRoomsRequestByRoom(Room room) {
+	public List<RoomRequest> getRoomRequestByRoom(Room room) {
 		return roomRequestRepository.findAllByRoom(room);
 	}
 }

@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.notification.domain.Notification;
 import io.driver.codrive.modules.notification.domain.NotificationRepository;
 import io.driver.codrive.modules.notification.domain.NotificationType;
@@ -34,8 +33,7 @@ public class NotificationService {
 	private final Map<Long, Sinks.Many<ServerSentEvent<NotificationEventDto>>> userNotificationSinks = new ConcurrentHashMap<>();
 
 	@Transactional
-	public Flux<ServerSentEvent<NotificationEventDto>> registerUser() {
-		Long userId = AuthUtils.getCurrentUserId();
+	public Flux<ServerSentEvent<NotificationEventDto>> registerUser(Long userId) {
 		User user = userService.getUserById(userId);
 		Notification notification = Notification.create(user, null, NotificationType.CONNECT_START,
 			String.valueOf(userId));
@@ -79,8 +77,7 @@ public class NotificationService {
 			.build();
 	}
 
-	public void unregisterUser() {
-		Long userId = AuthUtils.getCurrentUserId();
+	public void unregisterUser(Long userId) {
 		if (userNotificationSinks.containsKey(userId)) {
 			userNotificationSinks.get(userId).tryEmitComplete();
 			userNotificationSinks.remove(userId);
@@ -90,8 +87,7 @@ public class NotificationService {
 		}
 	}
 
-	public NotificationListResponse getNotifications() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	public NotificationListResponse getNotifications(User user) {
 		List<Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
 		return NotificationListResponse.of(notifications);
 	}

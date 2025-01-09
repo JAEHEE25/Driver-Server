@@ -23,8 +23,6 @@ import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.record.model.dto.GithubRepositoryNameDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +65,7 @@ public class GithubCommitService {
 			log.info("GitHub Commit 성공");
 		} catch (Exception e) {
 			log.info("GitHub Commit 실패: {}", e.getMessage());
-			throw new InternalServerErrorApplicationException("GitHub Commit을 실패했습니다.");
+			throw new InternalServerErrorApplicationException("깃허브 커밋을 실패했습니다. 리포지토리 이름을 등록해주세요.");
 		}
 	}
 
@@ -118,7 +116,7 @@ public class GithubCommitService {
 	}
 
 	public String getGithubContentSha(User user, String path) {
-		GithubContentDto contentDto = getGithubContent(user, path).block();
+		GithubContentDto contentDto = getGithubContent(user, path);
 
 		if (contentDto == null) {
 			throw new InternalServerErrorApplicationException("GitHub Content 조회를 실패했습니다.");
@@ -131,7 +129,7 @@ public class GithubCommitService {
 		}
 	}
 
-	public Mono<GithubContentDto> getGithubContent(User user, String path) {
+	public GithubContentDto getGithubContent(User user, String path) {
 		String accessToken = githubTokenService.getGithubTokenByUserId(user.getUserId()).getAccessToken();
 
 		try {
@@ -140,7 +138,8 @@ public class GithubCommitService {
 				.header(AUTH_HEADER, String.format(AUTH_HEADER_VALUE, accessToken))
 				.header(ACCEPT_HEADER, ACCEPT_HEADER_VALUE)
 				.retrieve()
-				.bodyToMono(GithubContentDto.class);
+				.bodyToMono(GithubContentDto.class)
+				.block();
 		} catch (Exception e) {
 			log.info("GitHub Content 조회 실패: {}", e.getMessage());
 			throw new InternalServerErrorApplicationException("GitHub Content 조회를 실패했습니다.");
@@ -168,16 +167,16 @@ public class GithubCommitService {
 		}
 	}
 
-	public boolean isExistRepository(User user, String githubRepositoryName) {
-		List<String> repositories = getRepositoryNames(user).collectList().block();
+	public boolean isExistRepository(Long userId, String githubRepositoryName) {
+		List<String> repositories = getRepositoryNames(userId);
 		if (repositories == null || repositories.isEmpty()) {
 			return false;
 		}
 		return repositories.contains(githubRepositoryName);
 	}
 
-	private Flux<String> getRepositoryNames(User user) {
-		String accessToken = githubTokenService.getGithubTokenByUserId(user.getUserId()).getAccessToken();
+	private List<String> getRepositoryNames(Long userId) {
+		String accessToken = githubTokenService.getGithubAccessToken(userId);
 		try {
 			return webClient.get()
 				.uri(String.format(GITHUB_REPOSITORY_LIST_URL))
@@ -185,7 +184,8 @@ public class GithubCommitService {
 				.header(ACCEPT_HEADER, ACCEPT_HEADER_VALUE)
 				.retrieve()
 				.bodyToFlux(GithubRepositoryNameDto.class)
-				.map(GithubRepositoryNameDto::getName);
+				.map(GithubRepositoryNameDto::getName)
+				.collectList().block();
 		} catch (Exception e) {
 			log.info("GitHub Repository 리스트 요청 실패: {}", e.getMessage());
 			throw new InternalServerErrorApplicationException("GitHub Repository 리스트 요청을 실패했습니다.");
