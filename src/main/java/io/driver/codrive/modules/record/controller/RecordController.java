@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.auth.AuthenticatedUser;
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.record.model.request.RecordModifyRequest;
@@ -51,9 +52,9 @@ public class RecordController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@AuthenticatedUser User currentUser,
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@AuthenticatedUserId Long currentUserId,
 		@Valid @RequestBody RecordSaveRequest request) throws IOException {
-		RecordCreateResponse response = recordSaveService.createRecord(currentUser.getUserId(), request);
+		RecordCreateResponse response = recordSaveService.createRecord(currentUserId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -89,9 +90,9 @@ public class RecordController {
 		}
 	)
 	@PostMapping("/temp")
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(@AuthenticatedUser User currentUser,
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createTempRecord(@AuthenticatedUserId Long currentUserId,
 		@Valid @RequestBody RecordTempRequest request) throws IOException {
-		RecordCreateResponse response = recordTempService.createRecord(currentUser.getUserId(), request);
+		RecordCreateResponse response = recordTempService.createRecord(currentUserId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -136,10 +137,10 @@ public class RecordController {
 	)
 	@PatchMapping("/{recordId}")
 	public ResponseEntity<BaseResponse<RecordModifyResponse>> modifyRecord(
-		@AuthenticatedUser User currentUser,
+		@AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "recordId") Long recordId,
 		@Valid @RequestBody RecordModifyRequest request) throws IOException {
-		RecordModifyResponse response = recordService.modifyRecord(currentUser.getUserId(), recordId, request);
+		RecordModifyResponse response = recordService.modifyRecord(currentUserId, recordId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

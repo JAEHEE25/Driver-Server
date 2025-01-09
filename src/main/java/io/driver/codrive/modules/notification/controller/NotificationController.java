@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import io.driver.codrive.global.auth.AuthenticatedUser;
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
@@ -38,8 +39,8 @@ public class NotificationController {
 		summary = "알림 스트림 해제"
 	)
 	@DeleteMapping
-	public void unregisterUser(@AuthenticatedUser User currentUser) {
-		notificationService.unregisterUser(currentUser.getUserId());
+	public void unregisterUser(@AuthenticatedUserId Long currentUserId) {
+		notificationService.unregisterUser(currentUserId);
 	}
 
 	@Operation(

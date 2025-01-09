@@ -3,7 +3,7 @@ package io.driver.codrive.modules.record.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.driver.codrive.global.auth.AuthenticatedUser;
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.global.model.SortType;
@@ -11,7 +11,6 @@ import io.driver.codrive.modules.record.model.response.BoardResponse;
 import io.driver.codrive.modules.record.model.response.RecordMonthListResponse;
 import io.driver.codrive.modules.record.model.response.UnsolvedMonthResponse;
 import io.driver.codrive.modules.record.service.CountBoardService;
-import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -51,9 +50,9 @@ public class RecordBoardController {
 		@RequestParam(name = "pivotDate", required = false) String pivotDate,
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "size", defaultValue = "7") Integer size,
-		@AuthenticatedUser User currentUser) {
+		@AuthenticatedUserId Long currentUserId) {
 		RecordMonthListResponse response = countBoardService.getRecordsByMonth(userId, sortType, pivotDate,
-			page, size, currentUser.getUserId());
+			page, size, currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

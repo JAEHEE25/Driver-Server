@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import io.driver.codrive.global.entity.OwnedEntity;
-import io.driver.codrive.global.exception.ForbiddenApplcationException;
+import io.driver.codrive.global.exception.ForbiddenApplicationException;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -25,7 +25,7 @@ public class AuthUtils {
 
     public void checkOwnedEntity(OwnedEntity entity) {
         if (!isOwnedEntity(entity)) {
-            throw new ForbiddenApplcationException("해당 리소스에 대한 권한이 없습니다.");
+            throw new ForbiddenApplicationException("해당 리소스에 대한 권한이 없습니다.");
         }
     }
 }
