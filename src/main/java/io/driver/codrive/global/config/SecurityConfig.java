@@ -2,12 +2,13 @@ package io.driver.codrive.global.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import io.driver.codrive.global.constants.APIConstants;
-import io.driver.codrive.global.jwt.JwtProvider;
+import io.driver.codrive.global.auth.JwtProvider;
 import io.driver.codrive.global.util.JsonUtils;
-import io.driver.codrive.global.jwt.JwtAuthenticationFilter;
+import io.driver.codrive.global.auth.JwtAuthenticationFilter;
 import io.driver.codrive.global.model.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +29,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Slf4j
 @EnableWebSecurity
 public class SecurityConfig {
+    @Value("${spring.security.debug:false}")
+    boolean webSecurityDebug;
+
     private static final String[] WHITELIST = new String[] {
 			"/",
             APIConstants.API_PREFIX + "/auth/**",
@@ -58,7 +62,7 @@ public class SecurityConfig {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     response.getWriter().write(JsonUtils.serialize(
-						ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), "Unauthroized Request", null)));
+						ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), "Unauthorized Request", null)));
                 });
 
                 e.accessDeniedHandler((request, response, ex) -> {

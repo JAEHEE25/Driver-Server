@@ -3,6 +3,7 @@ package io.driver.codrive.modules.record.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.global.model.SortType;
@@ -48,8 +49,10 @@ public class RecordBoardController {
 		@PathVariable(name = "sortType") SortType sortType,
 		@RequestParam(name = "pivotDate", required = false) String pivotDate,
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
-		@RequestParam(name = "size", defaultValue = "7") Integer size) {
-		RecordMonthListResponse response = countBoardService.getRecordsByMonth(userId, sortType, pivotDate, page, size);
+		@RequestParam(name = "size", defaultValue = "7") Integer size,
+		@AuthenticatedUserId Long currentUserId) {
+		RecordMonthListResponse response = countBoardService.getRecordsByMonth(userId, sortType, pivotDate,
+			page, size, currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

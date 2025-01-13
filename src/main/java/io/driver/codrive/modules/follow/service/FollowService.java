@@ -20,7 +20,6 @@ import io.driver.codrive.modules.follow.domain.FollowRepository;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.model.response.FollowingSummaryListResponse;
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
 import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
@@ -48,9 +47,9 @@ public class FollowService {
 	private final FollowRepository followRepository;
 
 	@Transactional
-	public void follow(String nickname) {
+	public void follow(Long currentUserId, String nickname) {
 		User target = userService.getUserByNickname(nickname);
-		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
+		User currentUser = userService.getUserById(currentUserId);
 
 		if (target.equals(currentUser)) {
 			throw new IllegalArgumentApplicationException("자기 자신을 팔로우할 수 없습니다.");
@@ -70,14 +69,13 @@ public class FollowService {
 			throw new InternalServerErrorApplicationException("팔로우할 수 없습니다.");
 		}
 
-		notificationService.sendFollowNotification(target, currentUser.getUserId(), NotificationType.FOLLOW,
-				currentUser.getNickname());
+		notificationService.sendFollowNotification(target, currentUserId, NotificationType.FOLLOW, currentUser.getNickname());
 	}
 
 	@Transactional
-	public void cancelFollow(String nickname) {
+	public void cancelFollow(Long currentUserId, String nickname) {
 		User target = userService.getUserByNickname(nickname);
-		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
+		User currentUser = userService.getUserById(currentUserId);
 
 		Follow follow = getFollowByUsers(target, currentUser);
 		if (follow == null) {
@@ -92,16 +90,16 @@ public class FollowService {
 		return followRepository.findByFollowingAndFollower(following, follower).orElse(null);
 	}
 
-	@Transactional
-	public UserListResponse getRandomUsers() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<User> randomUsers = userService.getRandomUsersExcludingMeAndFollowings(user);
+	@Transactional(readOnly = true)
+	public UserListResponse getRandomUsers(Long userId) {
+		User user = userService.getUserById(userId);
+		List<User> randomUsers = userService.getRandomUsersExcludingMeAndFollowings(userId);
 		return UserListResponse.of(randomUsers, user);
 	}
 
-	@Transactional
-	public FollowingWeeklyCountResponse getFollowingsWeeklyCount() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	@Transactional(readOnly = true)
+	public FollowingWeeklyCountResponse getFollowingsWeeklyCount(Long userId) {
+		User user = userService.getUserById(userId);
 		List<FollowingWeeklyCountResponse.WeeklyCountResponse> followingsWeeklyCount = user.getFollowings()
 			.stream().map(follow -> {
 				User following = follow.getFollowing();
@@ -112,20 +110,26 @@ public class FollowService {
 
 	@Transactional
 	protected FollowingWeeklyCountResponse.WeeklyCountResponse getWeeklyCountResponse(User following) {
-		String nickname = following.getNickname();
-		int count = recordService.getRecordsCountByWeek(following, LocalDate.now());
-		return FollowingWeeklyCountResponse.WeeklyCountResponse.of(nickname, count);
+		int count = recordService.getRecordsCountByWeek(following.getUserId(), LocalDate.now());
+		return FollowingWeeklyCountResponse.WeeklyCountResponse.of(following.getNickname(), count);
 	}
 
-	@Transactional
-	public TodaySolvedFollowingResponse getTodaySolvedFollowings() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
-		List<User> todaySolvedFollowings = followings.stream()
-			.filter(following -> recordService.getTodayRecordCount(following) > 0)
+	@Transactional(readOnly = true)
+	public TodaySolvedFollowingResponse getTodaySolvedFollowings(Long userId) {
+		User currentUser = userService.getUserById(userId);
+		List<User> followingsIncludeMe = getFollowingsIncludeMe(currentUser);
+		List<User> todaySolvedFollowings = followingsIncludeMe.stream()
+			.filter(user -> recordService.getTodayRecordCount(user) > 0)
 			.sorted(getSolvedFollowingsComparator().reversed())
 			.toList();
 		return TodaySolvedFollowingResponse.of(todaySolvedFollowings);
+	}
+
+	private List<User> getFollowingsIncludeMe(User user) {
+		List<User> followingsIncludeMe = new java.util.ArrayList<>(
+			user.getFollowings().stream().map(Follow::getFollowing).toList());
+		followingsIncludeMe.add(user);
+		return followingsIncludeMe;
 	}
 
 	private Comparator<User> getSolvedFollowingsComparator() {
@@ -139,9 +143,9 @@ public class FollowService {
 		});
 	}
 
-	@Transactional
-	public WeeklyFollowingResponse getWeeklyFollowings() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	@Transactional(readOnly = true)
+	public WeeklyFollowingResponse getWeeklyFollowings(Long userId) {
+		User user = userService.getUserById(userId);
 		List<User> followings = user.getFollowings()
 			.stream()
 			.map(Follow::getFollowing)
@@ -151,10 +155,9 @@ public class FollowService {
 		return WeeklyFollowingResponse.of(followings);
 	}
 
-	@Transactional
-	public FollowingSummaryListResponse getFollowingsSummary(SortType sortType, Integer page, Long roomId) {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		List<Follow> followings = followRepository.getFollowings(user.getUserId(), sortType);
+	@Transactional(readOnly = true)
+	public FollowingSummaryListResponse getFollowingsSummary(Long userId, SortType sortType, Integer page, Long roomId) {
+		List<Follow> followings = followRepository.getFollowings(userId, sortType);
 		List<User> followingsByRoom = getFollowingsByRoom(followings, roomId);
 
 		Pageable pageable = PageRequest.of(page, FOLLOWINGS_SIZE);
@@ -163,7 +166,7 @@ public class FollowService {
 		return FollowingSummaryListResponse.of(followingsByPage.getTotalPages(), followingsByPage.getContent());
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	protected List<User> getFollowingsByRoom(List<Follow> followings, Long groupId) {
 		if (groupId == null) {
 			return followings.stream().map(Follow::getFollowing).toList();

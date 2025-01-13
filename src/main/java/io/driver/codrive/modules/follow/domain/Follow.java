@@ -32,10 +32,5 @@ public class Follow extends BaseEntity {
 			.follower(follower)
 			.build();
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return null;
-	}
 }
 

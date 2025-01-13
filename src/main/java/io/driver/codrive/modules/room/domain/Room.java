@@ -157,9 +157,4 @@ public class Room extends BaseEntity {
 	public void deleteLanguages(List<RoomLanguageMapping> mappings) {
 		roomLanguageMappings.removeAll(mappings);
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return this.owner.getUserId();
-	}
 }

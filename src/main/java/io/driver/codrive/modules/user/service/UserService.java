@@ -3,6 +3,7 @@ package io.driver.codrive.modules.user.service;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +11,6 @@ import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.notification.service.NotificationDeleteService;
@@ -43,16 +43,16 @@ public class UserService {
 			.orElseThrow(() -> new NotFoundApplicationException("사용자"));
 	}
 
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public UserDetailResponse getUserInfo(Long userId) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		return UserDetailResponse.of(user);
 	}
 
 	@Transactional(readOnly = true)
-	public UserProfileResponse getProfile(Long userId) {
+	public UserProfileResponse getProfile(Long currentUserId, Long userId) {
+		User currentUser = getUserById(currentUserId);
 		User user = getUserById(userId);
-		User currentUser = getUserById(AuthUtils.getCurrentUserId());
 		Boolean isFollowing = currentUser.isFollowing(user);
 		return UserProfileResponse.of(user, isFollowing);
 	}
@@ -63,18 +63,17 @@ public class UserService {
 		}
 	}
 
-	public void checkGithubRepositoryName(GithubRepositoryNameRequest request) {
-		User user = getUserById(AuthUtils.getCurrentUserId());
-		boolean isExistRepository = githubCommitService.isExistRepository(user, request.githubRepositoryName());
+	public void checkGithubRepositoryName(Long userId, GithubRepositoryNameRequest request) {
+		boolean isExistRepository = githubCommitService.isExistRepository(userId, request.githubRepositoryName());
 		if (!isExistRepository) {
-			throw new NotFoundApplicationException("레포지토리");
+			throw new NotFoundApplicationException("리포지토리");
 		}
 	}
 
 	@Transactional
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public ProfileChangeResponse updateCurrentUserProfile(Long userId, ProfileChangeRequest request) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		user.changeNickname(request.nickname());
 		user.changeLanguage(languageService.getLanguageByName(request.language()));
 		user.changeComment(request.comment());
@@ -84,41 +83,38 @@ public class UserService {
 	}
 
 	@Transactional
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public UserGoalResponse updateCurrentUserGoal(Long userId, GoalChangeRequest request) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		user.changeGoal(request.goal());
 		return UserGoalResponse.of(user.getGoal());
 	}
 
 	@Transactional
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
-
-		notificationDeleteService.deleteFollowNotifications(user);
-		notificationDeleteService.deleteRoomNotifications(user);
+		notificationDeleteService.deleteUserDataNotifications(user);
 		discordService.sendMessage(DiscordEventMessage.LEAVE, user.getNickname());
 	}
 
 	@Transactional(readOnly = true)
-	public FollowListResponse getFollowings() {
-		User user = getUserById(AuthUtils.getCurrentUserId());
+	public FollowListResponse getFollowings(Long userId) {
+		User user = getUserById(userId);
 		List<User> followings = user.getFollowings().stream().map(Follow::getFollowing).toList();
 		return FollowListResponse.ofFollowings(followings);
 	}
 
 	@Transactional(readOnly = true)
-	public FollowListResponse getFollowers() {
-		User user = getUserById(AuthUtils.getCurrentUserId());
+	public FollowListResponse getFollowers(Long userId) {
+		User user = getUserById(userId);
 		List<User> followers = user.getFollowers().stream().map(Follow::getFollower).toList();
 		return FollowListResponse.ofFollowers(followers, user);
 	}
 
-	@Transactional(readOnly = true)
-	public List<User> getRandomUsersExcludingMeAndFollowings(User user){
-		return userRepository.getRandomUsersExcludingMeAndFollowings(user.getUserId());
+ 	public List<User> getRandomUsersExcludingMeAndFollowings(Long userId){
+		return userRepository.getRandomUsersExcludingMeAndFollowings(userId);
 	}
 
 	@Scheduled(cron = "0 0 0 * * MON") //매주 월요일 00:00:00에 실행

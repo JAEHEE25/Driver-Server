@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.driver.codrive.global.constants.APIConstants;
-import io.driver.codrive.global.jwt.JwtProvider;
+import io.driver.codrive.global.auth.JwtProvider;
 import io.driver.codrive.global.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

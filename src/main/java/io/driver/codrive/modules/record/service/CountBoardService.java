@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.model.SortType;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.DateUtils;
 import io.driver.codrive.modules.record.domain.Period;
 import io.driver.codrive.modules.record.domain.Record;
@@ -34,17 +33,13 @@ public class CountBoardService {
 	private final RecordRepository recordRepository;
 	private final UserService userService;
 
-	@Transactional(readOnly = true)
 	public BoardResponse getRecordsBoard(Long userId, String requestPivotDate) {
-		User user = userService.getUserById(userId);
 		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
-		return getBoardResponse(user, pivotDate);
+		return getBoardResponse(userId, pivotDate);
 	}
 
-	@Transactional(readOnly = true)
-	protected BoardResponse getBoardResponse(User user, LocalDate pivotDate) {
-		Map<String, Long> countBoard = updateCountBoard(user, Period.MONTHLY, pivotDate,
-			createMonthlyCountBoard(pivotDate));
+	protected BoardResponse getBoardResponse(Long userId, LocalDate pivotDate) {
+		Map<String, Long> countBoard = updateCountBoard(userId, Period.MONTHLY, pivotDate, createMonthlyCountBoard(pivotDate));
 		int totalCount = getTotalCount(countBoard);
 		int longestPeriod = getLongestPeriod(countBoard);
 		int maxCount = getMaxCount(countBoard);
@@ -52,22 +47,20 @@ public class CountBoardService {
 		return BoardResponse.of(totalCount, longestPeriod, maxCount, board);
 	}
 
-	@Transactional(readOnly = true)
-	protected Map<String, Long> updateCountBoard(User user, Period period, LocalDate pivotDate,
+	protected Map<String, Long> updateCountBoard(Long userId, Period period, LocalDate pivotDate,
 		Map<String, Long> countBoard) {
-		List<RecordCountDto> recordCountDtos = getRecordCountDtos(user, period, pivotDate);
+		List<RecordCountDto> recordCountDtos = getRecordCountDtos(userId, period, pivotDate);
 		if (recordCountDtos != null) {
 			recordCountDtos.forEach(dto -> countBoard.put(dto.getDate(), dto.getCount()));
 		}
 		return countBoard;
 	}
 
-	@Transactional(readOnly = true)
-	protected List<RecordCountDto> getRecordCountDtos(User user, Period period, LocalDate pivotDate) {
+	protected List<RecordCountDto> getRecordCountDtos(Long userId, Period period, LocalDate pivotDate) {
 		if (period == Period.YEARLY) {
-			return recordRepository.getYearlyRecordCountBoard(user.getUserId(), pivotDate);
+			return recordRepository.getYearlyRecordCountBoard(userId, pivotDate);
 		} else if (period == Period.MONTHLY) {
-			return recordRepository.getMonthlyRecordCountBoard(user.getUserId(), pivotDate);
+			return recordRepository.getMonthlyRecordCountBoard(userId, pivotDate);
 		} else {
 			return null;
 		}
@@ -128,20 +121,19 @@ public class CountBoardService {
 
 	@Transactional(readOnly = true)
 	public RecordMonthListResponse getRecordsByMonth(Long userId, SortType sortType, String requestPivotDate,
-		Integer page, Integer size) {
+		Integer page, Integer size, Long currentUserId) {
 		Pageable pageable = PageRequest.of(page, size);
 		User user = userService.getUserById(userId);
-		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
 		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
 		Page<Record> records = recordRepository.getMonthlyRecords(user.getUserId(), pivotDate, sortType, pageable);
+
+		User currentUser = userService.getUserById(currentUserId);
 		return RecordMonthListResponse.of(records.getTotalPages(), records, user, currentUser.isFollowing(user));
 	}
 
-	@Transactional(readOnly = true)
 	public UnsolvedMonthResponse getUnsolvedMonths(Long userId, String requestPivotDate) {
-		User user = userService.getUserById(userId);
 		LocalDate pivotDate = DateUtils.getPivotDateOrToday(requestPivotDate);
-		Map<String, Long> countBoard = updateCountBoard(user, Period.YEARLY, pivotDate, createYearlyCountBoard());
+		Map<String, Long> countBoard = updateCountBoard(userId, Period.YEARLY, pivotDate, createYearlyCountBoard());
 		List<Integer> unsolvedMonths = countBoard.entrySet().stream()
 			.filter(entry -> entry.getValue() == 0)
 			.sorted(Map.Entry.comparingByKey())

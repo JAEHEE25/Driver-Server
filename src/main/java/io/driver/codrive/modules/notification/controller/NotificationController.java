@@ -5,11 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import io.driver.codrive.global.auth.AuthenticatedUser;
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
 import io.driver.codrive.modules.notification.model.response.NotificationListResponse;
 import io.driver.codrive.modules.notification.service.NotificationService;
+import io.driver.codrive.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -28,16 +31,16 @@ public class NotificationController {
 		summary = "알림 스트림 등록"
 	)
 	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public SseEmitter registerUser() {
-		return notificationService.registerUser();
+	public SseEmitter registerUser(@AuthenticatedUser User currentUser) {
+		return notificationService.registerUser(currentUser);
 	}
 
 	@Operation(
 		summary = "알림 스트림 해제"
 	)
 	@DeleteMapping
-	public void unregisterUser() {
-		notificationService.unregisterUser();
+	public void unregisterUser(@AuthenticatedUserId Long currentUserId) {
+		notificationService.unregisterUser(currentUserId);
 	}
 
 	@Operation(
@@ -48,8 +51,8 @@ public class NotificationController {
 		}
 	)
 	@GetMapping("/list")
-	public ResponseEntity<BaseResponse<NotificationListResponse>> getNotifications() {
-		NotificationListResponse response = notificationService.getNotifications();
+	public ResponseEntity<BaseResponse<NotificationListResponse>> getNotifications(@AuthenticatedUser User currentUser) {
+		NotificationListResponse response = notificationService.getNotifications(currentUser);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

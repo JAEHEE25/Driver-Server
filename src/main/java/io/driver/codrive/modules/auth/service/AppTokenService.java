@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.UnauthorizedApplicationException;
-import io.driver.codrive.global.jwt.JwtProvider;
+import io.driver.codrive.global.auth.JwtProvider;
 import io.driver.codrive.global.token.AppToken;
 import io.driver.codrive.global.token.AppTokenRepository;
 import lombok.RequiredArgsConstructor;

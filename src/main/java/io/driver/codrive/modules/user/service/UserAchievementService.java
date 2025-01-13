@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.record.service.RecordService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.model.response.UserAchievementResponse;
@@ -17,20 +16,20 @@ public class UserAchievementService {
 	private final UserService userService;
 	private final RecordService recordService;
 
-	@Transactional
-	public UserAchievementResponse getAchievement() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	@Transactional(readOnly = true)
+	public UserAchievementResponse getAchievement(Long userId) {
+		User user = userService.getUserById(userId);
 		int goal = user.getGoal();
 		int todayCount = recordService.getTodayRecordCount(user);
 		int successRate = user.getSuccessRate();
-		int weeklyCount = recordService.getRecordsCountByWeek(user, LocalDate.now());
-		int weeklyCountDifference = weeklyCount - getLastWeeklyCount(user);
+		int weeklyCount = recordService.getRecordsCountByWeek(user.getUserId(), LocalDate.now());
+		int weeklyCountDifference = weeklyCount - getLastWeeklyCount(user.getUserId());
 		return UserAchievementResponse.of(goal, todayCount, successRate, weeklyCount, weeklyCountDifference);
 	}
 
 	@Transactional
-	protected int getLastWeeklyCount(User user) {
+	protected int getLastWeeklyCount(Long userId) {
 		LocalDate lastWeekDate = LocalDate.now().minusWeeks(1);
-		return recordService.getRecordsCountByWeek(user, lastWeekDate);
+		return recordService.getRecordsCountByWeek(userId, lastWeekDate);
 	}
 }

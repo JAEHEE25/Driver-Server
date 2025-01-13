@@ -27,9 +27,4 @@ public class Codeblock extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "record_id", nullable = false)
 	private Record record;
-
-	@Override
-	public Long getOwnerId() {
-		return this.record.getOwnerId();
-	}
 }

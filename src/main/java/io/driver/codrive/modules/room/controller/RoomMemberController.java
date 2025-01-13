@@ -3,6 +3,7 @@ package io.driver.codrive.modules.room.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.global.model.SortType;
@@ -41,10 +42,12 @@ public class RoomMemberController {
 		}
 	)
 	@GetMapping("/{roomId}/members/{sortType}")
-	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(@PathVariable(name = "roomId") Long roomId,
+	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@PathVariable(name = "roomId") Long roomId,
 		@PathVariable(name = "sortType") SortType sortType,
 		@RequestParam(name = "page", defaultValue = "0") Integer page) {
-		RoomMembersResponse response = roomMemberService.getRoomMembers(roomId, sortType, page);
+		RoomMembersResponse response = roomMemberService.getRoomMembers(currentUserId, roomId, sortType, page);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

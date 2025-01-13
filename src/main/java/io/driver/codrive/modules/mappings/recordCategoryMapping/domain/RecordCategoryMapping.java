@@ -37,9 +37,4 @@ public class RecordCategoryMapping extends BaseEntity {
 	public String getCategoryName() {
 		return category.getName();
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return this.record.getOwnerId();
-	}
 }

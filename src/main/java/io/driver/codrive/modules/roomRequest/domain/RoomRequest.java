@@ -54,9 +54,4 @@ public class RoomRequest extends BaseEntity {
 	public void changeRoomRequestStatus(UserRequestStatus userRequestStatus) {
 		this.userRequestStatus = userRequestStatus;
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return this.room.getOwnerId();
-	}
 }

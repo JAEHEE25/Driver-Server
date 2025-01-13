@@ -4,11 +4,11 @@ package io.driver.codrive.modules.room.service;
 import java.util.List;
 
 import org.springframework.data.domain.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.room.domain.Room;
@@ -34,10 +34,10 @@ public class RoomMemberService {
 	private final RoomRequestService roomRequestService;
 	private final RoomUserMappingService roomUserMappingService;
 
-	@Transactional
-	public RoomMembersResponse getRoomMembers(Long roomId, SortType sortType, int page) {
+	@Transactional(readOnly = true)
+	public RoomMembersResponse getRoomMembers(Long userId, Long roomId, SortType sortType, int page) {
 		Room room = roomService.getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		User user = userService.getUserById(userId);
 		if (!room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}
@@ -49,9 +49,9 @@ public class RoomMemberService {
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public RoomParticipantListResponse getRoomParticipants(Long roomId, SortType sortType, int page) {
 		Room room = roomService.getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		if (room.isFull()) {
 			roomRequestService.changeWaitingRoomRequestStatus(room, UserRequestStatus.REQUESTED, UserRequestStatus.WAITING);
 		} else {
@@ -69,9 +69,9 @@ public class RoomMemberService {
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public void kickMember(Long roomId, Long userId) {
 		Room room = roomService.getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		User user = userService.getUserById(userId);
 		roomUserMappingService.deleteRoomUserMapping(room, user);
 		roomRequestService.deleteRoomRequest(room, user);

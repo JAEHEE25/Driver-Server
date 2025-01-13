@@ -3,6 +3,7 @@ package io.driver.codrive.modules.follow.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.follow.model.response.FollowingSummaryListResponse;
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
@@ -43,8 +44,9 @@ public class FollowController {
 		}
 	)
 	@PostMapping("/{nickname}")
-	public ResponseEntity<BaseResponse<Void>> follow(@PathVariable(name = "nickname") String nickname) {
-		followService.follow(nickname);
+	public ResponseEntity<BaseResponse<Void>> follow(@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@PathVariable(name = "nickname") String nickname) {
+		followService.follow(currentUserId, nickname);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 
@@ -60,8 +62,10 @@ public class FollowController {
 		}
 	)
 	@DeleteMapping("/{nickname}")
-	public ResponseEntity<BaseResponse<Void>> cancelFollow(@PathVariable(name = "nickname") String nickname) {
-		followService.cancelFollow(nickname);
+	public ResponseEntity<BaseResponse<Void>> cancelFollow(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@PathVariable(name = "nickname") String nickname) {
+		followService.cancelFollow(currentUserId, nickname);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 
@@ -73,8 +77,9 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/recommend")
-	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers() {
-		UserListResponse response = followService.getRandomUsers();
+	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		UserListResponse response = followService.getRandomUsers(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -86,8 +91,9 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/followings/weekly-count")
-	public ResponseEntity<BaseResponse<FollowingWeeklyCountResponse>> getFollowingsWeeklyCount() {
-		FollowingWeeklyCountResponse response = followService.getFollowingsWeeklyCount();
+	public ResponseEntity<BaseResponse<FollowingWeeklyCountResponse>> getFollowingsWeeklyCount(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		FollowingWeeklyCountResponse response = followService.getFollowingsWeeklyCount(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -99,8 +105,9 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/followings/today-solved")
-	public ResponseEntity<BaseResponse<TodaySolvedFollowingResponse>> getTodaySolvedFollowings() {
-		TodaySolvedFollowingResponse response = followService.getTodaySolvedFollowings();
+	public ResponseEntity<BaseResponse<TodaySolvedFollowingResponse>> getTodaySolvedFollowings(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		TodaySolvedFollowingResponse response = followService.getTodaySolvedFollowings(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -112,8 +119,9 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/followings/weekly")
-	public ResponseEntity<BaseResponse<WeeklyFollowingResponse>> getWeeklyFollowings() {
-		WeeklyFollowingResponse response = followService.getWeeklyFollowings();
+	public ResponseEntity<BaseResponse<WeeklyFollowingResponse>> getWeeklyFollowings(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		WeeklyFollowingResponse response = followService.getWeeklyFollowings(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -132,10 +140,11 @@ public class FollowController {
 	)
 	@GetMapping("/followings/summary/{sortType}")
 	public ResponseEntity<BaseResponse<FollowingSummaryListResponse>> getFollowingsSummary(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "sortType") SortType sortType,
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "roomId", required = false) Long roomId) {
-		FollowingSummaryListResponse response = followService.getFollowingsSummary(sortType, page, roomId);
+		FollowingSummaryListResponse response = followService.getFollowingsSummary(currentUserId, sortType, page, roomId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 

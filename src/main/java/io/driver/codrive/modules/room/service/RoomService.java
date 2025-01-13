@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,6 @@ import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.language.domain.Language;
@@ -59,8 +59,8 @@ public class RoomService {
 	private final RoomRequestService roomRequestService;
 
 	@Transactional
-	public RoomCreateResponse createRoom(RoomCreateRequest request, MultipartFile imageFile) throws IOException {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	public RoomCreateResponse createRoom(Long userId, RoomCreateRequest request, MultipartFile imageFile) throws IOException {
+		User user = userService.getUserById(userId);
 		String imageSrc = BASE_ROOM_IMAGE_URL;
 		if (imageFile != null) {
 			imageSrc = imageService.uploadImage(imageFile);
@@ -72,23 +72,25 @@ public class RoomService {
 		return RoomCreateResponse.of(savedRoom);
 	}
 
-	@Transactional
 	public Room getRoomById(Long roomId) {
 		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 	}
 
-	@Transactional
-	public RoomDetailResponse getRoomDetail(Long roomId) {
+	public Long getOwnerIdByRoomId(Long roomId) {
+		return roomRepository.findOwnerIdByRoomId(roomId);
+	}
+
+	@Transactional(readOnly = true)
+	public RoomDetailResponse getRoomDetail(User user, Long roomId) {
 		Room room = getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
-		int requestedCount = roomRequestService.getRoomsRequestByRoom(room).size();
+		int requestedCount = roomRequestService.getRoomRequestByRoom(room).size();
 		return RoomDetailResponse.of(room, requestedCount, room.hasMember(user));
 	}
 
-	@Transactional
-	public JoinedRoomInfoResponse getJoinedRoomInfo(Long roomId) {
+	@Transactional(readOnly = true)
+	public JoinedRoomInfoResponse getJoinedRoomInfo(Long userId, Long roomId) {
+		User user = userService.getUserById(userId);
 		Room room = getRoomById(roomId);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
 		if (!room.hasMember(user)) {
 			throw new IllegalArgumentApplicationException("활동 중인 그룹의 정보만 조회할 수 있습니다.");
 		}
@@ -96,25 +98,21 @@ public class RoomService {
 		if (room.getOwner().equals(user)) {
 			password = room.getPassword();
 		}
-		int approvedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room,
-			UserRequestStatus.JOINED);
-		int requestedCount =
-			roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.REQUESTED) +
-				roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.WAITING);
+		int approvedCount = roomRequestService.getRoomRequestCountByRoomAndRequestStatus(room, UserRequestStatus.JOINED);
+		int requestedCount = roomRequestService.getRoomRequestByRoom(room).size() - approvedCount;
 		return JoinedRoomInfoResponse.of(room, password, approvedCount, requestedCount,
 			roomUserMappingService.getLanguageMemberCountResponse(room));
 	}
 
-	@Transactional
 	public RoomUuidResponse getRoomInfoByUuid(String uuid) {
 		Room room = roomRepository.findByUuid(uuid).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 		return RoomUuidResponse.of(room);
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
 		Room room = getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		String imageSrc = room.getImageSrc();
 		if (imageFile != null) {
 			imageSrc = imageService.modifyImage(imageSrc, imageFile);
@@ -144,9 +142,9 @@ public class RoomService {
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public void changeRoomStatus(Long roomId, String status) {
 		Room room = getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		RoomStatus roomStatus = RoomStatus.getRoomStatusByName(status);
 		room.changeRoomStatus(roomStatus);
 
@@ -157,17 +155,16 @@ public class RoomService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public JoinedRoomTitleResponse getJoinedRoomTitle(Long userId) {
 		User user = userService.getUserById(userId);
 		List<Room> rooms = user.getJoinedRooms();
 		return JoinedRoomTitleResponse.of(rooms);
 	}
 
-	@Transactional
-	public JoinedRoomListResponse getJoinedRoomList(Long userId, SortType sortType, Integer page, String status) {
+	@Transactional(readOnly = true)
+	public JoinedRoomListResponse getJoinedRoomList(Long userId, User currentUser, SortType sortType, Integer page, String status) {
 		User user = userService.getUserById(userId);
-		User currentUser = userService.getUserById(AuthUtils.getCurrentUserId());
 		RoomStatus roomStatus = getRoomStatus(status);
 		if (page != null) {
 			Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
@@ -214,30 +211,29 @@ public class RoomService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public RoomRecommendResponse getRecommendRoomRandomList(Long userId) {
 		User user = userService.getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		List<Room> rooms = roomRepository.getRoomsByLanguageExcludingJoinedRoom(user.getLanguage().getLanguageId(),
 			user.getUserId());
 		return RoomRecommendResponse.of(rooms);
 	}
 
 	@Transactional(readOnly = true)
-	public RoomListResponse searchRooms(String keyword, int page) {
+	public RoomListResponse searchRooms(Long userId, String keyword, int page) {
 		PageUtils.validatePageable(page, ROOMS_SIZE);
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
 		Page<Room> rooms = roomRepository.findByTitleContaining(keyword, pageable);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		User user = userService.getUserById(userId);
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
 	}
 
 	@Transactional(readOnly = true)
-	public RoomListResponse filterRooms(SortType sortType, RoomFilterRequest request, int page) {
+	public RoomListResponse filterRooms(Long userId, SortType sortType, RoomFilterRequest request, int page) {
 		Pageable pageable = PageRequest.of(page, ROOMS_SIZE);
 		RoomFilterDto roomFilterDto = getRoomFilterDto(request);
 		Page<Room> rooms = roomRepository.filterRooms(roomFilterDto, pageable, sortType);
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+		User user = userService.getUserById(userId);
 		return RoomListResponse.of(rooms.getTotalPages(), rooms.getContent(), user);
 	}
 
@@ -254,9 +250,9 @@ public class RoomService {
 		return RoomFilterDto.toRoomFilterDto(request, tagIds);
 	}
 
-	@Transactional
-	public RecentRoomResponse getRecentRooms() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	@Transactional(readOnly = true)
+	public RecentRoomResponse getRecentRooms(Long userId) {
+		User user = userService.getUserById(userId);
 		List<Room> rooms = user.getJoinedRooms();
 		if (!rooms.isEmpty()) {
 			rooms = rooms.stream().sorted(getRecentRoomComparator()).collect(Collectors.toList());

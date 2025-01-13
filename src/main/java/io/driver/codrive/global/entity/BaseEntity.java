@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @MappedSuperclass
-public abstract class BaseEntity implements OwnedEntity {
+public abstract class BaseEntity {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;

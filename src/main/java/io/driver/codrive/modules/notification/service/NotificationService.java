@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import io.driver.codrive.global.exception.InternalServerErrorApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.notification.domain.Notification;
 import io.driver.codrive.modules.notification.domain.NotificationRepository;
 import io.driver.codrive.modules.notification.domain.NotificationType;
@@ -20,7 +19,6 @@ import io.driver.codrive.modules.notification.model.dto.NotificationEventDto;
 import io.driver.codrive.modules.notification.model.request.NotificationReadRequest;
 import io.driver.codrive.modules.notification.model.response.NotificationListResponse;
 import io.driver.codrive.modules.user.domain.User;
-import io.driver.codrive.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,13 +29,11 @@ public class NotificationService {
 	private static final Long DEFAULT_TIMEOUT = 120L * 1000 * 60;
 	private static final String DEFAULT_MESSAGE = "message";
 	private final NotificationRepository notificationRepository;
-	private final UserService userService;
 	private final Map<Long, SseEmitter> userNotificationEmitters = new ConcurrentHashMap<>();
 
 	@Transactional
-	public SseEmitter registerUser() {
-		Long userId = AuthUtils.getCurrentUserId();
-		User user = userService.getUserById(userId);
+	public SseEmitter registerUser(User user) {
+		Long userId = user.getUserId();
 		Notification notification = Notification.create(user, null, NotificationType.CONNECT_START,
 			String.valueOf(userId));
 
@@ -99,8 +95,7 @@ public class NotificationService {
 		return notificationRepository.save(notification);
 	}
 
-	public void unregisterUser() {
-		Long userId = AuthUtils.getCurrentUserId();
+	public void unregisterUser(Long userId) {
 		if (userNotificationEmitters.containsKey(userId)) {
 			userNotificationEmitters.get(userId).complete();
 		} else {
@@ -108,8 +103,7 @@ public class NotificationService {
 		}
 	}
 
-	public NotificationListResponse getNotifications() {
-		User user = userService.getUserById(AuthUtils.getCurrentUserId());
+	public NotificationListResponse getNotifications(User user) {
 		List<Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
 		return NotificationListResponse.of(notifications);
 	}

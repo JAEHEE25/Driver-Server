@@ -3,6 +3,7 @@ package io.driver.codrive.modules.user.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.driver.codrive.global.auth.AuthenticatedUserId;
 import io.driver.codrive.global.constants.APIConstants;
 import io.driver.codrive.global.model.BaseResponse;
 import io.driver.codrive.modules.user.model.request.GithubRepositoryNameRequest;
@@ -22,11 +23,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "User API", description = "사용자 관련 API")
 @RestController
 @RequestMapping(APIConstants.API_PREFIX + "/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 	private final UserService userService;
 	private final UserAchievementService userAchievementService;
@@ -82,8 +85,10 @@ public class UserController {
 		}
 	)
 	@PostMapping("/repository")
-	public ResponseEntity<BaseResponse<Void>> checkGithubRepositoryName(@RequestBody GithubRepositoryNameRequest request) {
-		userService.checkGithubRepositoryName(request);
+	public ResponseEntity<BaseResponse<Void>> checkGithubRepositoryName(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@RequestBody GithubRepositoryNameRequest request) {
+		userService.checkGithubRepositoryName(currentUserId, request);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
 
@@ -160,8 +165,9 @@ public class UserController {
 		}
 	)
 	@GetMapping("/followings")
-	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowings() {
-		FollowListResponse response = userService.getFollowings();
+	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowings(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		FollowListResponse response = userService.getFollowings(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -172,8 +178,9 @@ public class UserController {
 		}
 	)
 	@GetMapping("/followers")
-	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowers() {
-		FollowListResponse response = userService.getFollowers();
+	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowers(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		FollowListResponse response = userService.getFollowers(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -185,8 +192,9 @@ public class UserController {
 		}
 	)
 	@GetMapping("/achieve")
-	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement() {
-		UserAchievementResponse response = userAchievementService.getAchievement();
+	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
+		UserAchievementResponse response = userAchievementService.getAchievement(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
@@ -201,8 +209,10 @@ public class UserController {
 		}
 	)
 	@GetMapping("/{userId}/profile")
-	public ResponseEntity<BaseResponse<UserProfileResponse>> getProfile(@PathVariable(name = "userId") Long userId) {
-		UserProfileResponse response = userService.getProfile(userId);
+	public ResponseEntity<BaseResponse<UserProfileResponse>> getProfile(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@PathVariable(name = "userId") Long userId) {
+		UserProfileResponse response = userService.getProfile(currentUserId, userId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
 
