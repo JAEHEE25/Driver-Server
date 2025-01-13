@@ -52,7 +52,7 @@ public class RecordController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<RecordCreateResponse>> createSavedRecord(@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@Valid @RequestBody RecordSaveRequest request) throws IOException {
 		RecordCreateResponse response = recordSaveService.createRecord(currentUserId, request);
 		return ResponseEntity.ok(BaseResponse.of(response));

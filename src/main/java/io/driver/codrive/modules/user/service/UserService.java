@@ -3,6 +3,7 @@ package io.driver.codrive.modules.user.service;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +11,6 @@ import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.follow.domain.Follow;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.notification.service.NotificationDeleteService;
@@ -43,9 +43,9 @@ public class UserService {
 			.orElseThrow(() -> new NotFoundApplicationException("사용자"));
 	}
 
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public UserDetailResponse getUserInfo(Long userId) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		return UserDetailResponse.of(user);
 	}
 
@@ -71,9 +71,9 @@ public class UserService {
 	}
 
 	@Transactional
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public ProfileChangeResponse updateCurrentUserProfile(Long userId, ProfileChangeRequest request) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		user.changeNickname(request.nickname());
 		user.changeLanguage(languageService.getLanguageByName(request.language()));
 		user.changeComment(request.comment());
@@ -83,21 +83,19 @@ public class UserService {
 	}
 
 	@Transactional
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public UserGoalResponse updateCurrentUserGoal(Long userId, GoalChangeRequest request) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		user.changeGoal(request.goal());
 		return UserGoalResponse.of(user.getGoal());
 	}
 
 	@Transactional
+	@PreAuthorize("@userAccessHandler.isOwner(#userId)")
 	public void updateCurrentUserWithdraw(Long userId) {
 		User user = getUserById(userId);
-		AuthUtils.checkOwnedEntity(user);
 		userRepository.delete(user);
-
-		notificationDeleteService.deleteFollowNotifications(user);
-		notificationDeleteService.deleteRoomNotifications(user);
+		notificationDeleteService.deleteUserDataNotifications(user);
 		discordService.sendMessage(DiscordEventMessage.LEAVE, user.getNickname());
 	}
 

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,6 @@ import io.driver.codrive.global.discord.DiscordEventMessage;
 import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.language.domain.Language;
@@ -76,6 +76,10 @@ public class RoomService {
 		return roomRepository.findById(roomId).orElseThrow(() -> new NotFoundApplicationException("그룹"));
 	}
 
+	public Long getOwnerIdByRoomId(Long roomId) {
+		return roomRepository.findOwnerIdByRoomId(roomId);
+	}
+
 	@Transactional(readOnly = true)
 	public RoomDetailResponse getRoomDetail(User user, Long roomId) {
 		Room room = getRoomById(roomId);
@@ -106,9 +110,9 @@ public class RoomService {
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public RoomModifyResponse modifyRoom(Long roomId, RoomModifyRequest request, MultipartFile imageFile) throws IOException {
 		Room room = getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		String imageSrc = room.getImageSrc();
 		if (imageFile != null) {
 			imageSrc = imageService.modifyImage(imageSrc, imageFile);
@@ -138,9 +142,9 @@ public class RoomService {
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public void changeRoomStatus(Long roomId, String status) {
 		Room room = getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		RoomStatus roomStatus = RoomStatus.getRoomStatusByName(status);
 		room.changeRoomStatus(roomStatus);
 

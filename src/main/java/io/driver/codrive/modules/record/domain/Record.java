@@ -109,9 +109,4 @@ public class Record extends BaseEntity {
 	public boolean isSaved() {
 		return recordStatus == RecordStatus.SAVED;
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return this.user.getUserId();
-	}
 }

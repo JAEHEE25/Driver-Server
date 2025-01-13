@@ -44,7 +44,8 @@ public class FollowController {
 		}
 	)
 	@PostMapping("/{nickname}")
-	public ResponseEntity<BaseResponse<Void>> follow(@AuthenticatedUserId Long currentUserId, @PathVariable(name = "nickname") String nickname) {
+	public ResponseEntity<BaseResponse<Void>> follow(@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@PathVariable(name = "nickname") String nickname) {
 		followService.follow(currentUserId, nickname);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
@@ -61,7 +62,9 @@ public class FollowController {
 		}
 	)
 	@DeleteMapping("/{nickname}")
-	public ResponseEntity<BaseResponse<Void>> cancelFollow(@AuthenticatedUserId Long currentUserId, @PathVariable(name = "nickname") String nickname) {
+	public ResponseEntity<BaseResponse<Void>> cancelFollow(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@PathVariable(name = "nickname") String nickname) {
 		followService.cancelFollow(currentUserId, nickname);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
@@ -74,7 +77,8 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/recommend")
-	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<UserListResponse>> getRandomUsers(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		UserListResponse response = followService.getRandomUsers(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -87,7 +91,8 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/followings/weekly-count")
-	public ResponseEntity<BaseResponse<FollowingWeeklyCountResponse>> getFollowingsWeeklyCount(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<FollowingWeeklyCountResponse>> getFollowingsWeeklyCount(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		FollowingWeeklyCountResponse response = followService.getFollowingsWeeklyCount(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -100,7 +105,8 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/followings/today-solved")
-	public ResponseEntity<BaseResponse<TodaySolvedFollowingResponse>> getTodaySolvedFollowings(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<TodaySolvedFollowingResponse>> getTodaySolvedFollowings(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		TodaySolvedFollowingResponse response = followService.getTodaySolvedFollowings(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -113,7 +119,8 @@ public class FollowController {
 		}
 	)
 	@GetMapping("/followings/weekly")
-	public ResponseEntity<BaseResponse<WeeklyFollowingResponse>> getWeeklyFollowings(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<WeeklyFollowingResponse>> getWeeklyFollowings(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		WeeklyFollowingResponse response = followService.getWeeklyFollowings(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -133,7 +140,7 @@ public class FollowController {
 	)
 	@GetMapping("/followings/summary/{sortType}")
 	public ResponseEntity<BaseResponse<FollowingSummaryListResponse>> getFollowingsSummary(
-		@AuthenticatedUserId Long currentUserId,
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "sortType") SortType sortType,
 		@RequestParam(name = "page", defaultValue = "0") Integer page,
 		@RequestParam(name = "roomId", required = false) Long roomId) {

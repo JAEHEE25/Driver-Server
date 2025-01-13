@@ -42,7 +42,8 @@ public class RoomMemberController {
 		}
 	)
 	@GetMapping("/{roomId}/members/{sortType}")
-	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<RoomMembersResponse>> getRoomMembers(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "roomId") Long roomId,
 		@PathVariable(name = "sortType") SortType sortType,
 		@RequestParam(name = "page", defaultValue = "0") Integer page) {

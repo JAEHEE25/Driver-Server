@@ -21,15 +21,18 @@ public class NotificationDeleteService {
 	private static final int UNREAD_NOTIFICATIONS_CLEANUP_WEEKS = 8;
 	private final NotificationRepository notificationRepository;
 
-	@Transactional
-	public void deleteFollowNotifications(User user) {
+	public void deleteUserDataNotifications(User user) {
+		deleteFollowNotifications(user);
+		deleteRoomNotifications(user);
+	}
+
+	private void deleteFollowNotifications(User user) {
 		Long userId = user.getUserId();
 		List<Notification> followNotifications = notificationRepository.findAllByDataId(userId);
 		notificationRepository.deleteAll(followNotifications);
 	}
 
-	@Transactional
-	public void deleteRoomNotifications(User user) {
+	private void deleteRoomNotifications(User user) {
 		List<Room> createdRooms = user.getCreatedRooms();
 		List<Notification> roomNotifications = notificationRepository.findAllByDataIdIn(
 			createdRooms.stream().map(Room::getRoomId).toList());

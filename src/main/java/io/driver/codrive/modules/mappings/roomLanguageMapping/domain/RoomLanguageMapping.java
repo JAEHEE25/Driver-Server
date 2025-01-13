@@ -37,9 +37,4 @@ public class RoomLanguageMapping extends BaseEntity {
 	public String getLanguageName() {
 		return language.getName();
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return this.room.getOwnerId();
-	}
 }

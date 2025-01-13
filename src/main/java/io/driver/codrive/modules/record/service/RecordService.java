@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,6 @@ import io.driver.codrive.modules.codeblock.domain.Codeblock;
 import io.driver.codrive.modules.codeblock.model.request.CodeblockModifyRequest;
 import io.driver.codrive.modules.codeblock.service.CodeblockService;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.modules.mappings.recordCategoryMapping.service.RecordCategoryMappingService;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.domain.RecordRepository;
@@ -44,6 +44,10 @@ public class RecordService {
 		return recordRepository.findById(recordId).orElseThrow(() -> new NotFoundApplicationException("문제 풀이 데이터"));
 	}
 
+	public Long getOwnerIdByRecordId(Long recordId) {
+		return recordRepository.findOwnerIdByRecordId(recordId);
+	}
+
 	@Transactional(readOnly = true)
 	public RecordDetailResponse getRecordDetail(Long recordId) {
 		Record record = getRecordById(recordId);
@@ -58,10 +62,10 @@ public class RecordService {
 	}
 
 	@Transactional
+	@PreAuthorize("@recordAccessHandler.isOwner(#recordId)")
 	public RecordModifyResponse modifyRecord(Long userId, Long recordId, RecordModifyRequest request) throws IOException {
 		User user = userService.getUserById(userId);
 		Record record = getRecordById(recordId);
-		AuthUtils.checkOwnedEntity(record);
 		deleteGithubContent(record, user);
 		updateRecord(record, request);
 		commitNewGithubContent(record, user);
@@ -90,8 +94,8 @@ public class RecordService {
 	}
 
 	protected void updateCodeblocks(Record record, List<CodeblockModifyRequest> requests) {
-		List<Codeblock> codeblocks = CodeblockModifyRequest.of(requests, record);
 		codeblockService.deleteCodeblock(record.getCodeblocks(), record);
+		List<Codeblock> codeblocks = CodeblockModifyRequest.of(requests, record);
 		codeblockService.createCodeblock(codeblocks, record);
 	}
 
@@ -103,9 +107,9 @@ public class RecordService {
 	}
 
 	@Transactional
+	@PreAuthorize("@recordAccessHandler.isOwner(#recordId)")
 	public void deleteRecord(Long recordId) {
 		Record record = getRecordById(recordId);
-		AuthUtils.checkOwnedEntity(record);
 		recordRepository.delete(record);
 		updateSuccessRate(record.getUser());
 	}

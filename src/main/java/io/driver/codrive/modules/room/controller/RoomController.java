@@ -46,7 +46,8 @@ public class RoomController {
 		}
 	)
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<BaseResponse<RoomCreateResponse>> createRoom(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<RoomCreateResponse>> createRoom(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@Valid @RequestPart(value = "request") RoomCreateRequest request,
 		@RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 		RoomCreateResponse response = roomService.createRoom(currentUserId, request, imageFile);
@@ -64,7 +65,8 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/{roomId}")
-	public ResponseEntity<BaseResponse<RoomDetailResponse>> getRoomDetail(@AuthenticatedUser User currentUser, @PathVariable(name = "roomId") Long roomId) {
+	public ResponseEntity<BaseResponse<RoomDetailResponse>> getRoomDetail(
+		@Parameter(hidden = true) @AuthenticatedUser User currentUser, @PathVariable(name = "roomId") Long roomId) {
 		RoomDetailResponse response = roomService.getRoomDetail(currentUser, roomId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -80,7 +82,8 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/{roomId}/join")
-	public ResponseEntity<BaseResponse<JoinedRoomInfoResponse>> getJoinedRoomInfo(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<JoinedRoomInfoResponse>> getJoinedRoomInfo(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "roomId") Long roomId) {
 		JoinedRoomInfoResponse response = roomService.getJoinedRoomInfo(currentUserId, roomId);
 		return ResponseEntity.ok(BaseResponse.of(response));
@@ -231,7 +234,8 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/search")
-	public ResponseEntity<BaseResponse<RoomListResponse>> searchRooms(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<RoomListResponse>> searchRooms(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@RequestParam(name = "keyword") String keyword,
 		@RequestParam(name = "page", defaultValue = "0") Integer page) {
 		RoomListResponse response = roomService.searchRooms(currentUserId, keyword, page);
@@ -251,7 +255,8 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/filter/{sortType}")
-	public ResponseEntity<BaseResponse<RoomListResponse>> filterRooms(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<RoomListResponse>> filterRooms(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "sortType") SortType sortType,
 		@Parameter RoomFilterRequest request,
 		@RequestParam(name = "page", defaultValue = "0") Integer page) {
@@ -266,7 +271,8 @@ public class RoomController {
 		}
 	)
 	@GetMapping("/recent")
-	public ResponseEntity<BaseResponse<RecentRoomResponse>> getRecentRooms(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<RecentRoomResponse>> getRecentRooms(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		RecentRoomResponse response = roomService.getRecentRooms(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}

@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.AuthUtils;
 import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
 import io.driver.codrive.modules.notification.domain.NotificationType;
@@ -122,9 +122,9 @@ public class RoomRequestService {
 	}
 
 	@Transactional
+	@PreAuthorize("@roomAccessHandler.isOwner(#roomId)")
 	public void approveRequest(Long roomId, Long roomRequestId) {
 		Room room = getRoomById(roomId);
-		AuthUtils.checkOwnedEntity(room);
 		RoomRequest roomRequest = getRoomRequestById(roomRequestId);
 
 		if (!roomRequest.compareStatus(UserRequestStatus.REQUESTED)) {

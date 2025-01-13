@@ -179,9 +179,4 @@ public class User extends BaseEntity {
 		}
 		return this.followings.stream().anyMatch(follow -> follow.getFollowing().equals(target));
 	}
-
-	@Override
-	public Long getOwnerId() {
-		return this.userId;
-	}
 }

@@ -47,7 +47,7 @@ public class RoomRequestController {
 	)
 	@PostMapping("/{roomId}/private")
 	public ResponseEntity<BaseResponse<Void>> joinPrivateRoom(@PathVariable(name = "roomId") Long roomId,
-		@Valid @RequestBody PasswordRequest request, @AuthenticatedUserId Long currentUserId) {
+		@Valid @RequestBody PasswordRequest request, @Parameter(hidden = true)  @AuthenticatedUserId Long currentUserId) {
 		roomRequestService.joinPrivateRoom(roomId, request, currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}

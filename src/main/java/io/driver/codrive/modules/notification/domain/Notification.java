@@ -28,11 +28,6 @@ public class Notification extends BaseEntity {
 
 	private Long dataId;
 
-	@Override
-	public Long getOwnerId() {
-		return user.getUserId();
-	}
-
 	public void changeIsRead(boolean isRead) {
 		this.isRead = isRead;
 	}

@@ -85,7 +85,9 @@ public class UserController {
 		}
 	)
 	@PostMapping("/repository")
-	public ResponseEntity<BaseResponse<Void>> checkGithubRepositoryName(@AuthenticatedUserId Long currentUserId, @RequestBody GithubRepositoryNameRequest request) {
+	public ResponseEntity<BaseResponse<Void>> checkGithubRepositoryName(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
+		@RequestBody GithubRepositoryNameRequest request) {
 		userService.checkGithubRepositoryName(currentUserId, request);
 		return ResponseEntity.ok(BaseResponse.of(null));
 	}
@@ -163,7 +165,8 @@ public class UserController {
 		}
 	)
 	@GetMapping("/followings")
-	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowings(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowings(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		FollowListResponse response = userService.getFollowings(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -175,7 +178,8 @@ public class UserController {
 		}
 	)
 	@GetMapping("/followers")
-	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowers(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<FollowListResponse>> getFollowers(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		FollowListResponse response = userService.getFollowers(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -188,7 +192,8 @@ public class UserController {
 		}
 	)
 	@GetMapping("/achieve")
-	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement(@AuthenticatedUserId Long currentUserId) {
+	public ResponseEntity<BaseResponse<UserAchievementResponse>> getAchievement(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId) {
 		UserAchievementResponse response = userAchievementService.getAchievement(currentUserId);
 		return ResponseEntity.ok(BaseResponse.of(response));
 	}
@@ -204,7 +209,8 @@ public class UserController {
 		}
 	)
 	@GetMapping("/{userId}/profile")
-	public ResponseEntity<BaseResponse<UserProfileResponse>> getProfile(@AuthenticatedUserId Long currentUserId,
+	public ResponseEntity<BaseResponse<UserProfileResponse>> getProfile(
+		@Parameter(hidden = true) @AuthenticatedUserId Long currentUserId,
 		@PathVariable(name = "userId") Long userId) {
 		UserProfileResponse response = userService.getProfile(currentUserId, userId);
 		return ResponseEntity.ok(BaseResponse.of(response));
