@@ -27,8 +27,7 @@ public class UserAchievementService {
 		return UserAchievementResponse.of(goal, todayCount, successRate, weeklyCount, weeklyCountDifference);
 	}
 
-	@Transactional
-	protected int getLastWeeklyCount(Long userId) {
+	private int getLastWeeklyCount(Long userId) {
 		LocalDate lastWeekDate = LocalDate.now().minusWeeks(1);
 		return recordService.getRecordsCountByWeek(userId, lastWeekDate);
 	}

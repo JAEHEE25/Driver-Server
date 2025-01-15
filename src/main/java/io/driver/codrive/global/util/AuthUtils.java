@@ -9,7 +9,7 @@ import lombok.experimental.UtilityClass;
 public class AuthUtils {
 	public Long getCurrentUserId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
+		if (authentication == null || authentication.getPrincipal().toString().equals("anonymousUser")) {
 			return null;
 		}
 		return Long.valueOf(authentication.getPrincipal().toString());
