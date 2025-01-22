@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.driver.codrive.global.discord.DiscordEventMessage;
-import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.global.util.MessageUtils;
@@ -30,6 +29,7 @@ import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.global.model.SortType;
+import io.driver.codrive.modules.room.event.RoomCreatedEvent;
 import io.driver.codrive.modules.room.model.dto.RoomFilterDto;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomFilterRequest;
@@ -52,11 +52,11 @@ public class RoomService {
 	private final ImageService imageService;
 	private final RoomLanguageMappingService roomLanguageMappingService;
 	private final RoomUserMappingService roomUserMappingService;
-	private final DiscordService discordService;
 	private final LanguageService languageService;
 	private final RoomRepository roomRepository;
 	private final NotificationService notificationService;
 	private final RoomRequestService roomRequestService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public RoomCreateResponse createRoom(Long userId, RoomCreateRequest request, MultipartFile imageFile) throws IOException {
@@ -68,7 +68,8 @@ public class RoomService {
 		Room savedRoom = roomRepository.save(request.toRoom(user, imageSrc));
 		roomLanguageMappingService.createRoomLanguageMapping(request.tags(), savedRoom);
 		roomUserMappingService.createRoomUserMapping(savedRoom, user);
-		discordService.sendMessage(DiscordEventMessage.GROUP_CREATE, user.getNickname(), savedRoom.getTitle());
+
+		eventPublisher.publishEvent(new RoomCreatedEvent(user.getNickname(), savedRoom.getTitle()));
 		return RoomCreateResponse.of(savedRoom);
 	}
 

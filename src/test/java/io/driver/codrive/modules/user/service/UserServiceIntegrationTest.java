@@ -14,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import io.driver.codrive.annotation.WithTestUser;
-import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.notification.service.NotificationDeleteService;
@@ -38,8 +37,6 @@ public class UserServiceIntegrationTest {
 	@MockBean
 	private LanguageService languageService;
 
-	@MockBean
-	private DiscordService discordService;
 
 	@MockBean
 	private NotificationDeleteService notificationDeleteService;
@@ -177,7 +174,6 @@ public class UserServiceIntegrationTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.of(currentUser));
 		doNothing().when(userRepository).delete(currentUser);
 		doNothing().when(notificationDeleteService).deleteUserDataNotifications(currentUser);
-		doNothing().when(discordService).sendMessage(any(), anyString());
 
 		//when
 		assertDoesNotThrow(() -> userService.updateCurrentUserWithdraw(userId));

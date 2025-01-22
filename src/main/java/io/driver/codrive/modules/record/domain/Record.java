@@ -24,7 +24,7 @@ public class Record extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long recordId;
 
-	@Column(nullable = false, columnDefinition = "default 0")
+	@Column(nullable = false)
 	private Long recordNum;
 
 	@Column(nullable = false)

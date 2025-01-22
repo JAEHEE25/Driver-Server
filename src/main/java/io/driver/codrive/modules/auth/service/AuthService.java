@@ -1,12 +1,11 @@
 package io.driver.codrive.modules.auth.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import io.driver.codrive.global.discord.DiscordEventMessage;
-import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.modules.auth.model.request.GithubLoginRequest;
 import io.driver.codrive.modules.auth.model.dto.GithubUserProfile;
 import io.driver.codrive.modules.auth.model.request.RefreshTokenRequest;
@@ -17,6 +16,7 @@ import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.record.service.github.GithubTokenService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
+import io.driver.codrive.modules.user.event.UserJoinedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,8 +29,8 @@ public class AuthService {
 	private final LanguageService languageService;
 	private final UserRepository userRepository;
 	private final AppTokenService appTokenService;
-	private final DiscordService discordService;
 	private final GithubTokenService githubTokenService;
+	private final ApplicationEventPublisher eventPublisher;
 	private final WebClient webClient;
 
 	@Transactional
@@ -42,7 +42,7 @@ public class AuthService {
 		User user = updateUserInfo(userProfile);
 
 		if (!isExistUser) {
-			discordService.sendMessage(DiscordEventMessage.JOIN, userProfile.username());
+			eventPublisher.publishEvent(new UserJoinedEvent(user.getNickname()));
 		}
 
 		String appAccessToken = appTokenService.generateAccessToken(user.getUserId());
@@ -103,6 +103,8 @@ public class AuthService {
 			.goal(0)
 			.successRate(0)
 			.withdraw(false)
+			.solvedCount(0L)
+			.githubRepositoryName("repository")
 			.build();
 		userRepository.save(user);
 	}
