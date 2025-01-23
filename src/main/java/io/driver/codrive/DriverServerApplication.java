@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 @SpringBootApplication
 @EnableScheduling
-@EnableAsync
 @EnableMethodSecurity
 public class DriverServerApplication {
 

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +21,11 @@ import io.driver.codrive.modules.follow.domain.FollowRepository;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
+import io.driver.codrive.modules.follow.event.FollowerEvent;
 import io.driver.codrive.modules.follow.model.response.FollowingSummaryListResponse;
 import io.driver.codrive.modules.follow.model.response.FollowingWeeklyCountResponse;
 import io.driver.codrive.modules.follow.model.response.TodaySolvedFollowingResponse;
 import io.driver.codrive.modules.follow.model.response.WeeklyFollowingResponse;
-import io.driver.codrive.modules.notification.domain.NotificationType;
 import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.record.domain.Record;
 import io.driver.codrive.modules.record.service.RecordService;
@@ -45,6 +46,7 @@ public class FollowService {
 	private final RecordService recordService;
 	private final NotificationService notificationService;
 	private final FollowRepository followRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public void follow(Long currentUserId, String nickname) {
@@ -69,7 +71,7 @@ public class FollowService {
 			throw new InternalServerErrorApplicationException("팔로우할 수 없습니다.");
 		}
 
-		notificationService.sendFollowNotification(target, currentUserId, NotificationType.FOLLOW, currentUser.getNickname());
+		eventPublisher.publishEvent(new FollowerEvent(target, currentUser));
 	}
 
 	@Transactional

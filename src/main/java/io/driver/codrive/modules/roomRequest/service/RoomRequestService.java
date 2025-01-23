@@ -2,6 +2,7 @@ package io.driver.codrive.modules.roomRequest.service;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
-import io.driver.codrive.modules.notification.domain.NotificationType;
-import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
+import io.driver.codrive.modules.room.event.PrivateRoomJoinedEvent;
+import io.driver.codrive.modules.room.event.PublicRoomApprovedEvent;
+import io.driver.codrive.modules.room.event.RoomRequestedEvent;
 import io.driver.codrive.modules.roomRequest.domain.RoomRequest;
 import io.driver.codrive.modules.roomRequest.domain.UserRequestStatus;
 import io.driver.codrive.modules.roomRequest.model.request.PasswordRequest;
@@ -31,9 +32,9 @@ import lombok.RequiredArgsConstructor;
 public class RoomRequestService {
 	private final UserService userService;
 	private final RoomUserMappingService roomUserMappingService;
-	private final NotificationService notificationService;
 	private final RoomRepository roomRepository;
 	private final RoomRequestRepository roomRequestRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public void joinPrivateRoom(Long roomId, PasswordRequest request, Long userId) {
@@ -57,9 +58,7 @@ public class RoomRequestService {
 		RoomRequest roomRequest = RoomRequest.toPrivateRoomRequest(room, user);
 		saveRoomRequest(roomRequest, room);
 		roomUserMappingService.createRoomUserMapping(room, user);
-		notificationService.saveAndSendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PRIVATE_ROOM_JOIN,
-			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()),
-			MessageUtils.changeNameFormat(user.getNickname(), NotificationType.CREATED_PRIVATE_ROOM_JOIN.getLength()));
+		eventPublisher.publishEvent(new PrivateRoomJoinedEvent(room, user));
 	}
 
 	@Transactional
@@ -83,10 +82,7 @@ public class RoomRequestService {
 		}
 		saveRoomRequest(roomRequest, room);
 
-		notificationService.saveAndSendNotification(room.getOwner(), room.getRoomId(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST,
-			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.CREATED_PUBLIC_ROOM_REQUEST.getLength()));
-		notificationService.saveAndSendNotification(user, room.getRoomId(), NotificationType.PUBLIC_ROOM_REQUEST,
-			MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_REQUEST.getLength()));
+		eventPublisher.publishEvent(new RoomRequestedEvent(room, user));
 	}
 
 	private void checkRoomMember(Room room, User user) {
@@ -137,9 +133,7 @@ public class RoomRequestService {
 
 		roomRequest.changeRoomRequestStatus(UserRequestStatus.JOINED);
 		roomUserMappingService.createRoomUserMapping(room, roomRequest.getUser());
-
-		notificationService.saveAndSendNotification(roomRequest.getUser(), room.getRoomId(),
-			NotificationType.PUBLIC_ROOM_APPROVE, MessageUtils.changeNameFormat(room.getTitle(), NotificationType.PUBLIC_ROOM_APPROVE.getLength()));
+		eventPublisher.publishEvent(new PublicRoomApprovedEvent(room, roomRequest.getUser()));
 	}
 
 	public void changeWaitingRoomRequestStatus(Room room, UserRequestStatus originStatus, UserRequestStatus newStatus) {

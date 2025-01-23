@@ -2,13 +2,12 @@ package io.driver.codrive.modules.user.service;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.driver.codrive.global.discord.DiscordEventMessage;
-import io.driver.codrive.global.discord.DiscordService;
 import io.driver.codrive.global.exception.AlreadyExistsApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
 import io.driver.codrive.modules.follow.domain.Follow;
@@ -17,6 +16,7 @@ import io.driver.codrive.modules.notification.service.NotificationDeleteService;
 import io.driver.codrive.modules.record.service.github.GithubCommitService;
 import io.driver.codrive.modules.user.domain.User;
 import io.driver.codrive.modules.user.domain.UserRepository;
+import io.driver.codrive.modules.user.event.UserWithdrawnEvent;
 import io.driver.codrive.modules.user.model.request.GithubRepositoryNameRequest;
 import io.driver.codrive.modules.user.model.request.GoalChangeRequest;
 import io.driver.codrive.modules.user.model.request.NicknameRequest;
@@ -28,10 +28,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 	private final LanguageService languageService;
-	private final DiscordService discordService;
 	private final GithubCommitService githubCommitService;
 	private final NotificationDeleteService notificationDeleteService;
 	private final UserRepository userRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	public User getUserById(Long userId) {
 		return userRepository.findById(userId)
@@ -96,7 +96,7 @@ public class UserService {
 		User user = getUserById(userId);
 		userRepository.delete(user);
 		notificationDeleteService.deleteUserDataNotifications(user);
-		discordService.sendMessage(DiscordEventMessage.LEAVE, user.getNickname());
+		eventPublisher.publishEvent(new UserWithdrawnEvent(user.getNickname()));
 	}
 
 	@Transactional(readOnly = true)

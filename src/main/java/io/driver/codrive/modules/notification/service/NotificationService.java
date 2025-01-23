@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -43,18 +42,6 @@ public class NotificationService {
 		return emitter;
 	}
 
-	@Async
-	public void saveAndSendNotification(User user, Long dataId, NotificationType type, String... args) {
-		Notification notification = createNotification(user, dataId, type, args);
-		sendNotification(user.getUserId(), notification);
-	}
-
-	public void sendFollowNotification(User user, Long dataId, NotificationType type, String... args) {
-		if (!notificationRepository.existsByUserAndDataIdAndNotificationType(user, dataId, type)) {
-			saveAndSendNotification(user, dataId, type, args);
-		}
-	}
-
 	public void sendNotification(Long userId, Notification notification) {
 		SseEmitter emitter = userNotificationEmitters.get(userId);
 		if (emitter != null) {
@@ -77,22 +64,17 @@ public class NotificationService {
 		SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
 		userNotificationEmitters.put(userId, emitter);
 
-        emitter.onCompletion(() -> {
-            log.info("User [{}]의 알림 스트림이 종료되었습니다.", userId);
-            userNotificationEmitters.remove(userId);
-        });
+		emitter.onCompletion(() -> {
+			log.info("User [{}]의 알림 스트림이 종료되었습니다.", userId);
+			userNotificationEmitters.remove(userId);
+		});
 
-        emitter.onTimeout(() -> {
-            log.info("User [{}]의 알림 스트림이 타임아웃되었습니다.", userId);
-            emitter.complete();
-        });
+		emitter.onTimeout(() -> {
+			log.info("User [{}]의 알림 스트림이 타임아웃되었습니다.", userId);
+			emitter.complete();
+		});
 
 		return emitter;
-	}
-
-	protected Notification createNotification(User user, Long dataId, NotificationType type, String... args) {
-		Notification notification = Notification.create(user, dataId, type, args);
-		return notificationRepository.save(notification);
 	}
 
 	public void unregisterUser(Long userId) {
