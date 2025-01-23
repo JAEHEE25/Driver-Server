@@ -17,19 +17,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.driver.codrive.global.exception.IllegalArgumentApplicationException;
 import io.driver.codrive.global.exception.NotFoundApplicationException;
-import io.driver.codrive.global.util.MessageUtils;
 import io.driver.codrive.global.util.PageUtils;
 import io.driver.codrive.modules.language.domain.Language;
 import io.driver.codrive.modules.language.service.LanguageService;
 import io.driver.codrive.modules.mappings.roomLanguageMapping.service.RoomLanguageMappingService;
 import io.driver.codrive.modules.mappings.roomUserMapping.service.RoomUserMappingService;
-import io.driver.codrive.modules.notification.domain.NotificationType;
 import io.driver.codrive.modules.notification.service.NotificationService;
 import io.driver.codrive.modules.room.domain.Room;
 import io.driver.codrive.modules.room.domain.RoomRepository;
 import io.driver.codrive.modules.room.domain.RoomStatus;
 import io.driver.codrive.global.model.SortType;
 import io.driver.codrive.modules.room.event.RoomCreatedEvent;
+import io.driver.codrive.modules.room.event.RoomInactiveEvent;
 import io.driver.codrive.modules.room.model.dto.RoomFilterDto;
 import io.driver.codrive.modules.room.model.request.RoomCreateRequest;
 import io.driver.codrive.modules.room.model.request.RoomFilterRequest;
@@ -150,9 +149,7 @@ public class RoomService {
 		room.changeRoomStatus(roomStatus);
 
 		if (roomStatus == RoomStatus.INACTIVE) {
-			room.getMembers().forEach(member -> notificationService.saveAndSendNotification(member, roomId,
-				NotificationType.ROOM_STATUS_INACTIVE, MessageUtils.changeNameFormat(room.getTitle(),
-					NotificationType.ROOM_STATUS_INACTIVE.getLength())));
+			eventPublisher.publishEvent(new RoomInactiveEvent(roomId, room.getTitle(), room.getMembers()));
 		}
 	}
 
