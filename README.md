@@ -35,6 +35,12 @@
 
 <br><br>
 
+## 아키텍처
+
+![코드라이브_아키텍처](https://github.com/user-attachments/assets/b61aa4d7-301a-4b92-aa88-17dd4465c6d8)
+
+<br><br>
+
 ## 주요 기능 구현
 
 **[ API 명세서 ]** [https://api.codrive.co.kr/swagger-ui/index.html](https://api.codrive.co.kr/swagger-ui/index.html)
@@ -59,7 +65,9 @@
 
 <br><br>
 
+## ERD
 
+![erd](https://github.com/user-attachments/assets/f9b38845-d4c2-4744-8a9e-9f50ab3cb756)
 
 
 
